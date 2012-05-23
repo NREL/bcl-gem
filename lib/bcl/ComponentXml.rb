@@ -354,17 +354,6 @@ class Component
 
   end
   
-  private
-  
-  #return the title case of the string
-  def tc(input)
-    val = input.gsub(/\b\w/){$&.upcase}
-    if val.downcase == "energyplus"
-      val = "EnergyPlus"
-    end
-    return val
-  end
-  
   def save_component_xml(dir_path = resolve_path)
     xmlfile = File.new(dir_path + '/component.xml', 'w')
     comp_xml = Builder::XmlMarkup.new(:target => xmlfile, :indent=>2)
@@ -470,6 +459,17 @@ class Component
     
     xmlfile.close
   end  
+    
+  private
+  
+  #return the title case of the string
+  def tc(input)
+    val = input.gsub(/\b\w/){$&.upcase}
+    if val.downcase == "energyplus"
+      val = "EnergyPlus"
+    end
+    return val
+  end
   
 end
 
