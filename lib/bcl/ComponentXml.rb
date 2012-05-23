@@ -28,7 +28,6 @@ require 'csv'
 require 'builder'  #gem install builder (creates xml files)
 require 'uuid' # gem install uuid
 require 'fileutils'
-require 'openstudio'
 
 require 'bcl/TarBall'
 
@@ -319,39 +318,6 @@ class Component
     end
     
     return newcomp
-  end
-       
-  def translate_and_save_component_osm(epversion, osversion)
-  
-    save_component_xml(tmp_resolve_path) # used by ComponentTranslator
-    
-    # create osm-only version
-    idf_filepath = OpenStudio::Path.new(OpenStudio::Path.new(tmp_resolve_path + "/#{@name}_v#{epversion}.idf"))
-    os_model_trans = OpenStudio::EnergyPlus::loadAndTranslateIdf(idf_filepath)
-    if os_model_trans.empty?
-      puts "[ERROR] Translation from EnergyPlus to Model failed"
-    else
-      osmodel = os_model_trans.get
-      base_obj = nil
-	  
-			# Iterate over the objects in the model and do further reverse translations
-			osmodel.objects.each do |os|
-				if os.iddObject.type == "OS:Schedule:Compact".to_IddObjectType
-					new_sched = ScheduleTranslator.new(osmodel, os)
-					base_obj = new_sched.translate
-					os.remove
-				end
-			end
-			 
-			osmodel.save(OpenStudio::Path.new(osm_resolve_path + "/#{@name}_v#{osversion}.osm"), true)
-			
-			oscomponentModel = base_obj.createComponent
-			oscomponentModel.save(OpenStudio::Path.new(osc_resolve_path + "/#{@name}_v#{osversion}.osc"),true)
-			
-			#TODO add back in the OpenStudio version
-			#TODO component tags/attributes are not showing up in OSC
-    end
-
   end
   
   def save_component_xml(dir_path = resolve_path)

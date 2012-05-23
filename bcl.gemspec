@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name = "bcl"
-  s.version = "0.1.0"
+  s.version = "0.1.1"
   s.date = '2012-05-23'
   s.summary = "Classes for creating component XML files for the BCL"
   s.description = "Classes for creating component XML files for the BCL"
