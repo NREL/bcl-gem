@@ -107,16 +107,16 @@ class Component
     #copy over the files to the directory
     @files.each do |file|  
       src_path = Pathname.new(file.fqp_file)
-      dest_path = Pathname.new(resolve_path + '/' + file.filename)
-      
-      if File.exists?(src_path) 
-        if src_path.realpath == dest_path.realpath
-          # no-op
+      dest_path = Pathname.new("#{resolve_path}/#{file.filename}")
+      if File.exists?(src_path)
+        if src_path == dest_path
+          #do nothing, file is already where it needs to be
         else
+          #move the file where it needs to go
           FileUtils.cp(src_path, dest_path)      
         end
       else
-        puts "[ComponentXml] File does not exists"
+        puts "#{src_path} -> File does not exist"
       end
       paths << "./#{file.filename}"
     end
@@ -220,7 +220,7 @@ class Component
   
   def resolve_path
     FileUtils.mkdir_p(@path) unless File.directory?(@path)
-    new_path = @path + '/' + name
+    new_path = "#{@path}/#{name}"
     FileUtils.mkdir_p(new_path) unless File.directory?(new_path)
     result = new_path
   end

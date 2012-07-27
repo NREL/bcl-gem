@@ -30,7 +30,9 @@ require 'bcl/ComponentXml'
 require 'bcl/GatherComponents'
 
 # gem install win32ole
-if /mswin32/.match(RUBY_PLATFORM) and require('win32ole')
+#WINDOWS ONLY SECTION BECAUSE THIS USES WIN32OLE
+if /mswin/.match(RUBY_PLATFORM) or /mingw/.match(RUBY_PLATFORM) and require('win32ole')
+
 
 module BCL
 
@@ -43,30 +45,40 @@ class ComponentSpreadsheet
   public 
   
   #initialize with Excel spreadsheet to read
-  def initialize(xlsx_path)
+  def initialize(xlsx_path,worksheet_names = "all")
     
     @xlsx_path = Pathname.new(xlsx_path).realpath.to_s
     @worksheets = []
     
-    begin 
+    begin
     
       excel = WIN32OLE::new('Excel.Application')
   
       xlsx = excel.Workbooks.Open(@xlsx_path)
-      xlsx.Worksheets.each do |xlsx_worksheet|
-        parse_xlsx_worksheet(xlsx_worksheet)
-      end
       
+      #by default, operate on all worksheets
+      if worksheet_names == "all"
+        xlsx.Worksheets.each do |xlsx_worksheet|
+          parse_xlsx_worksheet(xlsx_worksheet)
+        end
+      else #if specific worksheets are specified, operate on them
+        worksheet_names.each do |worksheet_name|         
+          parse_xlsx_worksheet(xlsx.Worksheets(worksheet_name))
+        end   
+      end
+
       xlsx.saved = true
       xlsx.Save
-      
+    
     ensure
+    
       excel.Quit
       WIN32OLE.ole_free(excel)
       excel.ole_free
       xlsx=nil
       excel=nil
       GC.start
+      
     end
     
   end
@@ -95,7 +107,7 @@ class ComponentSpreadsheet
             uid = values.delete_at(0)
             version_id = values.delete_at(0)
             description = values.delete_at(0)
-            fidelity_level = values.delete_at(0)
+            fidelity_level = values.delete_at(0).to_int
             # name, uid, and version_id already processed
             component_xml.description = description
             component_xml.fidelity_level = fidelity_level
