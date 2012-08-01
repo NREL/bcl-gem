@@ -181,7 +181,7 @@ class ComponentSpreadsheet
     worksheet = WorksheetStruct.new
     worksheet.name = xlsx_worksheet.Range("A1").Value
     worksheet.components = []
-    puts worksheet.name
+    puts "[ComponentSpreadsheet] Starting parsing components of type #{worksheet.name}"
     
     # find number of rows, first column should be name, should not be empty
     num_rows = 1
@@ -258,6 +258,8 @@ class ComponentSpreadsheet
     end
     
     @worksheets << worksheet
+    
+    puts "[ComponentSpreadsheet] Finished parsing components of type #{worksheet.name}"
     
   end
   

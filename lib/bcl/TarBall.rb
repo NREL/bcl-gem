@@ -28,6 +28,7 @@ module_function
 def tarball(destination, paths)
   Zlib::GzipWriter.open(destination) do |gzip|
     out = Archive::Tar::Minitar::Output.new(gzip)
+    puts "[TarBall] Starting #{destination}"
     paths.each do |fi|
       puts "[TarBall] Packing #{fi}"
       if File.exists?(fi) 
@@ -36,6 +37,7 @@ def tarball(destination, paths)
         puts "[TarBall] Could not file file: #{fi}"
       end
     end
+    puts "[TarBall] Finished #{destination}"
     out.close
   end
 end

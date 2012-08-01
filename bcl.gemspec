@@ -1,11 +1,11 @@
 Gem::Specification.new do |s|
   s.name = "bcl"
-  s.version = "0.1.2"
-  s.date = '2012-07-27'
+  s.version = "0.1.3"
+  s.date = '2012-08-01'
   s.summary = "Classes for creating component XML files for the BCL"
   s.description = "Classes for creating component XML files for the BCL"
-  s.authors = ["Dan Macumber"]
-  s.email = ""
+  s.authors = ["Dan Macumber","Nicholas Long","Andrew Parker"]
+  s.email = "Daniel.Macumber@nrel.gov"
   s.files = ["lib/bcl.rb", 
              "lib/bcl/ComponentSpreadsheet.rb", 
              "lib/bcl/ComponentXml.rb",

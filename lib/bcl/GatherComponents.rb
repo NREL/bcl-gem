@@ -20,6 +20,7 @@
 require 'rubygems'
 require 'pathname'
 require 'fileutils'
+require 'enumerator'
 
 require 'bcl/TarBall'
 
@@ -27,36 +28,67 @@ module BCL
 module_function
 
 def gather_components(component_dir)
-  
+  #store the starting directory
   current_dir = Dir.pwd
   
+  #an array to hold reporting info about the batches
+  gather_components_report = []
+  
+  #go to the directory containing the components
   Dir.chdir(component_dir)
 
-  #delete old gather first
-  gather_dest = "components.tar.gz"
-  File.delete("./gather/" + gather_dest) if File.exists?("./gather/" + gather_dest)
+  #delete old gather files first
+  gather_dest_base = "components.tar.gz"
+  #File.delete("./gather/" + gather_dest_base) if File.exists?("./0gather/" + gather_dest_base)
 
-  #gather all the components
+  #copy all the components' tar.gz files into a single directory
   targzs = Pathname.glob("./**/*.tar.gz")
   targzs.each do |targz|
-    destination = "./gather/#{File.basename(targz.to_s)}"
+    destination = "./0gather/#{File.basename(targz.to_s)}"
     puts "copying #{targz.to_s} to #{destination}"
-    Dir.mkdir("./gather") unless File.directory?("./gather")
+    Dir.mkdir("./0gather") unless File.directory?("./0gather") #named so it will be at top of directory list
     File.delete(destination) if File.exists?(destination)
     FileUtils.cp(targz.to_s, destination)
   end
+  
+  #go into that directory
+  Dir.chdir("./0gather")
+  
+  #get a list of all the tar.gz files in the new directory
+  targzs = Pathname.glob("*.tar.gz")
+  
+  #report the total number of components in the directory
+  gather_components_report << "Total components = #{targzs.length}"
+  
+  #define an iterator to keep track of the number of batches
+  batch_num = 0
+    
+  #package all the tar.gzs in the directory into a few master tar.gz files of 1000 components or less  
+  targzs.each_slice(1000) do |batch|
+    
+    gather_components_report << "  batch #{batch_num} contains #{batch.length} components"
+    
+    #put all the paths in the batch into an array
+    paths = []
+    batch.each do |targz|
+      paths << File.basename(targz.to_s)
+    end
+    
+    #path where the batch tarball is going
+    gather_dest = "0_#{batch_num}_#{gather_dest_base}" #prefix to move to top of directory
 
-  #gather all the zip files into a single tar.gz
-  paths = []
-  Pathname.glob("./gather/*.tar.gz").each do |pt|
-    paths << File.basename(pt.to_s)
+    #tar up the batch
+    tarball(gather_dest, paths)
+
+    batch_num += 1
   end
 
-  Dir.chdir("./gather")
-
-  tarball(gather_dest, paths)
-
+  #report out
+  puts gather_components_report
+  
+  #change back to the directory where we started
   Dir.chdir(current_dir)
+  
 end
 
 end # module BCL
