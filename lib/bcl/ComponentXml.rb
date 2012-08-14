@@ -88,6 +88,8 @@ class Component
     #puts "[ComponentXml] " + @path
     #need to hit a webservice to validate which tags and attributes are 
     #available (including units?)
+    
+    #todo: validate against master taxonomy
   end
   
   def open_component(filename)
