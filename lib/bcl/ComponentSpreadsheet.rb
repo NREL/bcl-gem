@@ -29,10 +29,15 @@ require 'uuid' # gem install uuid
 require 'bcl/ComponentXml'
 require 'bcl/GatherComponents'
 
-# gem install win32ole
-#WINDOWS ONLY SECTION BECAUSE THIS USES WIN32OLE
-if /mswin/.match(RUBY_PLATFORM) or /mingw/.match(RUBY_PLATFORM) and require('win32ole')
-
+$have_win32ole = false
+begin
+  # apparently this is not a gem
+  require 'win32ole'
+  mod = WIN32OLE
+  $have_win32ole = true
+rescue NameError
+  # do not have win32ole
+end
 
 module BCL
 
@@ -44,6 +49,9 @@ class ComponentSpreadsheet
 
   public 
   
+# WINDOWS ONLY SECTION BECAUSE THIS USES WIN32OLE
+if $have_win32ole
+
   #initialize with Excel spreadsheet to read
   def initialize(xlsx_path,worksheet_names = "all")
     
@@ -83,6 +91,16 @@ class ComponentSpreadsheet
     
   end
   
+else # if $have_win32ole
+
+  # parse the master taxonomy document
+  def initialize(xlsx_path)
+    puts "ComponentSpreadsheet class requires 'win32ole' to parse the component spreadsheet."
+    puts "ComponentSpreadsheet may also be stored and loaded from JSON if your platform does not support win32ole."
+  end
+  
+end # if $have_win32ole
+
   def save(save_path)
   
     FileUtils.rm_rf(save_path) if File.exists?(save_path) and File.directory?(save_path)
@@ -266,5 +284,3 @@ class ComponentSpreadsheet
 end
 
 end # module BCL
-
-end # if mswin32 and require('win32ole')

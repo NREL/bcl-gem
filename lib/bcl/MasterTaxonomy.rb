@@ -21,9 +21,15 @@ require 'rubygems'
 require 'pathname'
 require 'fileutils'
 
-# gem install win32ole
-#WINDOWS ONLY SECTION BECAUSE THIS USES WIN32OLE
-if /mswin/.match(RUBY_PLATFORM) or /mingw/.match(RUBY_PLATFORM) and require('win32ole')
+$have_win32ole = false
+begin
+  # apparently this is not a gem
+  require 'win32ole'
+  mod = WIN32OLE
+  $have_win32ole = true
+rescue NameError
+  # do not have win32ole
+end
 
 module BCL
 
@@ -34,6 +40,9 @@ TermStruct = Struct.new(:first_level, :second_level, :third_level, :level_hierar
 
 # class for parsing, validating, and querying the master taxonomy document
 class MasterTaxonomy
+
+# WINDOWS ONLY SECTION BECAUSE THIS USES WIN32OLE
+if $have_win32ole
 
   # parse the master taxonomy document
   def initialize(xlsx_path)
@@ -67,6 +76,17 @@ class MasterTaxonomy
     end
   end
   
+else # if $have_win32ole
+
+  # parse the master taxonomy document
+  def initialize(xlsx_path)
+    puts "MasterTaxonomy class requires 'win32ole' to parse master taxonomy document."
+    puts "MasterTaxonomy may also be stored and loaded from JSON if your platform does not support win32ole."
+  end
+  
+end # if $have_win32ole
+
+
   # get all terms for a given level hierarchy
   # this includes terms that are inherited from parent levels
   # e.g. master_taxonomy.get_terms("Space Use.Lighting.Lamp Ballast")
@@ -318,4 +338,4 @@ end
 
 end # module BCL
 
-end # if mswin32 and require('win32ole')
+
