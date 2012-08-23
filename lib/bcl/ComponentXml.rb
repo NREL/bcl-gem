@@ -58,6 +58,12 @@ class Component
   attr_accessor :source_serial_no
   attr_accessor :source_year
   attr_accessor :source_url
+  attr_accessor :tags
+  attr_accessor :provenance
+  attr_accessor :attributes
+  attr_accessor :files
+  attr_accessor :costs
+  attr_accessor :objects
   
   public 
   
