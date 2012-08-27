@@ -100,6 +100,9 @@ class MasterTaxonomy
     terms = []
     parts = level_hierarchy.split('.')
     
+    # all components inherit these common attributes
+    terms << TermStruct.new("", "", "", "", "OpenStudio Type")
+    
     (0...parts.size).each do |i|
       this_level = parts[0..i].join('.')
       if this_terms = @term_hash[this_level]
