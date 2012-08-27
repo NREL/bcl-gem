@@ -41,52 +41,57 @@ TermStruct = Struct.new(:first_level, :second_level, :third_level, :level_hierar
 # class for parsing, validating, and querying the master taxonomy document
 class MasterTaxonomy
 
-# WINDOWS ONLY SECTION BECAUSE THIS USES WIN32OLE
-if $have_win32ole
-
   # parse the master taxonomy document
-  def initialize(xlsx_path)
+  def initialize(xlsx_path = nil)
   
-    @xlsx_path = Pathname.new(xlsx_path).realpath.to_s
-    
     # hash of level_taxonomy to array of terms
     @term_hash = Hash.new
-    
-    begin
-    
-      excel = WIN32OLE::new('Excel.Application')
   
-      xlsx = excel.Workbooks.Open(@xlsx_path)
-      
-      terms_worksheet = xlsx.Worksheets("Terms")
-      parse_terms(terms_worksheet)
+    if xlsx_path.nil?
+      # load from the current taxonomy 
+      path = current_taxonomy_path
+      puts "Loading current taxonomy from #{path}"
+      File.open(path, 'r') do |file|
+        @term_hash = Marshal.load(file)
+      end
+    else
+      xlsx_path = Pathname.new(xlsx_path).realpath.to_s
 
-    ensure
-    
-      # not really saving just pretending so don't get prompted on quit
-      xlsx.saved = true
-      
-      excel.Quit
-      WIN32OLE.ole_free(excel)
-      excel.ole_free
-      xlsx=nil
-      excel=nil
-      GC.start
-      
+      # WINDOWS ONLY SECTION BECAUSE THIS USES WIN32OLE
+      if $have_win32ole
+        begin
+          excel = WIN32OLE::new('Excel.Application')
+          xlsx = excel.Workbooks.Open(xlsx_path)
+          terms_worksheet = xlsx.Worksheets("Terms")
+          parse_terms(terms_worksheet)
+        ensure
+          # not really saving just pretending so don't get prompted on quit
+          xlsx.saved = true
+          excel.Quit
+          WIN32OLE.ole_free(excel)
+          excel.ole_free
+          xlsx=nil
+          excel=nil
+          GC.start
+        end
+      else # if $have_win32ole
+        puts "MasterTaxonomy class requires 'win32ole' to parse master taxonomy document."
+        puts "MasterTaxonomy may also be stored and loaded from JSON if your platform does not support win32ole."
+      end # if $have_win32ole
+    end
+  end
+
+  # save this object as the current taxonomy
+  def save_as_current_taxonomy(path = nil)
+    if not path
+      path = current_taxonomy_path
+    end
+    puts "Saving current taxonomy to #{path}"
+    File.open(path, 'w') do |file|
+      Marshal.dump(@term_hash, file)
     end
   end
   
-else # if $have_win32ole
-
-  # parse the master taxonomy document
-  def initialize(xlsx_path)
-    puts "MasterTaxonomy class requires 'win32ole' to parse master taxonomy document."
-    puts "MasterTaxonomy may also be stored and loaded from JSON if your platform does not support win32ole."
-  end
-  
-end # if $have_win32ole
-
-
   # get all terms for a given level hierarchy
   # this includes terms that are inherited from parent levels
   # e.g. master_taxonomy.get_terms("Space Use.Lighting.Lamp Ballast")
@@ -200,7 +205,7 @@ end # if $have_win32ole
       
       term = nil
       terms.each do |t|
-        if term.term == attribute.name
+        if t.term == attribute.name
           term = t
           break
         end
@@ -220,6 +225,10 @@ end # if $have_win32ole
   end
   
   private
+  
+  def current_taxonomy_path
+    return File.dirname(__FILE__) + "/current_taxonomy.json"
+  end
 
   def parse_terms(terms_worksheet)
   

@@ -11,11 +11,13 @@ Gem::Specification.new do |s|
              "lib/bcl/ComponentXml.rb",
              "lib/bcl/GatherComponents.rb",
              "lib/bcl/TarBall.rb",
-			 "lib/bcl/MasterTaxonomy.rb",
-			 "lib/bcl/MongoToComponent.rb"]
+             "lib/bcl/MasterTaxonomy.rb",
+             "lib/bcl/MongoToComponent.rb",
+             "lib/bcl/current_taxonomy.json"]
   s.homepage = 'http://bcl.nrel.gov'
   s.add_runtime_dependency("uuid")
   s.add_runtime_dependency("builder")
   s.add_runtime_dependency("zliby")
   s.add_runtime_dependency("archive-tar-minitar")
+  s.add_runtime_dependency("mongo")
 end
