@@ -79,7 +79,7 @@ taxonomy = BCL::MasterTaxonomy.new
 	  puts "component #{component.name}"
 
 	  #validate component
-	  valid = taxonomy.check_component(mongo_to_component.component)
+	  valid = taxonomy.check_component(component)
 	  
 		if valid == true
 			puts "component is valid"

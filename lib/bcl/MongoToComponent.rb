@@ -87,10 +87,10 @@ class MongoToComponent
 							name = attribute["name"]
 						end
 						if attribute.has_key? "value"
-							name = attribute["value"]
+							value = attribute["value"]
 						end
 						if attribute.has_key? "units"
-							name = attribute["units"]
+							units = attribute["units"]
 						end
 						@component.add_attribute(name, value, units)
 						
