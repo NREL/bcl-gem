@@ -28,6 +28,7 @@ require 'uuid' # gem install uuid
 
 require 'bcl/ComponentXml'
 require 'bcl/GatherComponents'
+require 'bcl/MasterTaxonomy'
 
 $have_win32ole = false
 begin
@@ -103,6 +104,9 @@ end # if $have_win32ole
 
   def save(save_path)
   
+    # load master taxonomy to validate components
+    taxonomy = BCL::MasterTaxonomy.new
+    
     FileUtils.rm_rf(save_path) if File.exists?(save_path) and File.directory?(save_path)
   
     @worksheets.each do |worksheet|
@@ -181,6 +185,8 @@ end # if $have_win32ole
           end
 
         end
+        
+        taxonomy.check_component(component_xml)
         
         component_xml.save_tar_gz(false)
         
