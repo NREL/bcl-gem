@@ -1,0 +1,446 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <tag name="root">
+    <term name="OpenStudio Type"/>
+    <tag name="Building">
+      <term name="OpenStudio Type"/>
+      <tag name="Opaque Material">
+        <term name="OpenStudio Type"/>
+        <term name="Material Category"/>
+      </tag>
+    </tag>
+    <tag name="Construction Assembly">
+      <term name="OpenStudio Type"/>
+      <tag name="Fenestration">
+        <term name="OpenStudio Type"/>
+        <term name="Overall U-factor"/>
+        <tag name="Window">
+          <term name="OpenStudio Type"/>
+          <term name="Overall U-factor"/>
+          <term name="Visible Light Transmittance"/>
+          <term name="Solar Heat Gain Coefficient"/>
+          <term name="Tint"/>
+          <term name="Gas Fill"/>
+          <term name="Number of Panes"/>
+        </tag>
+      </tag>
+    </tag>
+    <tag name="HVAC">
+      <term name="OpenStudio Type"/>
+      <tag name="Chillers">
+        <term name="OpenStudio Type"/>
+        <tag name="Electrically-driven Mechanical Compression">
+          <term name="OpenStudio Type"/>
+          <term name="Chilled Water Pressure Drop across Evaporator at Design Flow Rate"/>
+          <term name="Design Chilled Water Supply Temperature"/>
+          <term name="Maximum Chilled Water Supply Temperature"/>
+          <term name="Minimum Chilled Water Supply Temperature"/>
+          <term name="Design Chilled Water Flow Rate"/>
+          <term name="Maximum Chilled Water Flow Rate"/>
+          <term name="Minimum Chilled Water Flow Rate"/>
+          <term name="Basin Heater Capacity"/>
+          <term name="Max Outdoor Air Temperature (Wet Bulb)"/>
+          <term name="Min Outdoor Air Temperature (Wet Bulb)"/>
+          <term name="Fan Control"/>
+          <term name="Max Outdoor Air Temperature (Dry Bulb)"/>
+          <term name="Min Outdoor Air Temperature (Dry Bulb)"/>
+          <term name="Condenser Water Pressure drop at Design Flow Rate"/>
+          <term name="Maximum Condenser Water Entering Temperature"/>
+          <term name="Minimum Condenser Water Entering Temperature"/>
+          <term name="Design Condenser Water Flow Rate"/>
+          <term name="Maximum Condenser Water Flow Rate"/>
+          <term name="Minimum Condenser Water Flow Rate"/>
+          <term name="Condenser Type"/>
+          <term name="Refrigerant "/>
+          <term name="Variable-Speed Drive Compressor"/>
+          <term name="Maximum Part Load Ratio"/>
+          <term name="Part Load Ratio below which Hot Gas Bypass (HGBP) operates"/>
+          <term name="Minimum Part Load Ratio"/>
+          <term name="Compressor Motor Efficiency"/>
+          <term name="Compressor Motor Type"/>
+          <term name="Compressor Type"/>
+          <term name="AHRI Rated Coefficient of Performance "/>
+          <term name="Net Refrigeration Capacity"/>
+          <term name="AHRI Certified Reference Number"/>
+          <term name="Model Designation"/>
+        </tag>
+      </tag>
+      <tag name="Packaged Unitary Equipment">
+        <term name="OpenStudio Type"/>
+        <tag name="Roof Top Units">
+          <term name="OpenStudio Type"/>
+          <term name="Sequence of Operations"/>
+          <term name="Economizer Control Types Available"/>
+          <term name="Turndown Ratio"/>
+          <term name="Number of Heating stages"/>
+          <term name="Heating Staging"/>
+          <term name="Type of Heating"/>
+          <term name="Maximum Outdoor Dry Bulb for Heat Pump Operation"/>
+          <term name="Minimum Outdoor Dry Bulb for Heat Pump Operation"/>
+          <term name="Air-Source Heat Pump"/>
+          <term name="Condenser Fan Speed Operation"/>
+          <term name="Maximum Outdoor Dry Bulb for Cooling Operation"/>
+          <term name="Minimum Outdoor Dryb Bulb for Cooling Operation"/>
+          <term name="Evaporatively Cooled Condenser"/>
+          <term name="Active Dehumidification"/>
+          <term name="Refrigerant"/>
+          <term name="Degradation Coefficient "/>
+          <term name="Number of discrete cooling stages"/>
+          <term name="Compressor Staging"/>
+          <term name="Internal Static Pressure at full speed"/>
+          <term name="Minimum speed as a fraction of maximum speed"/>
+          <term name="Number of discrete speeds"/>
+          <term name="Indoor Fan Speed Control"/>
+          <term name="Seasonal Energy Efficiency Ratio"/>
+          <term name="Integrated Energy Efficiency Ratio"/>
+          <term name="Energy Efficiency Ratio"/>
+          <term name="Nominal Cooling Capacity"/>
+          <term name="AHRI Certified Reference Number"/>
+        </tag>
+      </tag>
+    </tag>
+    <tag name="MEL">
+      <term name="OpenStudio Type"/>
+      <term name="Standby Power"/>
+      <term name="Cycling Percent On"/>
+      <term name="Peak Power"/>
+      <tag name="Appliance">
+        <term name="OpenStudio Type"/>
+        <term name="Standby Power"/>
+        <term name="Cycling Percent On"/>
+        <term name="Peak Power"/>
+        <tag name="Beverage Fountain">
+          <term name="OpenStudio Type"/>
+          <term name="Standby Power"/>
+          <term name="Cycling Percent On"/>
+          <term name="Peak Power"/>
+        </tag>
+        <tag name="Cash Exchange">
+          <term name="OpenStudio Type"/>
+          <term name="Standby Power"/>
+          <term name="Cycling Percent On"/>
+          <term name="Peak Power"/>
+        </tag>
+        <tag name="Coffee Maker">
+          <term name="OpenStudio Type"/>
+          <term name="Standby Power"/>
+          <term name="Cycling Percent On"/>
+          <term name="Peak Power"/>
+        </tag>
+        <tag name="Desktop Fan">
+          <term name="OpenStudio Type"/>
+          <term name="Standby Power"/>
+          <term name="Cycling Percent On"/>
+          <term name="Peak Power"/>
+        </tag>
+        <tag name="Drinking Fountain">
+          <term name="OpenStudio Type"/>
+          <term name="Standby Power"/>
+          <term name="Cycling Percent On"/>
+          <term name="Peak Power"/>
+        </tag>
+        <tag name="Food Warmer">
+          <term name="OpenStudio Type"/>
+          <term name="Standby Power"/>
+          <term name="Cycling Percent On"/>
+          <term name="Peak Power"/>
+        </tag>
+        <tag name="Freezer">
+          <term name="OpenStudio Type"/>
+          <term name="Standby Power"/>
+          <term name="Cycling Percent On"/>
+          <term name="Peak Power"/>
+        </tag>
+        <tag name="Ice Machine">
+          <term name="OpenStudio Type"/>
+          <term name="Standby Power"/>
+          <term name="Cycling Percent On"/>
+          <term name="Peak Power"/>
+        </tag>
+        <tag name="Microwave">
+          <term name="OpenStudio Type"/>
+          <term name="Standby Power"/>
+          <term name="Cycling Percent On"/>
+          <term name="Peak Power"/>
+        </tag>
+        <tag name="Mini-fridge">
+          <term name="OpenStudio Type"/>
+          <term name="Standby Power"/>
+          <term name="Cycling Percent On"/>
+          <term name="Peak Power"/>
+        </tag>
+        <tag name="Personal Heater">
+          <term name="OpenStudio Type"/>
+          <term name="Standby Power"/>
+          <term name="Cycling Percent On"/>
+          <term name="Peak Power"/>
+        </tag>
+        <tag name="Refrigerated Vending Machine">
+          <term name="OpenStudio Type"/>
+          <term name="Standby Power"/>
+          <term name="Cycling Percent On"/>
+          <term name="Peak Power"/>
+        </tag>
+        <tag name="Refrigerator">
+          <term name="OpenStudio Type"/>
+          <term name="Standby Power"/>
+          <term name="Cycling Percent On"/>
+          <term name="Peak Power"/>
+        </tag>
+        <tag name="Vending Machine">
+          <term name="OpenStudio Type"/>
+          <term name="Standby Power"/>
+          <term name="Cycling Percent On"/>
+          <term name="Peak Power"/>
+        </tag>
+        <tag name="Water Cooler">
+          <term name="OpenStudio Type"/>
+          <term name="Standby Power"/>
+          <term name="Cycling Percent On"/>
+          <term name="Peak Power"/>
+        </tag>
+        <tag name="Water Purifier">
+          <term name="OpenStudio Type"/>
+          <term name="Standby Power"/>
+          <term name="Cycling Percent On"/>
+          <term name="Peak Power"/>
+        </tag>
+      </tag>
+      <tag name="Audio">
+        <term name="OpenStudio Type"/>
+        <term name="Standby Power"/>
+        <term name="Cycling Percent On"/>
+        <term name="Peak Power"/>
+      </tag>
+      <tag name="Computer">
+        <term name="OpenStudio Type"/>
+        <term name="Standby Power"/>
+        <term name="Cycling Percent On"/>
+        <term name="Peak Power"/>
+        <tag name="Desktop">
+          <term name="OpenStudio Type"/>
+          <term name="Standby Power"/>
+          <term name="Cycling Percent On"/>
+          <term name="Peak Power"/>
+        </tag>
+        <tag name="Integrated Display Computer">
+          <term name="OpenStudio Type"/>
+          <term name="Standby Power"/>
+          <term name="Cycling Percent On"/>
+          <term name="Peak Power"/>
+        </tag>
+        <tag name="Notebook">
+          <term name="OpenStudio Type"/>
+          <term name="Standby Power"/>
+          <term name="Cycling Percent On"/>
+          <term name="Peak Power"/>
+        </tag>
+      </tag>
+      <tag name="Display">
+        <term name="OpenStudio Type"/>
+        <term name="Standby Power"/>
+        <term name="Cycling Percent On"/>
+        <term name="Peak Power"/>
+        <tag name="CRT Monitor">
+          <term name="OpenStudio Type"/>
+          <term name="Standby Power"/>
+          <term name="Cycling Percent On"/>
+          <term name="Peak Power"/>
+        </tag>
+        <tag name="CRT Television">
+          <term name="OpenStudio Type"/>
+          <term name="Standby Power"/>
+          <term name="Cycling Percent On"/>
+          <term name="Peak Power"/>
+        </tag>
+        <tag name="Digital Photo Frame">
+          <term name="OpenStudio Type"/>
+          <term name="Standby Power"/>
+          <term name="Cycling Percent On"/>
+          <term name="Peak Power"/>
+        </tag>
+        <tag name="LCD Monitor">
+          <term name="OpenStudio Type"/>
+          <term name="Standby Power"/>
+          <term name="Cycling Percent On"/>
+          <term name="Peak Power"/>
+        </tag>
+        <tag name="LCD Television">
+          <term name="OpenStudio Type"/>
+          <term name="Standby Power"/>
+          <term name="Cycling Percent On"/>
+          <term name="Peak Power"/>
+        </tag>
+        <tag name="Plasma Television">
+          <term name="OpenStudio Type"/>
+          <term name="Standby Power"/>
+          <term name="Cycling Percent On"/>
+          <term name="Peak Power"/>
+        </tag>
+        <tag name="Projector">
+          <term name="OpenStudio Type"/>
+          <term name="Standby Power"/>
+          <term name="Cycling Percent On"/>
+          <term name="Peak Power"/>
+        </tag>
+      </tag>
+      <tag name="Imaging and Printing">
+        <term name="OpenStudio Type"/>
+        <term name="Standby Power"/>
+        <term name="Cycling Percent On"/>
+        <term name="Peak Power"/>
+        <tag name="Network Printer / Fax / Scanner">
+          <term name="OpenStudio Type"/>
+          <term name="Standby Power"/>
+          <term name="Cycling Percent On"/>
+          <term name="Peak Power"/>
+        </tag>
+        <tag name="Personal Printer / Fax / Scanner">
+          <term name="OpenStudio Type"/>
+          <term name="Standby Power"/>
+          <term name="Cycling Percent On"/>
+          <term name="Peak Power"/>
+        </tag>
+      </tag>
+      <tag name="Lighting">
+        <term name="OpenStudio Type"/>
+        <term name="Standby Power"/>
+        <term name="Cycling Percent On"/>
+        <term name="Peak Power"/>
+        <tag name="Egress Light">
+          <term name="OpenStudio Type"/>
+          <term name="Standby Power"/>
+          <term name="Cycling Percent On"/>
+          <term name="Peak Power"/>
+        </tag>
+        <tag name="Task Light">
+          <term name="OpenStudio Type"/>
+          <term name="Standby Power"/>
+          <term name="Cycling Percent On"/>
+          <term name="Peak Power"/>
+        </tag>
+      </tag>
+      <tag name="Medical Diagnostic">
+        <term name="OpenStudio Type"/>
+        <term name="Standby Power"/>
+        <term name="Cycling Percent On"/>
+        <term name="Peak Power"/>
+      </tag>
+      <tag name="Personal Care">
+        <term name="OpenStudio Type"/>
+        <term name="Standby Power"/>
+        <term name="Cycling Percent On"/>
+        <term name="Peak Power"/>
+      </tag>
+    </tag>
+    <tag name="Occupant">
+      <term name="OpenStudio Type"/>
+      <term name="Carbon Dioxide Generation Rate"/>
+      <term name="Children Heat Multiplier"/>
+      <term name="Women Heat Multiplier"/>
+      <term name="Percent Sensible Heat that is Radiant"/>
+      <term name="Total Heat Men"/>
+    </tag>
+    <tag name="On-Site Power Generation">
+      <term name="OpenStudio Type"/>
+      <tag name="Photovoltaic System">
+        <term name="OpenStudio Type"/>
+        <tag name="Photovoltaic Module">
+          <term name="OpenStudio Type"/>
+          <term name="Short Circuit Current"/>
+          <term name="Open Circuit Voltage"/>
+          <term name="Efficiency at Maximum Power"/>
+          <term name="Maximum Power"/>
+          <term name="Maximum Power Voltage"/>
+          <term name="Maximum Power Current"/>
+          <term name="Cell Technology"/>
+          <term name="Area"/>
+        </tag>
+      </tag>
+    </tag>
+    <tag name="Opaque Constructions">
+      <term name="OpenStudio Type"/>
+      <tag name="Opaque Constructions">
+        <term name="OpenStudio Type"/>
+        <term name="Opaque Material"/>
+      </tag>
+    </tag>
+    <tag name="Space Use">
+      <term name="OpenStudio Type"/>
+      <tag name="Electric Lighting">
+        <term name="OpenStudio Type"/>
+        <tag name="Lamp Ballast">
+          <term name="OpenStudio Type"/>
+          <term name="Starting Method"/>
+          <term name="Ballast Type"/>
+          <term name="Total Harmonic Distortion"/>
+          <term name="Input Power Factor"/>
+          <term name="Input Voltage"/>
+          <term name="Ballast Factor"/>
+          <term name="Input Power"/>
+          <term name="Number of Lamps"/>
+          <term name="ANSI Lamp Shape Designation"/>
+          <term name="Product Number"/>
+          <term name="Ballast Manufacturer"/>
+        </tag>
+        <tag name="Non-SSL Lamp">
+          <term name="OpenStudio Type"/>
+          <term name="Rated Life"/>
+          <term name="Color Rendering Index"/>
+          <term name="Correlated Color Temperature"/>
+          <term name="Mean Luminous Flux"/>
+          <term name="Input Power"/>
+          <term name="Standard Photometric Data"/>
+          <term name="Initial Luminous Flux"/>
+          <term name="ANSI Lamp Shape Designation"/>
+          <term name="Product Number"/>
+          <term name="Manufacturer"/>
+        </tag>
+        <tag name="Non-SSL Luminaire">
+          <term name="OpenStudio Type"/>
+          <term name="ANSI Lamp Shape Designation"/>
+          <term name="Number of Lamps"/>
+          <term name="Standard Photometric Data"/>
+          <term name="Mounting Type"/>
+          <term name="Light Source Type"/>
+          <term name="Luminaire Product Number"/>
+          <term name="Luminaire Manufacturer"/>
+        </tag>
+        <tag name="SSL Luminaire">
+          <term name="OpenStudio Type"/>
+          <term name="Total Harmonic Distortion"/>
+          <term name="Input Power Factor"/>
+          <term name="Input Voltage"/>
+          <term name="Color Rendering Index"/>
+          <term name="Correlated Color Temperature"/>
+          <term name="Luminous Efficacy"/>
+          <term name="Total Luminous Flux"/>
+          <term name="Lumen Maintenance"/>
+          <term name="Input Power"/>
+          <term name="Standard Photometric Data"/>
+          <term name="Mounting Type"/>
+          <term name="Product Number"/>
+          <term name="Manufacturer"/>
+        </tag>
+        <tag name="SSL Replacement Lamp">
+          <term name="OpenStudio Type"/>
+          <term name="Lumen Maintenance"/>
+          <term name="Color Rendering Index"/>
+          <term name="Correlated Color Temperature"/>
+          <term name="ANSI Lamp Shape Designation"/>
+          <term name="Input Power"/>
+          <term name="Standard Photometric Data"/>
+          <term name="Lamp Product Number"/>
+          <term name="Lamp Manufacturer"/>
+        </tag>
+      </tag>
+      <tag name="Lighting">
+        <term name="OpenStudio Type"/>
+        <tag name="SSL Replacement Lamp">
+          <term name="OpenStudio Type"/>
+          <term name="Initial Luminous Flux"/>
+        </tag>
+      </tag>
+    </tag>
+  </tag>
+</schema>

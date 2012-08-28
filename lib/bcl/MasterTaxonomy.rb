@@ -20,6 +20,7 @@
 require 'rubygems'
 require 'pathname'
 require 'fileutils'
+require 'builder'  #gem install builder (creates xml files)
 
 $have_win32ole = false
 begin
@@ -33,10 +34,11 @@ end
 
 module BCL
 
+# each TagStruct represents a node in the taxonomy tree
+TagStruct = Struct.new(:level_hierarchy, :name, :parent_tag, :child_tags, :terms)
+
 # each TermStruct represents a row in the master taxonomy
-# if the :term member is empty then this term represents a placeholder tag in the hierarchy
-# if the :term member is not empty then this term represents an attribute a component of this type may have
-TermStruct = Struct.new(:first_level, :second_level, :third_level, :level_hierarchy, :term)
+TermStruct = Struct.new(:first_level, :second_level, :third_level, :level_hierarchy, :name)
 
 # class for parsing, validating, and querying the master taxonomy document
 class MasterTaxonomy
@@ -44,15 +46,15 @@ class MasterTaxonomy
   # parse the master taxonomy document
   def initialize(xlsx_path = nil)
   
-    # hash of level_taxonomy to array of terms
-    @term_hash = Hash.new
+    # hash of level_taxonomy to tag
+    @tag_hash = Hash.new
   
     if xlsx_path.nil?
       # load from the current taxonomy 
       path = current_taxonomy_path
       puts "Loading current taxonomy from #{path}"
       File.open(path, 'r') do |file|
-        @term_hash = Marshal.load(file)
+        @tag_hash = Marshal.load(file)
       end
     else
       xlsx_path = Pathname.new(xlsx_path).realpath.to_s
@@ -81,100 +83,60 @@ class MasterTaxonomy
     end
   end
 
-  # save this object as the current taxonomy
+  # save the current taxonomy
   def save_as_current_taxonomy(path = nil)
     if not path
       path = current_taxonomy_path
     end
     puts "Saving current taxonomy to #{path}"
     File.open(path, 'w') do |file|
-      Marshal.dump(@term_hash, file)
+      Marshal.dump(@tag_hash, file)
     end
   end
   
-  # get all terms for a given level hierarchy
-  # this includes terms that are inherited from parent levels
-  # e.g. master_taxonomy.get_terms("Space Use.Lighting.Lamp Ballast")
-  def get_terms(level_hierarchy)
+  # write taxonomy to xml
+  def write_xml(path)
+  
+    root_tag = @tag_hash[""]
     
-    terms = []
-    parts = level_hierarchy.split('.')
-    
-    # all components inherit these common attributes
-    terms << TermStruct.new("", "", "", "", "OpenStudio Type")
-    
-    (0...parts.size).each do |i|
-      this_level = parts[0..i].join('.')
-      if this_terms = @term_hash[this_level]
-        terms = terms.concat(this_terms)
-      end
+    if root_tag.nil?
+      puts "Cannot find root tag"
+      return false
     end
 
-    return terms
-  end
-  
-  # validate the master taxonomy is correct, prints any errors to stdout
-  def validate
-    
-    valid = true
-  
-    # loop over the terms hash
-    @term_hash.each_pair do |level_hierarchy, terms|
-    
-      if level_hierarchy.nil? 
-        puts "Nil tag not allowed in master taxonomy"
-        valid = false
-        next
-      elsif level_hierarchy.empty?
-        puts "Empty tag not allowed in master taxonomy"
-        valid = false
-        next
-      end
-    
-      parts = level_hierarchy.split('.')
-      
-      # check that entry for parent level exists
-      parent_level = parts[0..-2].join('.')
-      if not parent_level.empty?
-        if not @term_hash[parent_level]
-          puts "No parent tag defined for '#{level_hierarchy}'"
-          valid = false
-        end
-      end
-    
-      # check that there is an empty term indicating the placeholder for this hierarchy tag
-      placeholder_term = nil
-      terms.each do |term| 
-        if term.term == ""
-          if placeholder_term
-            puts "Duplicate placeholder tags defined for '#{level_hierarchy}'"
-            valid = false
-          else
-            placeholder_term = term
-          end
-        else
-          valid = false if not validate_term(term)
-        end
-      end
-      
-      # should be one placeholder term for each level in the hierarchy
-      if not placeholder_term
-        puts "No placeholder tag defined for '#{level_hierarchy}'"
-        valid = false
-      else
-        valid = false if not validate_placeholder(placeholder_term)
-      end
-      
+    File.open(path, 'w') do |file|
+      xml = Builder::XmlMarkup.new(:target => file, :indent=>2)
+
+      #setup the xml file
+      xml.instruct!(:xml, :version=>"1.0", :encoding=>"UTF-8")
+      xml.schema("xmlns:xsi"=>"http://www.w3.org/2001/XMLSchema-instance") {
+        write_tag_to_xml(root_tag, xml)       
+      }
     end
     
-    return valid
+  end
+  
+  # get all terms for a given tag
+  # this includes terms that are inherited from parent levels
+  # e.g. master_taxonomy.get_terms("Space Use.Lighting.Lamp Ballast")
+  def get_terms(tag)
+    
+    terms = tag.terms
+    
+    parent_tag = tag.parent_tag
+    while not parent_tag.nil?
+      terms.concat(parent_tag.terms)
+      parent_tag = parent_tag.parent_tag
+    end
+
+    return terms.reverse.uniq
   end
   
   # check that the given component is conforms with the master taxonomy
   def check_component(component)
     valid = true
     
-    terms = nil
+    tag = nil
     
     # see if we can find the component's tag in the taxonomy
     tags = component.tags
@@ -185,16 +147,18 @@ class MasterTaxonomy
       puts "Component has multiple tags"
       valid = false
     else
-      terms = get_terms(tags[0].descriptor)
-      if not terms
+      tag = @tag_hash[tags[0].descriptor]
+      if not tag
         puts "Cannot find #{tags[0].descriptor} in the master taxonomy"
         valid = false
       end
     end
     
-    if not terms
+    if not tag
       return false
     end
+    
+    terms = get_terms(tag)
     
     # todo: check for all required attributes
     terms.each do |term|
@@ -208,14 +172,14 @@ class MasterTaxonomy
       
       term = nil
       terms.each do |t|
-        if t.term == attribute.name
+        if t.name == attribute.name
           term = t
           break
         end
       end
       
       if not term
-        puts "Cannot find term for #{attribute.name} in #{tags[0].descriptor}"
+        puts "Cannot find term for #{attribute.name} in #{tag.level_hierarchy}"
         valid = false
         next
       end
@@ -241,6 +205,12 @@ class MasterTaxonomy
       raise "Header Error on Terms Worksheet"
     end
     
+    # add root tag
+    root_terms = []
+    root_terms << TermStruct.new("", "", "", "", "OpenStudio Type")
+    root_tag = TagStruct.new("", "root", nil, [], root_terms)
+    @tag_hash[""] = root_tag
+
     # find number of rows by parsing until hit empty value in first column
     row_num = 3
     while true do 
@@ -259,14 +229,17 @@ class MasterTaxonomy
   def validate_terms_header(terms_worksheet)
     header_error = false
     
-    term = parse_term(terms_worksheet, 2)
+    first_level      = terms_worksheet.Range("A2").Value
+    second_level     = terms_worksheet.Range("B2").Value
+    third_level      = terms_worksheet.Range("C2").Value
+    level_hierarchy  = terms_worksheet.Range("D2").Value
+    name             = terms_worksheet.Range("E2").Value
     
-    header_error = true if not term
-    header_error = true if not term.first_level == "First Level"
-    header_error = true if not term.second_level == "Second Level"
-    header_error = true if not term.third_level == "Third Level"
-    header_error = true if not term.level_hierarchy == "Level Hierarchy"
-    header_error = true if not term.term  == "Term"
+    header_error = true if not first_level == "First Level"
+    header_error = true if not second_level == "Second Level"
+    header_error = true if not third_level == "Third Level"
+    header_error = true if not level_hierarchy == "Level Hierarchy"
+    header_error = true if not name  == "Term"
     
     return header_error
   end
@@ -278,44 +251,61 @@ class MasterTaxonomy
     term.second_level     = terms_worksheet.Range("B#{row}").Value
     term.third_level      = terms_worksheet.Range("C#{row}").Value
     term.level_hierarchy  = terms_worksheet.Range("D#{row}").Value
-    term.term             = terms_worksheet.Range("E#{row}").Value
+    term.name             = terms_worksheet.Range("E#{row}").Value
     
+    # trigger to quit parsing the xcel doc
     if term.first_level.nil? or term.first_level.empty?
       return nil
     end
     
     return term
-
   end
   
   def add_term(term)
-    @term_hash[term.level_hierarchy] = [] if @term_hash[term.level_hierarchy].nil?
-    @term_hash[term.level_hierarchy] << term
+  
+    tag = @tag_hash[term.level_hierarchy]
+    if tag.nil?
+      tag = create_tag(term.level_hierarchy)
+    end
+    
+    if term.name.nil? or term.name.empty?
+      # this row is really about the tag
+    else
+      # this row is about a term
+      if not validate_term(term)
+        return nil
+      end
+    
+      tag.terms = [] if tag.terms.nil?
+      tag.terms << term
+    end
+  end
+  
+  def create_tag(level_hierarchy)
+    parts = level_hierarchy.split('.')
+    
+    name = parts[-1]
+    parent_level = parts[0..-2].join('.')
+    
+    parent_tag = @tag_hash[parent_level]
+    if parent_tag.nil?
+      parent_tag = create_tag(parent_level)
+    end
+    
+    child_tags = []
+    terms = []
+    tag = TagStruct.new(level_hierarchy, name, parent_tag, child_tags, terms)
+    
+    parent_tag.child_tags << tag
+    
+    @tag_hash[level_hierarchy] = tag
+    
+    return tag
   end
   
   def validate_term(term)
     valid = true
-    
-    valid = false if not validate_parts(term)
-    
-    # todo: check description, data type, enumerations, units, source, author
-    
-    return valid
-  end
-  
-  def validate_placeholder(term)
-    valid = true
-    
-    valid = false if not validate_parts(term)
-    
-    # todo: check description, data type, enumerations, units, source, author
-    
-    return valid
-  end
-  
-  def validate_parts(term)
-    valid = true
-    
+
     parts = term.level_hierarchy.split('.')
     
     if parts.empty?
@@ -324,28 +314,49 @@ class MasterTaxonomy
     end
     
     if parts.size >= 1 and not term.first_level == parts[0]
-      puts "First level does not match level hierarchy, #{term.level_hierarchy}"
+      puts "First level '#{term.first_level}' does not match level hierarchy '#{term.level_hierarchy}', skipping term"
       valid = false
     end
     
     if parts.size >= 2 and not term.second_level == parts[1]
-      puts "Second level does not match level hierarchy, #{term.level_hierarchy}"
+      puts "Second level '#{term.second_level}' does not match level hierarchy '#{term.level_hierarchy}', skipping term"
       valid = false
     end
     
     if parts.size >= 3 and not term.third_level == parts[2]
-      puts "Third level does not match level hierarchy, #{term.level_hierarchy}"
+      puts "Third level '#{term.third_level}' does not match level hierarchy '#{term.level_hierarchy}', skipping term"
       valid = false
     end
     
     if parts.size > 3
-      puts "Hierarchy cannot have more than 3 parts, #{term.level_hierarchy}"
+      puts "Hierarchy cannot have more than 3 parts '#{term.level_hierarchy}', skipping term"
       valid = false
     end
-
+    
+    # todo: check description, data type, enumerations, units, source, author
+    
     return valid
   end
-
+  
+  # write a tag to xml
+  def write_tag_to_xml(tag, xml)
+    xml.tag(:name => "#{tag.name}") {
+      #xml.terms {
+        #terms = tag.terms.sort {|x, y| x.name <=> y.name} # only direct terms
+        terms = get_terms(tag) # all terms, ordered by inheritence
+        terms.each do |term|
+          xml.term(:name => "#{term.name}")
+        end
+      #}
+      #xml.tags {
+        child_tags = tag.child_tags.sort {|x, y| x.name <=> y.name}
+        child_tags.each do |child_tag|
+          write_tag_to_xml(child_tag, xml)
+        end
+      #}
+    }
+  end
+  
 end
 
 end # module BCL

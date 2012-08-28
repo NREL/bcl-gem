@@ -13,7 +13,8 @@ Gem::Specification.new do |s|
              "lib/bcl/TarBall.rb",
              "lib/bcl/MasterTaxonomy.rb",
              "lib/bcl/MongoToComponent.rb",
-             "lib/bcl/current_taxonomy.json"]
+             "lib/bcl/current_taxonomy.json",
+             "lib/bcl/current_taxonomy.xml"]
   s.homepage = 'http://bcl.nrel.gov'
   s.add_runtime_dependency("uuid")
   s.add_runtime_dependency("builder")
