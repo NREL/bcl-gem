@@ -35,10 +35,10 @@ end
 module BCL
 
 # each TagStruct represents a node in the taxonomy tree
-TagStruct = Struct.new(:level_hierarchy, :name, :parent_tag, :child_tags, :terms)
+TagStruct = Struct.new(:level_hierarchy, :name, :description, :parent_tag, :child_tags, :terms)
 
 # each TermStruct represents a row in the master taxonomy
-TermStruct = Struct.new(:first_level, :second_level, :third_level, :level_hierarchy, :name)
+TermStruct = Struct.new(:first_level, :second_level, :third_level, :level_hierarchy, :name, :description)
 
 # class for parsing, validating, and querying the master taxonomy document
 class MasterTaxonomy
@@ -207,8 +207,8 @@ class MasterTaxonomy
     
     # add root tag
     root_terms = []
-    root_terms << TermStruct.new("", "", "", "", "OpenStudio Type")
-    root_tag = TagStruct.new("", "root", nil, [], root_terms)
+    root_terms << TermStruct.new("", "", "", "", "OpenStudio Type", "Type of OpenStudio Object")
+    root_tag = TagStruct.new("", "root", "Root of the taxonomy", nil, [], root_terms)
     @tag_hash[""] = root_tag
 
     # find number of rows by parsing until hit empty value in first column
@@ -224,7 +224,14 @@ class MasterTaxonomy
       row_num += 1
     end
     
+    # sort the tag tree
+    sort_tag(root_tag)
+    
+    # check the tag tree
+    check_tag(root_tag)
+    
   end
+  
   
   def validate_terms_header(terms_worksheet)
     header_error = false
@@ -234,12 +241,16 @@ class MasterTaxonomy
     third_level      = terms_worksheet.Range("C2").Value
     level_hierarchy  = terms_worksheet.Range("D2").Value
     name             = terms_worksheet.Range("E2").Value
+    abbr             = terms_worksheet.Range("F2").Value
+    description      = terms_worksheet.Range("G2").Value
     
     header_error = true if not first_level == "First Level"
     header_error = true if not second_level == "Second Level"
     header_error = true if not third_level == "Third Level"
     header_error = true if not level_hierarchy == "Level Hierarchy"
     header_error = true if not name  == "Term"
+    header_error = true if not abbr  == "Abbr."
+    header_error = true if not description  == "Description"
     
     return header_error
   end
@@ -252,6 +263,8 @@ class MasterTaxonomy
     term.third_level      = terms_worksheet.Range("C#{row}").Value
     term.level_hierarchy  = terms_worksheet.Range("D#{row}").Value
     term.name             = terms_worksheet.Range("E#{row}").Value
+    #term.abbr             = terms_worksheet.Range("F#{row}").Value
+    term.description      = terms_worksheet.Range("G#{row}").Value
     
     # trigger to quit parsing the xcel doc
     if term.first_level.nil? or term.first_level.empty?
@@ -263,13 +276,19 @@ class MasterTaxonomy
   
   def add_term(term)
   
-    tag = @tag_hash[term.level_hierarchy]
+    level_hierarchy = term.level_hierarchy
+    
+    #puts "add_term called for #{level_hierarchy}"
+    
+    # create the tag
+    tag = @tag_hash[level_hierarchy]
     if tag.nil?
-      tag = create_tag(term.level_hierarchy)
+      tag = create_tag(level_hierarchy)
     end
     
-    if term.name.nil? or term.name.empty?
+    if term.name.nil? or term.name.strip.empty?
       # this row is really about the tag
+      tag.description = term.description
     else
       # this row is about a term
       if not validate_term(term)
@@ -282,6 +301,9 @@ class MasterTaxonomy
   end
   
   def create_tag(level_hierarchy)
+  
+    #puts "create_tag called for #{level_hierarchy}"
+  
     parts = level_hierarchy.split('.')
     
     name = parts[-1]
@@ -292,15 +314,32 @@ class MasterTaxonomy
       parent_tag = create_tag(parent_level)
     end
     
+    description = ""
     child_tags = []
     terms = []
-    tag = TagStruct.new(level_hierarchy, name, parent_tag, child_tags, terms)
+    tag = TagStruct.new(level_hierarchy, name, description, parent_tag, child_tags, terms)
     
     parent_tag.child_tags << tag
     
     @tag_hash[level_hierarchy] = tag
     
     return tag
+  end
+  
+  def sort_tag(tag)
+    tag.terms = tag.terms.sort {|x, y| x.name <=> y.name}
+    tag.child_tags = tag.child_tags.sort {|x, y| x.name <=> y.name}
+    tag.child_tags.each {|child_tag| sort_tag(child_tag) }
+  end
+  
+  def check_tag(tag)
+    
+    if tag.description.nil? or tag.description.empty?
+      puts "tag '#{tag.level_hierarchy}' has no description"
+    end
+    
+    tag.terms.each {|term| check_term(term) }
+    tag.child_tags.each {|child_tag| check_tag(child_tag) }
   end
   
   def validate_term(term)
@@ -338,18 +377,24 @@ class MasterTaxonomy
     return valid
   end
   
+  def check_term(term)
+    if term.description.nil? or term.description.empty?
+      puts "term '#{term.level_hierarchy}.#{term.name}' has no description"
+    end
+  end
+  
   # write a tag to xml
   def write_tag_to_xml(tag, xml)
     xml.tag(:name => "#{tag.name}") {
       #xml.terms {
-        #terms = tag.terms.sort {|x, y| x.name <=> y.name} # only direct terms
+        #terms = tag.terms # only direct terms
         terms = get_terms(tag) # all terms, ordered by inheritence
         terms.each do |term|
           xml.term(:name => "#{term.name}")
         end
       #}
       #xml.tags {
-        child_tags = tag.child_tags.sort {|x, y| x.name <=> y.name}
+        child_tags = tag.child_tags
         child_tags.each do |child_tag|
           write_tag_to_xml(child_tag, xml)
         end
