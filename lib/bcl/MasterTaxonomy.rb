@@ -141,15 +141,15 @@ class MasterTaxonomy
     # see if we can find the component's tag in the taxonomy
     tags = component.tags
     if tags.empty?
-      puts "Component does not have any tags"
+      puts "[Check Component ERROR] Component does not have any tags"
       valid = false
     elsif tags.size > 1
-      puts "Component has multiple tags"
+      puts "[Check Component ERROR] Component has multiple tags"
       valid = false
     else
       tag = @tag_hash[tags[0].descriptor]
       if not tag
-        puts "Cannot find #{tags[0].descriptor} in the master taxonomy"
+        puts "[Check Component ERROR] Cannot find #{tags[0].descriptor} in the master taxonomy"
         valid = false
       end
     end
@@ -179,7 +179,7 @@ class MasterTaxonomy
       end
       
       if not term
-        puts "Cannot find term for #{attribute.name} in #{tag.level_hierarchy}"
+        puts "[Check Component ERROR] Cannot find term for #{attribute.name} in #{tag.level_hierarchy}"
         valid = false
         next
       end
