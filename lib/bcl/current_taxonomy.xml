@@ -2,26 +2,6 @@
 <schema xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <tag name="root">
     <term name="OpenStudio Type"/>
-    <tag name="Building">
-      <term name="OpenStudio Type"/>
-      <tag name="Opaque Material">
-        <term name="OpenStudio Type"/>
-        <term name="Typical Application"/>
-        <term name="Thickness"/>
-        <term name="Sub-Category"/>
-        <term name="Stud Spacing"/>
-        <term name="Specific Heat"/>
-        <term name="Resistance"/>
-        <term name="Nominal Stud Width"/>
-        <term name="Nominal Header Insulation Resistance"/>
-        <term name="Nominal Cavity Insulation Resistance"/>
-        <term name="Material Category"/>
-        <term name="Density"/>
-        <term name="Conductivity"/>
-        <term name="Category"/>
-        <term name="Block Fill Type"/>
-      </tag>
-    </tag>
     <tag name="Construction Assembly">
       <term name="OpenStudio Type"/>
       <tag name="Fenestration">
@@ -346,6 +326,25 @@
         <term name="Cycling Percent On"/>
       </tag>
     </tag>
+    <tag name="Material">
+      <term name="OpenStudio Type"/>
+      <tag name="Opaque">
+        <term name="OpenStudio Type"/>
+        <term name="Typical Application"/>
+        <term name="Thickness"/>
+        <term name="Sub-Category"/>
+        <term name="Stud Spacing"/>
+        <term name="Specific Heat"/>
+        <term name="Resistance"/>
+        <term name="Nominal Stud Width"/>
+        <term name="Nominal Header Insulation Resistance"/>
+        <term name="Nominal Cavity Insulation Resistance"/>
+        <term name="Density"/>
+        <term name="Conductivity"/>
+        <term name="Category"/>
+        <term name="Block Fill Type"/>
+      </tag>
+    </tag>
     <tag name="Occupant">
       <term name="OpenStudio Type"/>
       <term name="Women Heat Multiplier"/>
@@ -369,13 +368,6 @@
           <term name="Cell Technology"/>
           <term name="Area"/>
         </tag>
-      </tag>
-    </tag>
-    <tag name="Opaque Constructions">
-      <term name="OpenStudio Type"/>
-      <tag name="Opaque Constructions">
-        <term name="OpenStudio Type"/>
-        <term name="Opaque Material"/>
       </tag>
     </tag>
     <tag name="Space Use">
