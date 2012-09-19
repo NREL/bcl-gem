@@ -38,13 +38,15 @@ module BCL
 TagStruct = Struct.new(:level_hierarchy, :name, :description, :parent_tag, :child_tags, :terms)
 
 # each TermStruct represents a row in the master taxonomy
-TermStruct = Struct.new(:first_level, :second_level, :third_level, :level_hierarchy, :name, :description)
+TermStruct = Struct.new(:first_level, :second_level, :third_level, :level_hierarchy, :name, :description, 
+					    :abbr, :data_type, :enums, :ip_written, :ip_symbol, :ip_mask, :si_written, :si_symbol, :si_mask)
 
 # class for parsing, validating, and querying the master taxonomy document
 class MasterTaxonomy
 
   # parse the master taxonomy document
   def initialize(xlsx_path = nil)
+	@sort_terms_on_write = true
   
     # hash of level_taxonomy to tag
     @tag_hash = Hash.new
@@ -89,6 +91,7 @@ class MasterTaxonomy
       path = current_taxonomy_path
     end
     puts "Saving current taxonomy to #{path}"
+	# this is really not JSON... it is a persisted format of ruby
     File.open(path, 'w') do |file|
       Marshal.dump(@tag_hash, file)
     end
@@ -129,13 +132,18 @@ class MasterTaxonomy
       parent_tag = parent_tag.parent_tag
     end
 
-    return terms.reverse.uniq
+	#sort the terms as they come out
+	result = terms.reverse.uniq
+	if @sort_terms_on_write
+      result = result.sort {|x, y| x.name <=> y.name}
+	end
+	 
+    return result
   end
   
   # check that the given component is conforms with the master taxonomy
   def check_component(component)
     valid = true
-    
     tag = nil
     
     # see if we can find the component's tag in the taxonomy
@@ -243,14 +251,30 @@ class MasterTaxonomy
     name             = terms_worksheet.Range("E2").Value
     abbr             = terms_worksheet.Range("F2").Value
     description      = terms_worksheet.Range("G2").Value
-    
+	data_type		 = terms_worksheet.Range("I2").Value
+	enums			 = terms_worksheet.Range("J2").Value
+	ip_written		 = terms_worksheet.Range("K2").Value
+	ip_symbol		 = terms_worksheet.Range("L2").Value
+	ip_mask			 = terms_worksheet.Range("M2").Value
+	si_written		 = terms_worksheet.Range("N2").Value
+	si_symbol		 = terms_worksheet.Range("O2").Value
+	si_mask			 = terms_worksheet.Range("P2").Value
+	
     header_error = true if not first_level == "First Level"
     header_error = true if not second_level == "Second Level"
     header_error = true if not third_level == "Third Level"
     header_error = true if not level_hierarchy == "Level Hierarchy"
     header_error = true if not name  == "Term"
-    header_error = true if not abbr  == "Abbr."
+    header_error = true if not abbr  == "Abbr"
     header_error = true if not description  == "Description"
+	header_error = true if not data_type  == "Data Type"
+	header_error = true if not enums  == "Enumerations"
+	header_error = true if not ip_written  == "IP Units Written Out"
+	header_error = true if not ip_symbol  == "IP Units Symbol"
+	header_error = true if not ip_mask  == "IP Display Mask"
+	header_error = true if not si_written  == "SI Units Written Out"
+	header_error = true if not si_symbol  == "SI Units Symbol"
+	header_error = true if not si_mask  == "SI Display Mask"
     
     return header_error
   end
@@ -258,14 +282,25 @@ class MasterTaxonomy
   def parse_term(terms_worksheet, row)
  
     term = TermStruct.new
-    term.first_level      = terms_worksheet.Range("A#{row}").Value
-    term.second_level     = terms_worksheet.Range("B#{row}").Value
-    term.third_level      = terms_worksheet.Range("C#{row}").Value
-    term.level_hierarchy  = terms_worksheet.Range("D#{row}").Value
-    term.name             = terms_worksheet.Range("E#{row}").Value
-    #term.abbr             = terms_worksheet.Range("F#{row}").Value
-    term.description      = terms_worksheet.Range("G#{row}").Value
-    
+    term.first_level      	= terms_worksheet.Range("A#{row}").Value
+    term.second_level     	= terms_worksheet.Range("B#{row}").Value
+    term.third_level      	= terms_worksheet.Range("C#{row}").Value
+    term.level_hierarchy  	= terms_worksheet.Range("D#{row}").Value
+    term.name             	= terms_worksheet.Range("E#{row}").Value
+    term.abbr             	= terms_worksheet.Range("F#{row}").Value
+    term.description      	= terms_worksheet.Range("G#{row}").Value
+	term.data_type		  	= terms_worksheet.Range("I#{row}").Value
+	term.enums    		  	= terms_worksheet.Range("J#{row}").Value
+	term.ip_written			= terms_worksheet.Range("K#{row}").Value
+	term.ip_symbol			= terms_worksheet.Range("L#{row}").Value
+	term.ip_mask			= terms_worksheet.Range("M#{row}").Value
+	term.si_written			= terms_worksheet.Range("N#{row}").Value
+	term.si_symbol			= terms_worksheet.Range("O#{row}").Value
+	term.si_mask			= terms_worksheet.Range("P#{row}").Value
+
+	
+	
+	
     # trigger to quit parsing the xcel doc
     if term.first_level.nil? or term.first_level.empty?
       return nil
@@ -335,9 +370,9 @@ class MasterTaxonomy
   def check_tag(tag)
     
     if tag.description.nil? or tag.description.empty?
-      puts "tag '#{tag.level_hierarchy}' has no description"
+      #puts "tag '#{tag.level_hierarchy}' has no description"
     end
-    
+	
     tag.terms.each {|term| check_term(term) }
     tag.child_tags.each {|child_tag| check_tag(child_tag) }
   end
@@ -372,34 +407,70 @@ class MasterTaxonomy
       valid = false
     end
     
-    # todo: check description, data type, enumerations, units, source, author
+	if !term.data_type.nil?
+	  valid_types = ["double", "integer", "enum", "file", "string"]
+	  if (term.data_type.downcase != term.data_type) || !valid_types.include?(term.data_type) 
+ 	    puts "[ERROR] Term '#{term.name}' does not have a valid data type with '#{term.data_type}'"
+	  end
+	  
+	  if term.data_type.downcase == "enum"
+	    if term.enums.nil? || term.enums == "" || term.enums.downcase == "no enum found"
+		  puts "[ERROR] Term '#{term.name}' does not have valid enumerations"
+		end
+	  end
+	end
     
     return valid
   end
   
   def check_term(term)
     if term.description.nil? or term.description.empty?
-      puts "term '#{term.level_hierarchy}.#{term.name}' has no description"
+      #puts "term '#{term.level_hierarchy}.#{term.name}' has no description"
     end
+  end
+  
+  # write term to xml
+  def write_terms_to_xml(tag, xml)
+    terms = get_terms(tag) 
+	if terms.size > 0
+      terms.each do |term|
+	    xml.term {
+  	      xml.name term.name
+	      xml.abbr term.abbr if !term.abbr.nil? 
+		  xml.description term.description if !term.description.nil?
+		  xml.data_type term.data_type if !term.data_type.nil?
+		  xml.enumerations term.enums if !term.enums.nil? && term.enums != ""
+		  xml.ip_written term.ip_written if !term.ip_written.nil?
+		  xml.ip_symbol term.ip_symbol if !term.ip_symbol.nil?
+		  xml.ip_mask term.ip_mask if !term.ip_mask.nil?
+		  xml.si_written term.si_written if !term.si_written.nil?
+		  xml.si_symbol term.si_symbol if !term.si_symbol.nil?
+		  xml.si_mask term.si_mask if !term.si_mask.nil?
+				 
+	    }
+	  end
+	end
   end
   
   # write a tag to xml
   def write_tag_to_xml(tag, xml)
-    xml.tag(:name => "#{tag.name}") {
-      #xml.terms {
-        #terms = tag.terms # only direct terms
-        terms = get_terms(tag) # all terms, ordered by inheritence
-        terms.each do |term|
-          xml.term(:name => "#{term.name}")
-        end
-      #}
-      #xml.tags {
-        child_tags = tag.child_tags
-        child_tags.each do |child_tag|
-          write_tag_to_xml(child_tag, xml)
-        end
-      #}
-    }
+	xml.tag {
+	  s_temp = tag.name  #.gsub("Electric Lighting","Space Use")
+	  xml.name s_temp
+	  
+	  #puts "Writing Tag Name: #{tag.name}"
+	 
+	  	  
+	  if tag.child_tags.size == 0
+	    write_terms_to_xml(tag, xml)
+	  end
+	  
+	  child_tags = tag.child_tags
+      child_tags.each do |child_tag|
+        write_tag_to_xml(child_tag, xml)
+      end
+		 
+	}
   end
   
 end
