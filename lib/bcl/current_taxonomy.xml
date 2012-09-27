@@ -1,450 +1,2947 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <schema xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-  <tag name="root">
-    <term name="OpenStudio Type"/>
-    <tag name="Construction Assembly">
-      <term name="OpenStudio Type"/>
-      <tag name="Fenestration">
-        <term name="OpenStudio Type"/>
-        <term name="Overall U-factor"/>
-        <tag name="Window">
-          <term name="OpenStudio Type"/>
-          <term name="Overall U-factor"/>
-          <term name="Visible Light Transmittance"/>
-          <term name="Tint"/>
-          <term name="Solar Heat Gain Coefficient"/>
-          <term name="Number of Panes"/>
-          <term name="Gas Fill"/>
+  <tag>
+    <name>root</name>
+    <tag>
+      <name>Construction Assembly</name>
+      <tag>
+        <name>Fenestration</name>
+        <tag>
+          <name>Window</name>
+          <term>
+            <name>Gas Fill</name>
+            <data_type>string</data_type>
+          </term>
+          <term>
+            <name>Number of Panes</name>
+            <data_type>integer</data_type>
+          </term>
+          <term>
+            <name>OpenStudio Type</name>
+            <description>Type of OpenStudio Object</description>
+          </term>
+          <term>
+            <name>Overall U-factor</name>
+            <data_type>double</data_type>
+          </term>
+          <term>
+            <name>Solar Heat Gain Coefficient</name>
+            <abbr>SHGC</abbr>
+            <data_type>double</data_type>
+          </term>
+          <term>
+            <name>Tint</name>
+            <data_type>string</data_type>
+          </term>
+          <term>
+            <name>Visible Light Transmittance</name>
+            <abbr>VLT</abbr>
+            <data_type>double</data_type>
+          </term>
         </tag>
       </tag>
     </tag>
-    <tag name="HVAC">
-      <term name="OpenStudio Type"/>
-      <tag name="Chillers">
-        <term name="OpenStudio Type"/>
-        <tag name="Electrically-driven Mechanical Compression">
-          <term name="OpenStudio Type"/>
-          <term name="Variable-Speed Drive Compressor"/>
-          <term name="Refrigerant "/>
-          <term name="Part Load Ratio below which Hot Gas Bypass (HGBP) operates"/>
-          <term name="Net Refrigeration Capacity"/>
-          <term name="Model Designation"/>
-          <term name="Minimum Part Load Ratio"/>
-          <term name="Minimum Condenser Water Flow Rate"/>
-          <term name="Minimum Condenser Water Entering Temperature"/>
-          <term name="Minimum Chilled Water Supply Temperature"/>
-          <term name="Minimum Chilled Water Flow Rate"/>
-          <term name="Min Outdoor Air Temperature (Wet Bulb)"/>
-          <term name="Min Outdoor Air Temperature (Dry Bulb)"/>
-          <term name="Maximum Part Load Ratio"/>
-          <term name="Maximum Condenser Water Flow Rate"/>
-          <term name="Maximum Condenser Water Entering Temperature"/>
-          <term name="Maximum Chilled Water Supply Temperature"/>
-          <term name="Maximum Chilled Water Flow Rate"/>
-          <term name="Max Outdoor Air Temperature (Wet Bulb)"/>
-          <term name="Max Outdoor Air Temperature (Dry Bulb)"/>
-          <term name="Fan Control"/>
-          <term name="Design Condenser Water Flow Rate"/>
-          <term name="Design Chilled Water Supply Temperature"/>
-          <term name="Design Chilled Water Flow Rate"/>
-          <term name="Condenser Water Pressure drop at Design Flow Rate"/>
-          <term name="Condenser Type"/>
-          <term name="Compressor Type"/>
-          <term name="Compressor Motor Type"/>
-          <term name="Compressor Motor Efficiency"/>
-          <term name="Chilled Water Pressure Drop across Evaporator at Design Flow Rate"/>
-          <term name="Basin Heater Capacity"/>
-          <term name="AHRI Rated Coefficient of Performance "/>
-          <term name="AHRI Certified Reference Number"/>
+    <tag>
+      <name>Electric Lighting</name>
+      <tag>
+        <name>Lamp</name>
+        <tag>
+          <name>Non-SSL Lamp</name>
+          <term>
+            <name>ANSI Lamp Shape Designation</name>
+            <description>ANSI designation for bulb or lamp shape (IES 2011, The Lighting Handbook, 10th Ed.)</description>
+            <data_type>enum</data_type>
+            <enumerations>A|AR|AT|B|BA|BD|BR|BT|C|CA|CC|E|ED|ER|F|FE|G|GT|K|M|MR|P|PS|PAR|R|RB|RD|REC|RM|RP|S|ST|T|TL|T/C|TU|2D</enumerations>
+          </term>
+          <term>
+            <name>Color Rendering Index</name>
+            <abbr>CRI</abbr>
+            <description>"A measure of the degree of color shift objects undergo when illuminated by the light source as compared with those same objects when illuminated by a reference source of comparable color temperature."  (IESNA Lighting Ready Reference, 4th ed., 2003.)</description>
+            <data_type>double</data_type>
+          </term>
+          <term>
+            <name>Correlated Color Temperature</name>
+            <abbr>CCT</abbr>
+            <description>"The absolute temperature of a blackbody whose chromacity most nearly matches that of the light source." (IESNA Lighting Ready Reference, 4th ed., 2003.)</description>
+            <data_type>double</data_type>
+            <ip_written>kelvin</ip_written>
+            <ip_symbol>K</ip_symbol>
+            <si_written>kelvin</si_written>
+            <si_symbol>K</si_symbol>
+          </term>
+          <term>
+            <name>Initial Luminous Flux</name>
+            <description>Luminous flux at the beginning of product life, where luminous flux is "the time rate of flow of radiant energy, evaluated in terms of standardized visual response."  (Adapted from IESNA Lighting Ready Reference, 4th ed., 2003.)</description>
+            <data_type>double</data_type>
+            <ip_written>lumen</ip_written>
+            <ip_symbol>lm</ip_symbol>
+            <si_written>lumen</si_written>
+            <si_symbol>lm</si_symbol>
+          </term>
+          <term>
+            <name>Input Power</name>
+            <description>Power consumed by the lamp during steady-state operation in the "on" mode.</description>
+            <data_type>double</data_type>
+            <ip_written>watts</ip_written>
+            <ip_symbol>W</ip_symbol>
+            <si_written>watts</si_written>
+            <si_symbol>W</si_symbol>
+          </term>
+          <term>
+            <name>Manufacturer</name>
+            <description>Manufacturer name</description>
+            <data_type>string</data_type>
+          </term>
+          <term>
+            <name>Mean Luminous Flux</name>
+            <description>The average value of "the time rate of flow of radiant energy, evaluated in terms of standardized visual response."  (Adapted from IESNA Lighting Ready Reference, 4th ed., 2003.)</description>
+            <data_type>double</data_type>
+            <ip_written>lumens</ip_written>
+            <ip_symbol>lm</ip_symbol>
+            <si_written>lumens</si_written>
+            <si_symbol>lm</si_symbol>
+          </term>
+          <term>
+            <name>OpenStudio Type</name>
+            <description>Type of OpenStudio Object</description>
+          </term>
+          <term>
+            <name>Product Number</name>
+            <description>Manufacturer's product number.  Sometimes called a catalog number.</description>
+            <data_type>string</data_type>
+          </term>
+          <term>
+            <name>Rated Life</name>
+            <description>Lamp rated life in hours</description>
+            <data_type>double</data_type>
+            <ip_written>hours</ip_written>
+            <si_written>hours</si_written>
+          </term>
+          <term>
+            <name>Standard Photometric Data</name>
+            <description>For directional lamps, provide standard photometric electronic data in accordance with IES LM-63; the format is commonly called an *.ies file.  For non-directional lamps, this field should be left blank.</description>
+            <data_type>file</data_type>
+          </term>
+        </tag>
+        <tag>
+          <name>SSL Replacement Lamp</name>
+          <term>
+            <name>ANSI Lamp Shape Designation</name>
+            <description>ANSI designation for bulb or lamp shape (IES 2011, The Lighting Handbook, 10th Ed.)</description>
+            <data_type>enum</data_type>
+            <enumerations>A|AR|AT|B|BA|BD|BR|BT|C|CA|CC|E|ED|ER|F|FE|G|GT|K|M|MR|P|PS|PAR|R|RB|RD|REC|RM|RP|S|ST|T|TL|T/C|TU|2D</enumerations>
+          </term>
+          <term>
+            <name>Color Rendering Index</name>
+            <abbr>CRI</abbr>
+            <description>"A measure of the degree of color shift objects undergo when illuminated by the light source as compared with those same objects when illuminated by a reference source of comparable color temperature."  (IESNA Lighting Ready Reference, 4th ed., 2003.)</description>
+            <data_type>double</data_type>
+          </term>
+          <term>
+            <name>Correlated Color Temperature</name>
+            <abbr>CCT</abbr>
+            <description>"The absolute temperature of a blackbody whose chromacity most nearly matches that of the light source." (IESNA Lighting Ready Reference, 4th ed., 2003.)</description>
+            <data_type>double</data_type>
+            <ip_written>kelvin</ip_written>
+            <ip_symbol>K</ip_symbol>
+            <si_written>kelvin</si_written>
+            <si_symbol>K</si_symbol>
+          </term>
+          <term>
+            <name>Initial Luminous Flux</name>
+            <description>Luminous flux at the beginning of product life, where luminous flux is "the time rate of flow of radiant energy, evaluated in terms of standardized visual response."  (Adapted from IESNA Lighting Ready Reference, 4th ed., 2003.)</description>
+            <data_type>double</data_type>
+            <ip_written>lumen</ip_written>
+            <ip_symbol>lm</ip_symbol>
+            <si_written>lumen</si_written>
+            <si_symbol>lm</si_symbol>
+          </term>
+          <term>
+            <name>Input Power</name>
+            <description>Power consumed by the lamp during steady-state operation in the "on" mode.</description>
+            <data_type>double</data_type>
+            <ip_written>watts</ip_written>
+            <ip_symbol>W</ip_symbol>
+            <si_written>watts</si_written>
+            <si_symbol>W</si_symbol>
+          </term>
+          <term>
+            <name>Lumen Maintenance</name>
+            <abbr>L70</abbr>
+            <description>The elapsed operating time over which the LED light source will maintain 70% of its initial light output.  (Adapted from IES LM-80-08, definition 3.6.)</description>
+            <data_type>double</data_type>
+            <ip_written>hours</ip_written>
+            <ip_symbol>hrs</ip_symbol>
+            <si_written>hours</si_written>
+            <si_symbol>hrs</si_symbol>
+          </term>
+          <term>
+            <name>Manufacturer</name>
+            <description>Manufacturer name</description>
+            <data_type>string</data_type>
+          </term>
+          <term>
+            <name>OpenStudio Type</name>
+            <description>Type of OpenStudio Object</description>
+          </term>
+          <term>
+            <name>Product Number</name>
+            <description>Manufacturer's product number.  Sometimes called a catalog number.</description>
+            <data_type>string</data_type>
+          </term>
+          <term>
+            <name>Standard Photometric Data</name>
+            <description>For directional lamps, provide standard photometric electronic data in accordance with IES LM-63; the format is commonly called an *.ies file.  For non-directional lamps, this field should be left blank.</description>
+            <data_type>file</data_type>
+          </term>
         </tag>
       </tag>
-      <tag name="Packaged Unitary Equipment">
-        <term name="OpenStudio Type"/>
-        <tag name="Roof Top Units">
-          <term name="OpenStudio Type"/>
-          <term name="Type of Heating"/>
-          <term name="Turndown Ratio"/>
-          <term name="Sequence of Operations"/>
-          <term name="Seasonal Energy Efficiency Ratio"/>
-          <term name="Refrigerant"/>
-          <term name="Number of discrete speeds"/>
-          <term name="Number of discrete cooling stages"/>
-          <term name="Number of Heating stages"/>
-          <term name="Nominal Cooling Capacity"/>
-          <term name="Minimum speed as a fraction of maximum speed"/>
-          <term name="Minimum Outdoor Dryb Bulb for Cooling Operation"/>
-          <term name="Minimum Outdoor Dry Bulb for Heat Pump Operation"/>
-          <term name="Maximum Outdoor Dry Bulb for Heat Pump Operation"/>
-          <term name="Maximum Outdoor Dry Bulb for Cooling Operation"/>
-          <term name="Internal Static Pressure at full speed"/>
-          <term name="Integrated Energy Efficiency Ratio"/>
-          <term name="Indoor Fan Speed Control"/>
-          <term name="Heating Staging"/>
-          <term name="Evaporatively Cooled Condenser"/>
-          <term name="Energy Efficiency Ratio"/>
-          <term name="Economizer Control Types Available"/>
-          <term name="Degradation Coefficient "/>
-          <term name="Condenser Fan Speed Operation"/>
-          <term name="Compressor Staging"/>
-          <term name="Air-Source Heat Pump"/>
-          <term name="Active Dehumidification"/>
-          <term name="AHRI Certified Reference Number"/>
+      <tag>
+        <name>Lamp Ballast</name>
+        <term>
+          <name>ANSI Lamp Shape Designation</name>
+          <description>ANSI designation for bulb or lamp shape (IES 2011, The Lighting Handbook, 10th Ed.)</description>
+          <data_type>enum</data_type>
+          <enumerations>No enum found</enumerations>
+        </term>
+        <term>
+          <name>Ballast Factor</name>
+          <description>"The fractional flux of a fluorescent lamp operated on a ballast compared to the flux when operated on the standard (reference) ballast specificed for rating lamp lumens."  (IESNA Lighting Ready Reference, 4th ed., 2003.)</description>
+          <data_type>double</data_type>
+        </term>
+        <term>
+          <name>Ballast Type</name>
+          <description>Ballast type</description>
+          <data_type>enum</data_type>
+          <enumerations>fluorescent electronic dimming|fluorescent electronic non-dimming|fluorescent magnetic dimming|fluorescent magnetic non-dimming|HID electronic|HID magnetic</enumerations>
+        </term>
+        <term>
+          <name>Input Power</name>
+          <description>The ballast input power required to drive a specific lamp or lamps</description>
+          <data_type>double</data_type>
+        </term>
+        <term>
+          <name>Input Power Factor</name>
+          <description>The ratio of active power (watts) to apparent power (volt-amperes).  "The active power is to be measured with a wattmeter capable of indicating the average power in watts.  The apparent power is to be the products of the true rms values of the input voltage and current."  (ANSI C82.13)</description>
+          <data_type>double</data_type>
+        </term>
+        <term>
+          <name>Input Voltage</name>
+          <description>The ballast input voltage or voltages </description>
+          <data_type>double; allow multiple values</data_type>
+          <ip_written>volts</ip_written>
+          <ip_symbol>V</ip_symbol>
+          <si_written>volts</si_written>
+          <si_symbol>V</si_symbol>
+        </term>
+        <term>
+          <name>Manufacturer</name>
+          <description>Manufacturer name</description>
+          <data_type>string</data_type>
+        </term>
+        <term>
+          <name>Number of Lamps</name>
+          <description>The number of lamps driven by the ballast</description>
+          <data_type>integer</data_type>
+        </term>
+        <term>
+          <name>OpenStudio Type</name>
+          <description>Type of OpenStudio Object</description>
+        </term>
+        <term>
+          <name>Product Number</name>
+          <description>Manufacturer's product number.  Sometimes called a catalog number.</description>
+          <data_type>string</data_type>
+        </term>
+        <term>
+          <name>Starting Method</name>
+          <description>Starting method</description>
+          <data_type>enum</data_type>
+          <enumerations>instant start|rapid start|program start|probe start|pulse start</enumerations>
+        </term>
+        <term>
+          <name>Total Harmonic Distortion</name>
+          <description>The ratio of the root mean squared "values of the harmonic content to that of the fundamental current, expresseed as a percentage."  (ANSI C82.13)</description>
+          <data_type>double; allow multiple values</data_type>
+          <ip_symbol>%</ip_symbol>
+          <si_symbol>%</si_symbol>
+        </term>
+      </tag>
+      <tag>
+        <name>Luminaire</name>
+        <tag>
+          <name>Non-SSL Luminaire</name>
+          <term>
+            <name>ANSI Lamp Shape Designation</name>
+            <description>ANSI designation for bulb or lamp shape (IES 2011, The Lighting Handbook, 10th Ed.)</description>
+            <data_type>enum</data_type>
+            <enumerations>A|AR|AT|B|BA|BD|BR|BT|C|CA|CC|E|ED|ER|F|FE|G|GT|K|M|MR|P|PS|PAR|R|RB|RD|REC|RM|RP|S|ST|T|TL|T/C|TU|2D</enumerations>
+          </term>
+          <term>
+            <name>Light Source Type</name>
+            <description>Illumination technology descriptor, such as "fluorescent".</description>
+            <data_type>enum</data_type>
+            <enumerations>standard incandescent|quartz halogen|fluorescent|mercury vapor|high pressure sodium|low pressure sodium|quartz metal halide|ceramic metal halide</enumerations>
+          </term>
+          <term>
+            <name>Manufacturer</name>
+            <description>Manufacturer name</description>
+            <data_type>string</data_type>
+          </term>
+          <term>
+            <name>Mounting Type</name>
+            <description>Luminaire mounting (recessed, surface or suspended) </description>
+            <data_type>enum</data_type>
+            <enumerations>fully recessed|surface-mounted|suspended</enumerations>
+          </term>
+          <term>
+            <name>Number of Lamps</name>
+            <description>The number of lamps in the luminaire</description>
+            <data_type>integer</data_type>
+          </term>
+          <term>
+            <name>OpenStudio Type</name>
+            <description>Type of OpenStudio Object</description>
+          </term>
+          <term>
+            <name>Product Number</name>
+            <description>Manufacturer's product number.  Sometimes called a catalog number.</description>
+            <data_type>string</data_type>
+          </term>
+          <term>
+            <name>Standard Photometric Data</name>
+            <description>For directional lamps, provide standard photometric electronic data in accordance with IES LM-63; the format is commonly called an *.ies file.  For non-directional lamps, this field should be left blank.</description>
+            <data_type>file</data_type>
+          </term>
+        </tag>
+        <tag>
+          <name>SSL Luminaire</name>
+          <term>
+            <name>Color Rendering Index</name>
+            <abbr>CRI</abbr>
+            <description>"A measure of the degree of color shift objects undergo when illuminated by the light source as compared with those same objects when illuminated by a reference source of comparable color temperature."  (IESNA Lighting Ready Reference, 4th ed., 2003.)</description>
+            <data_type>double</data_type>
+          </term>
+          <term>
+            <name>Correlated Color Temperature</name>
+            <abbr>CCT</abbr>
+            <description>"The absolute temperature of a blackbody whose chromacity most nearly matches that of the light source." (IESNA Lighting Ready Reference, 4th ed., 2003.)</description>
+            <data_type>double</data_type>
+            <ip_written>kelvin</ip_written>
+            <ip_symbol>K</ip_symbol>
+            <si_written>kelvin</si_written>
+            <si_symbol>K</si_symbol>
+          </term>
+          <term>
+            <name>Input Power</name>
+            <description>Luminaire input power</description>
+            <data_type>double</data_type>
+            <ip_written>watts</ip_written>
+            <ip_symbol>W</ip_symbol>
+            <si_written>watts</si_written>
+            <si_symbol>W</si_symbol>
+          </term>
+          <term>
+            <name>Input Power Factor</name>
+            <description>The ratio of active power (watts) to apparent power (volt-amperes).  "The active power is to be measured with a wattmeter capable of indicating the average power in watts.  The apparent power is to be the products of the true rms values of the input voltage and current."  (ANSI C82.13)</description>
+            <data_type>double</data_type>
+          </term>
+          <term>
+            <name>Input Voltage</name>
+            <description>The luminaire input voltage or voltages.</description>
+            <data_type>double</data_type>
+            <ip_written>volts</ip_written>
+            <ip_symbol>V</ip_symbol>
+            <si_written>volts</si_written>
+            <si_symbol>V</si_symbol>
+          </term>
+          <term>
+            <name>Lumen Maintenance</name>
+            <abbr>L70</abbr>
+            <description>The elapsed operating time over which the LED light source will maintain 70% of its initial light output.  (Adapted from IES LM-80-08, definition 3.6.)</description>
+            <data_type>double</data_type>
+            <ip_written>hours</ip_written>
+            <si_written>hours</si_written>
+          </term>
+          <term>
+            <name>Luminous Efficacy</name>
+            <description>The quotient of the total luminous flux emitted by the luminaire by the total luminaire input power, expressed in lumens per watt.</description>
+            <data_type>double</data_type>
+          </term>
+          <term>
+            <name>Manufacturer</name>
+            <description>Manufacturer name</description>
+            <data_type>string</data_type>
+          </term>
+          <term>
+            <name>Mounting Type</name>
+            <description>Luminaire mounting (recessed, surface or suspended) </description>
+            <data_type>enum</data_type>
+            <enumerations>fully recessed|surface-mounted|suspended</enumerations>
+          </term>
+          <term>
+            <name>OpenStudio Type</name>
+            <description>Type of OpenStudio Object</description>
+          </term>
+          <term>
+            <name>Product Number</name>
+            <description>Manufacturer's product number.  Sometimes called a catalog number.</description>
+            <data_type>string</data_type>
+          </term>
+          <term>
+            <name>Standard Photometric Data</name>
+            <description>For directional lamps, provide standard photometric electronic data in accordance with IES LM-63; the format is commonly called an *.ies file.  For non-directional lamps, this field should be left blank.</description>
+            <data_type>file</data_type>
+          </term>
+          <term>
+            <name>Total Harmonic Distortion</name>
+            <description>The ratio of the root mean squared "values of the harmonic content to that of the fundamental current, expresseed as a percentage."  (ANSI C82.13)</description>
+            <data_type>double</data_type>
+            <ip_symbol>%</ip_symbol>
+            <si_symbol>%</si_symbol>
+          </term>
+          <term>
+            <name>Total Luminous Flux</name>
+            <description>The total luminous flux emitted by the luminaire expressed in lumens.</description>
+            <data_type>double</data_type>
+            <ip_written>lumens</ip_written>
+            <ip_symbol>lm</ip_symbol>
+            <si_written>lumens</si_written>
+            <si_symbol>lm</si_symbol>
+          </term>
         </tag>
       </tag>
     </tag>
-    <tag name="MEL">
-      <term name="OpenStudio Type"/>
-      <term name="Standby Power"/>
-      <term name="Peak Power"/>
-      <term name="Cycling Percent On"/>
-      <tag name="Appliance">
-        <term name="OpenStudio Type"/>
-        <term name="Standby Power"/>
-        <term name="Peak Power"/>
-        <term name="Cycling Percent On"/>
-        <tag name="Beverage Fountain">
-          <term name="OpenStudio Type"/>
-          <term name="Standby Power"/>
-          <term name="Peak Power"/>
-          <term name="Cycling Percent On"/>
-        </tag>
-        <tag name="Cash Exchange">
-          <term name="OpenStudio Type"/>
-          <term name="Standby Power"/>
-          <term name="Peak Power"/>
-          <term name="Cycling Percent On"/>
-        </tag>
-        <tag name="Coffee Maker">
-          <term name="OpenStudio Type"/>
-          <term name="Standby Power"/>
-          <term name="Peak Power"/>
-          <term name="Cycling Percent On"/>
-        </tag>
-        <tag name="Desktop Fan">
-          <term name="OpenStudio Type"/>
-          <term name="Standby Power"/>
-          <term name="Peak Power"/>
-          <term name="Cycling Percent On"/>
-        </tag>
-        <tag name="Drinking Fountain">
-          <term name="OpenStudio Type"/>
-          <term name="Standby Power"/>
-          <term name="Peak Power"/>
-          <term name="Cycling Percent On"/>
-        </tag>
-        <tag name="Food Warmer">
-          <term name="OpenStudio Type"/>
-          <term name="Standby Power"/>
-          <term name="Peak Power"/>
-          <term name="Cycling Percent On"/>
-        </tag>
-        <tag name="Freezer">
-          <term name="OpenStudio Type"/>
-          <term name="Standby Power"/>
-          <term name="Peak Power"/>
-          <term name="Cycling Percent On"/>
-        </tag>
-        <tag name="Ice Machine">
-          <term name="OpenStudio Type"/>
-          <term name="Standby Power"/>
-          <term name="Peak Power"/>
-          <term name="Cycling Percent On"/>
-        </tag>
-        <tag name="Microwave">
-          <term name="OpenStudio Type"/>
-          <term name="Standby Power"/>
-          <term name="Peak Power"/>
-          <term name="Cycling Percent On"/>
-        </tag>
-        <tag name="Mini-fridge">
-          <term name="OpenStudio Type"/>
-          <term name="Standby Power"/>
-          <term name="Peak Power"/>
-          <term name="Cycling Percent On"/>
-        </tag>
-        <tag name="Personal Heater">
-          <term name="OpenStudio Type"/>
-          <term name="Standby Power"/>
-          <term name="Peak Power"/>
-          <term name="Cycling Percent On"/>
-        </tag>
-        <tag name="Refrigerated Vending Machine">
-          <term name="OpenStudio Type"/>
-          <term name="Standby Power"/>
-          <term name="Peak Power"/>
-          <term name="Cycling Percent On"/>
-        </tag>
-        <tag name="Refrigerator">
-          <term name="OpenStudio Type"/>
-          <term name="Standby Power"/>
-          <term name="Peak Power"/>
-          <term name="Cycling Percent On"/>
-        </tag>
-        <tag name="Vending Machine">
-          <term name="OpenStudio Type"/>
-          <term name="Standby Power"/>
-          <term name="Peak Power"/>
-          <term name="Cycling Percent On"/>
-        </tag>
-        <tag name="Water Cooler">
-          <term name="OpenStudio Type"/>
-          <term name="Standby Power"/>
-          <term name="Peak Power"/>
-          <term name="Cycling Percent On"/>
-        </tag>
-        <tag name="Water Purifier">
-          <term name="OpenStudio Type"/>
-          <term name="Standby Power"/>
-          <term name="Peak Power"/>
-          <term name="Cycling Percent On"/>
+    <tag>
+      <name>HVAC</name>
+      <tag>
+        <name>Chillers</name>
+        <tag>
+          <name>Electrically-driven Mechanical Compression</name>
+          <term>
+            <name>AHRI Certified Reference Number</name>
+            <data_type>string</data_type>
+          </term>
+          <term>
+            <name>AHRI Rated Coefficient of Performance </name>
+            <abbr>COP</abbr>
+            <description>" A ratio of the Net Refrigerating Capacity in watts to the power input values in watts at any given set of Rating Conditions expressed in watts/watt." (AHRI 550/590)</description>
+            <data_type>double</data_type>
+          </term>
+          <term>
+            <name>Basin Heater Capacity</name>
+            <data_type>double</data_type>
+            <ip_written>British Thermal Units per hour per Degrees Fahrenheit</ip_written>
+            <ip_symbol>BTU/(h &#176;F)</ip_symbol>
+            <si_written>Watts per degree Kelvin</si_written>
+            <si_symbol>W/K</si_symbol>
+          </term>
+          <term>
+            <name>Chilled Water Pressure Drop across Evaporator at Design Flow Rate</name>
+            <data_type>double</data_type>
+            <ip_written>Feet of water</ip_written>
+            <ip_symbol>ft</ip_symbol>
+            <si_written>Pascals</si_written>
+            <si_symbol>Pa</si_symbol>
+          </term>
+          <term>
+            <name>Compressor Motor Efficiency</name>
+            <data_type>double</data_type>
+          </term>
+          <term>
+            <name>Compressor Motor Type</name>
+            <data_type>enum</data_type>
+            <enumerations>Hermetic, Semi-Hermetic, Open|Semi-Hermetic|Open</enumerations>
+          </term>
+          <term>
+            <name>Compressor Type</name>
+            <data_type>enum</data_type>
+            <enumerations>Centrifugal|Magnetic-bearing Centrifugal|Reciprocating|Screw|Scroll</enumerations>
+          </term>
+          <term>
+            <name>Condenser Type</name>
+            <data_type>enum</data_type>
+            <enumerations>Water-cooled|Air-cooled|Evaporatively-cooled</enumerations>
+          </term>
+          <term>
+            <name>Condenser Water Pressure drop at Design Flow Rate</name>
+            <data_type>double</data_type>
+            <ip_written>Feet of water</ip_written>
+            <ip_symbol>ft</ip_symbol>
+            <si_written>Pascals</si_written>
+          </term>
+          <term>
+            <name>Design Chilled Water Flow Rate</name>
+            <data_type>double</data_type>
+            <ip_written>Gallons per minute</ip_written>
+            <ip_symbol>GPM</ip_symbol>
+            <si_written>Liters per second</si_written>
+            <si_symbol>L/s</si_symbol>
+          </term>
+          <term>
+            <name>Design Chilled Water Supply Temperature</name>
+            <data_type>double</data_type>
+            <ip_written>Degrees Fahrenheit</ip_written>
+            <ip_symbol>&#176;F</ip_symbol>
+            <si_written>Degrees Celsius</si_written>
+            <si_symbol>&#176;C</si_symbol>
+          </term>
+          <term>
+            <name>Design Condenser Water Flow Rate</name>
+            <data_type>double</data_type>
+            <ip_written>Gallons per minute</ip_written>
+            <ip_symbol>GPM</ip_symbol>
+            <si_written>Liters per second</si_written>
+            <si_symbol>L/s</si_symbol>
+          </term>
+          <term>
+            <name>Fan Control</name>
+            <data_type>enum</data_type>
+            <enumerations>Variable speed drive|Second stage|Single stage</enumerations>
+          </term>
+          <term>
+            <name>Max Outdoor Air Temperature (Dry Bulb)</name>
+            <data_type>double</data_type>
+            <ip_written>Degrees Fahrenheit</ip_written>
+            <ip_symbol>&#176;F</ip_symbol>
+            <si_written>Degrees Celsius</si_written>
+            <si_symbol>&#176;C</si_symbol>
+          </term>
+          <term>
+            <name>Max Outdoor Air Temperature (Wet Bulb)</name>
+            <data_type>double</data_type>
+            <ip_written>Degrees Fahrenheit</ip_written>
+            <ip_symbol>&#176;F</ip_symbol>
+            <si_written>Degrees Celsius</si_written>
+            <si_symbol>&#176;C</si_symbol>
+          </term>
+          <term>
+            <name>Maximum Chilled Water Flow Rate</name>
+            <data_type>double</data_type>
+            <ip_written>Gallons per minute</ip_written>
+            <ip_symbol>GPM</ip_symbol>
+            <si_written>Liters per second</si_written>
+            <si_symbol>L/s</si_symbol>
+          </term>
+          <term>
+            <name>Maximum Chilled Water Supply Temperature</name>
+            <data_type>double</data_type>
+            <ip_written>Degrees Fahrenheit</ip_written>
+            <ip_symbol>&#176;F</ip_symbol>
+            <si_written>Degrees Celsius</si_written>
+            <si_symbol>&#176;C</si_symbol>
+          </term>
+          <term>
+            <name>Maximum Condenser Water Entering Temperature</name>
+            <data_type>double</data_type>
+            <ip_written>Degrees Fahrenheit</ip_written>
+            <ip_symbol>&#176;F</ip_symbol>
+            <si_written>Degrees Celsius</si_written>
+            <si_symbol>&#176;C</si_symbol>
+          </term>
+          <term>
+            <name>Maximum Condenser Water Flow Rate</name>
+            <data_type>double</data_type>
+            <ip_written>Gallons per minute</ip_written>
+            <ip_symbol>GPM</ip_symbol>
+            <si_written>Liters per second</si_written>
+            <si_symbol>L/s</si_symbol>
+          </term>
+          <term>
+            <name>Maximum Part Load Ratio</name>
+            <data_type>double</data_type>
+          </term>
+          <term>
+            <name>Min Outdoor Air Temperature (Dry Bulb)</name>
+            <data_type>double</data_type>
+            <ip_written>Degrees Fahrenheit</ip_written>
+            <ip_symbol>&#176;F</ip_symbol>
+            <si_written>Degrees Celsius</si_written>
+            <si_symbol>&#176;C</si_symbol>
+          </term>
+          <term>
+            <name>Min Outdoor Air Temperature (Wet Bulb)</name>
+            <data_type>double</data_type>
+            <ip_written>Degrees Fahrenheit</ip_written>
+            <ip_symbol>&#176;F</ip_symbol>
+            <si_written>Degrees Celsius</si_written>
+            <si_symbol>&#176;C</si_symbol>
+          </term>
+          <term>
+            <name>Minimum Chilled Water Flow Rate</name>
+            <data_type>double</data_type>
+            <ip_written>Gallons per minute</ip_written>
+            <ip_symbol>GPM</ip_symbol>
+            <si_written>Liters per second</si_written>
+            <si_symbol>L/s</si_symbol>
+          </term>
+          <term>
+            <name>Minimum Chilled Water Supply Temperature</name>
+            <data_type>double</data_type>
+            <ip_written>Degrees Fahrenheit</ip_written>
+            <ip_symbol>&#176;F</ip_symbol>
+            <si_written>Degrees Celsius</si_written>
+            <si_symbol>&#176;C</si_symbol>
+          </term>
+          <term>
+            <name>Minimum Condenser Water Entering Temperature</name>
+            <data_type>double</data_type>
+            <ip_written>Degrees Fahrenheit</ip_written>
+            <ip_symbol>&#176;F</ip_symbol>
+            <si_written>Degrees Celsius</si_written>
+            <si_symbol>&#176;C</si_symbol>
+          </term>
+          <term>
+            <name>Minimum Condenser Water Flow Rate</name>
+            <data_type>double</data_type>
+            <ip_written>Gallons per minute</ip_written>
+            <ip_symbol>GPM</ip_symbol>
+            <si_written>Liters per second</si_written>
+            <si_symbol>L/s</si_symbol>
+          </term>
+          <term>
+            <name>Minimum Part Load Ratio</name>
+            <data_type>double</data_type>
+          </term>
+          <term>
+            <name>Model Designation</name>
+            <data_type>string</data_type>
+          </term>
+          <term>
+            <name>Net Refrigeration Capacity</name>
+            <description>"The capacity of the evaporator available for cooling of the thermal load external to the Water-Chilling Package and is calculated using only the sensible heat transfer." (AHRI 550/590)</description>
+            <data_type>double</data_type>
+            <ip_written>Tons of Refrigeration (12,000 BTU/h)</ip_written>
+            <ip_symbol>Tons</ip_symbol>
+            <si_written>Killowatts</si_written>
+            <si_symbol>kW</si_symbol>
+          </term>
+          <term>
+            <name>OpenStudio Type</name>
+            <description>Type of OpenStudio Object</description>
+          </term>
+          <term>
+            <name>Part Load Ratio below which Hot Gas Bypass (HGBP) operates</name>
+            <data_type>double</data_type>
+          </term>
+          <term>
+            <name>Refrigerant </name>
+            <data_type>enum</data_type>
+            <enumerations>R-134a|R-407C|R-410A|R-717|R-290|R-401a|R-404A|R-407A|R-408A|R-409a|R-500|R-502</enumerations>
+          </term>
+          <term>
+            <name>Variable-Speed Drive Compressor</name>
+            <data_type>enum</data_type>
+            <enumerations>Yes, No|No</enumerations>
+          </term>
         </tag>
       </tag>
-      <tag name="Audio">
-        <term name="OpenStudio Type"/>
-        <term name="Standby Power"/>
-        <term name="Peak Power"/>
-        <term name="Cycling Percent On"/>
-      </tag>
-      <tag name="Computer">
-        <term name="OpenStudio Type"/>
-        <term name="Standby Power"/>
-        <term name="Peak Power"/>
-        <term name="Cycling Percent On"/>
-        <tag name="Desktop">
-          <term name="OpenStudio Type"/>
-          <term name="Standby Power"/>
-          <term name="Peak Power"/>
-          <term name="Cycling Percent On"/>
+      <tag>
+        <name>Packaged Unitary Equipment</name>
+        <tag>
+          <name>Roof Top Units</name>
+          <term>
+            <name>AHRI Certified Reference Number</name>
+            <description>Provide this number if your product is certified under the AHRI  Unitary Large Equipment or Unitary Air Conditioner Equipment or Unitary Heat Pump Equipment Certification Program  or </description>
+            <data_type>string</data_type>
+            <ip_written>none</ip_written>
+          </term>
+          <term>
+            <name>Active Dehumidification</name>
+            <description>Select 'Yes' if the unit contains an active dehumidification system other than the dehumidifiation that takes place during DX cooling operation. The performance map will reflect the answer to this question. </description>
+            <data_type>enum</data_type>
+            <enumerations>Yes|No</enumerations>
+          </term>
+          <term>
+            <name>Air-Source Heat Pump</name>
+            <description>Select yes if this unit is a a "Commercial and Industrial Unitary Heat Pump. One or more factory-made assemblies, which normally include an indoor conditioning coil, an air moving device, compressor(s), and an outdoor coil(s), including means to provide a heating Function and may or may not include a cooling Function. When such equipment is provided in more than one assembly, the separate assemblies shall be designed to be used together, and the requirements of rating outlined in the standard shall be based upon the use of matched assemblies." (AHRI 340/360 2007)</description>
+            <data_type>enum</data_type>
+            <enumerations>Yes|No</enumerations>
+          </term>
+          <term>
+            <name>Compressor Staging</name>
+            <description>Select the type of compressor staging for the unit.  Select Single stage for units with single stage (on/off) control.  Select multiple-discrete stages for units with multiple compressors, discrete unloading stages or compressors with stepped speed motors that are controlled to operate at discrete stages.  Select Variable for compressors that operate at variable speeds or with modulating unloading.</description>
+            <data_type>enum</data_type>
+            <enumerations>Single stage|Multiple, discrete stages|Variable</enumerations>
+          </term>
+          <term>
+            <name>Condenser Fan Speed Operation</name>
+            <description>Select the condenser fan control option for the unit.</description>
+            <data_type>enum</data_type>
+            <enumerations>Constant Speed|Stepped Speed|Variable Speed</enumerations>
+          </term>
+          <term>
+            <name>Degradation Coefficient </name>
+            <abbr>Cd</abbr>
+            <description>"Degradation Coefficient (CD). The measure of the efficiency loss due to the cycling of the units as determined in Appendices C and D [of the standard]." (AHRI 210/240 2008)</description>
+            <data_type>double</data_type>
+          </term>
+          <term>
+            <name>Economizer Control Types Available</name>
+            <description>Select all economizer options available for this model.</description>
+            <data_type>enum</data_type>
+            <enumerations>None|Fixed Dry Bulb|Differential Dry Bulb|Fixed Enthalpy|Differential Enthalpy|Electronic Enthalpy|Fixed Dew Point and Dry Bulb|Differential Dry Bulb and Enthalpy</enumerations>
+          </term>
+          <term>
+            <name>Energy Efficiency Ratio</name>
+            <abbr>EER</abbr>
+            <description>"A ratio of the Cooling Capacity in Btu/h to the power input values in watts at any given set of rating conditions expressed in Btu/W&#183;h." (AHRI 340/360 2007)</description>
+            <data_type>double</data_type>
+            <ip_written>British Thermal Units per hour per Watt</ip_written>
+            <ip_symbol>(BTU/h)/W</ip_symbol>
+            <si_written>British Thermal Units per hour per Watt</si_written>
+            <si_symbol>(BTU/h)/Watt</si_symbol>
+          </term>
+          <term>
+            <name>Evaporatively Cooled Condenser</name>
+            <description>Select 'Yes' if the unit uses indirect evaporative cooling instead of air cooling to reject heat from the condenser coils. The performance map will reflect the answer to this question. </description>
+            <data_type>enum</data_type>
+            <enumerations>Yes|No</enumerations>
+          </term>
+          <term>
+            <name>Heating Staging</name>
+            <description>Select the type of heat staging for the unit.  Select Single stage for units with single stage (on/off) control.  Select multiple-discrete stages for units with multiple discrete stages (low-fire / high-fire).  Select Modulating for modulating burners.</description>
+            <data_type>enum</data_type>
+            <enumerations>Single stage|Multiple, discrete stages|Modulating</enumerations>
+          </term>
+          <term>
+            <name>Indoor Fan Speed Control</name>
+            <description>Select the type of indoor fan speed control for the unit.  Select Constant-speed for units that operate at a single, constant speed.  Select Stepped speed for units that operate at multiple discrete steps.  Select Variable-speed for variable speed control.</description>
+            <data_type>enum</data_type>
+            <enumerations>Constant Speed|Stepped Speed|Variable Speed</enumerations>
+          </term>
+          <term>
+            <name>Integrated Energy Efficiency Ratio</name>
+            <abbr>IEER</abbr>
+            <description>"A single number cooling part-load efficiency figure of merit." (AHRI 340/360 2007)</description>
+            <data_type>double</data_type>
+            <ip_written>British Thermal Units per hour per Watt</ip_written>
+            <ip_symbol>(BTU/h)/W</ip_symbol>
+            <si_written>British Thermal Units per hour per Watt</si_written>
+            <si_symbol>(BTU/h)/Watt</si_symbol>
+          </term>
+          <term>
+            <name>Internal Static Pressure at full speed</name>
+            <description>Internal static pressure of the unit at full indoor fan speed including all filters, coils and accessories used in this model.</description>
+            <data_type>double</data_type>
+          </term>
+          <term>
+            <name>Maximum Outdoor Dry Bulb for Cooling Operation</name>
+            <description>This is the maximum temperature at which  the DX cooling coils will be able to operate.</description>
+            <data_type>double</data_type>
+            <ip_written>Degrees Fahrenheit</ip_written>
+            <ip_symbol>&#176;F</ip_symbol>
+            <si_written>Degrees Celsius</si_written>
+            <si_symbol>&#176;C</si_symbol>
+          </term>
+          <term>
+            <name>Maximum Outdoor Dry Bulb for Heat Pump Operation</name>
+            <description>This is the maximum temperature at which  the DX  coils will be able to operate during heat pump operation.</description>
+            <data_type>double</data_type>
+            <ip_written>Degrees Fahrenheit</ip_written>
+            <ip_symbol>&#176;F</ip_symbol>
+            <si_written>Degrees Celsius</si_written>
+            <si_symbol>&#176;C</si_symbol>
+          </term>
+          <term>
+            <name>Minimum Outdoor Dry Bulb for Heat Pump Operation</name>
+            <description>This is the minimum temperature at which  the DX  coils will be able to operate during heat pump operation.</description>
+            <data_type>double</data_type>
+            <ip_written>Degrees Fahrenheit</ip_written>
+            <ip_symbol>&#176;F</ip_symbol>
+            <si_written>Degrees Celsius</si_written>
+            <si_symbol>&#176;C</si_symbol>
+          </term>
+          <term>
+            <name>Minimum Outdoor Dryb Bulb for Cooling Operation</name>
+            <description>This is the minimum temperature at which  the DX cooling coils will be able to operate.</description>
+            <data_type>double</data_type>
+            <ip_written>Degrees Fahrenheit</ip_written>
+            <ip_symbol>&#176;F</ip_symbol>
+            <si_written>Degrees Celsius</si_written>
+            <si_symbol>&#176;C</si_symbol>
+          </term>
+          <term>
+            <name>Minimum speed as a fraction of maximum speed</name>
+            <description> Divide the minimum RPM by the  maximum RPM of the fan.</description>
+            <data_type>double</data_type>
+          </term>
+          <term>
+            <name>Nominal Cooling Capacity</name>
+            <description>The nominal cooling capacity as listed in the product brochure for this family of model numbers. </description>
+            <data_type>integer</data_type>
+            <ip_written>Tons of Refrigeration (12,000 BTU/h)</ip_written>
+            <ip_symbol>Tons</ip_symbol>
+            <si_written>Killowatt</si_written>
+            <si_symbol>kW</si_symbol>
+          </term>
+          <term>
+            <name>Number of Heating stages</name>
+            <description>Enter the number of heating stages, excluding off.</description>
+            <data_type>integer</data_type>
+          </term>
+          <term>
+            <name>Number of discrete cooling stages</name>
+            <description>Enter the number of discrete operating stages for the compressors. (Excluding 'off'.)</description>
+            <data_type>integer</data_type>
+          </term>
+          <term>
+            <name>Number of discrete speeds</name>
+            <description>Enter the number of discrete operating speeds for the indoor fan motor. (Excluding 'off'.)</description>
+            <data_type>integer</data_type>
+          </term>
+          <term>
+            <name>OpenStudio Type</name>
+            <description>Type of OpenStudio Object</description>
+          </term>
+          <term>
+            <name>Refrigerant</name>
+            <description>Select the type of refrigerant.</description>
+            <data_type>enum</data_type>
+            <enumerations> R-410A|R-407c|R134-A</enumerations>
+          </term>
+          <term>
+            <name>Seasonal Energy Efficiency Ratio</name>
+            <abbr>SEER</abbr>
+            <description>"The total heat removed from the conditioned space during the annual cooling season, expressed in Btu&#8217;s, divided by the total electrical energy consumed by the air conditioner or heat pump during the same season, expressed in watt-hours." (AHRI 210/240 2008)</description>
+            <data_type>double</data_type>
+            <ip_written>British Thermal Units per hour per Watt</ip_written>
+            <ip_symbol>(BTU/h)/W</ip_symbol>
+            <si_written>British Thermal Units per hour per Watt</si_written>
+            <si_symbol>(BTU/h)/Watt</si_symbol>
+          </term>
+          <term>
+            <name>Sequence of Operations</name>
+            <data_type>file</data_type>
+          </term>
+          <term>
+            <name>Turndown Ratio</name>
+            <description>Enter the turndown ratio for the burner. (Full input/minimum input)</description>
+            <data_type>double</data_type>
+          </term>
+          <term>
+            <name>Type of Heating</name>
+            <description>Select the type of heating that the unit uses. This is independent of heat pump operation. If your unit is a heat pump without supplemental heating or has no heating coil, select none. </description>
+            <data_type>enum</data_type>
+            <enumerations>Gas|Electric|None</enumerations>
+          </term>
         </tag>
-        <tag name="Integrated Display Computer">
-          <term name="OpenStudio Type"/>
-          <term name="Standby Power"/>
-          <term name="Peak Power"/>
-          <term name="Cycling Percent On"/>
-        </tag>
-        <tag name="Notebook">
-          <term name="OpenStudio Type"/>
-          <term name="Standby Power"/>
-          <term name="Peak Power"/>
-          <term name="Cycling Percent On"/>
-        </tag>
-      </tag>
-      <tag name="Display">
-        <term name="OpenStudio Type"/>
-        <term name="Standby Power"/>
-        <term name="Peak Power"/>
-        <term name="Cycling Percent On"/>
-        <tag name="CRT Monitor">
-          <term name="OpenStudio Type"/>
-          <term name="Standby Power"/>
-          <term name="Peak Power"/>
-          <term name="Cycling Percent On"/>
-        </tag>
-        <tag name="CRT Television">
-          <term name="OpenStudio Type"/>
-          <term name="Standby Power"/>
-          <term name="Peak Power"/>
-          <term name="Cycling Percent On"/>
-        </tag>
-        <tag name="Digital Photo Frame">
-          <term name="OpenStudio Type"/>
-          <term name="Standby Power"/>
-          <term name="Peak Power"/>
-          <term name="Cycling Percent On"/>
-        </tag>
-        <tag name="LCD Monitor">
-          <term name="OpenStudio Type"/>
-          <term name="Standby Power"/>
-          <term name="Peak Power"/>
-          <term name="Cycling Percent On"/>
-        </tag>
-        <tag name="LCD Television">
-          <term name="OpenStudio Type"/>
-          <term name="Standby Power"/>
-          <term name="Peak Power"/>
-          <term name="Cycling Percent On"/>
-        </tag>
-        <tag name="Plasma Television">
-          <term name="OpenStudio Type"/>
-          <term name="Standby Power"/>
-          <term name="Peak Power"/>
-          <term name="Cycling Percent On"/>
-        </tag>
-        <tag name="Projector">
-          <term name="OpenStudio Type"/>
-          <term name="Standby Power"/>
-          <term name="Peak Power"/>
-          <term name="Cycling Percent On"/>
-        </tag>
-      </tag>
-      <tag name="Imaging and Printing">
-        <term name="OpenStudio Type"/>
-        <term name="Standby Power"/>
-        <term name="Peak Power"/>
-        <term name="Cycling Percent On"/>
-        <tag name="Network Printer / Fax / Scanner">
-          <term name="OpenStudio Type"/>
-          <term name="Standby Power"/>
-          <term name="Peak Power"/>
-          <term name="Cycling Percent On"/>
-        </tag>
-        <tag name="Personal Printer / Fax / Scanner">
-          <term name="OpenStudio Type"/>
-          <term name="Standby Power"/>
-          <term name="Peak Power"/>
-          <term name="Cycling Percent On"/>
-        </tag>
-      </tag>
-      <tag name="Lighting">
-        <term name="OpenStudio Type"/>
-        <term name="Standby Power"/>
-        <term name="Peak Power"/>
-        <term name="Cycling Percent On"/>
-        <tag name="Egress Light">
-          <term name="OpenStudio Type"/>
-          <term name="Standby Power"/>
-          <term name="Peak Power"/>
-          <term name="Cycling Percent On"/>
-        </tag>
-        <tag name="Task Light">
-          <term name="OpenStudio Type"/>
-          <term name="Standby Power"/>
-          <term name="Peak Power"/>
-          <term name="Cycling Percent On"/>
-        </tag>
-      </tag>
-      <tag name="Medical Diagnostic">
-        <term name="OpenStudio Type"/>
-        <term name="Standby Power"/>
-        <term name="Peak Power"/>
-        <term name="Cycling Percent On"/>
-      </tag>
-      <tag name="Personal Care">
-        <term name="OpenStudio Type"/>
-        <term name="Standby Power"/>
-        <term name="Peak Power"/>
-        <term name="Cycling Percent On"/>
       </tag>
     </tag>
-    <tag name="Material">
-      <term name="OpenStudio Type"/>
-      <tag name="Opaque">
-        <term name="OpenStudio Type"/>
-        <term name="Typical Application"/>
-        <term name="Thickness"/>
-        <term name="Sub-Category"/>
-        <term name="Stud Spacing"/>
-        <term name="Specific Heat"/>
-        <term name="Resistance"/>
-        <term name="Nominal Stud Width"/>
-        <term name="Nominal Header Insulation Resistance"/>
-        <term name="Nominal Cavity Insulation Resistance"/>
-        <term name="Density"/>
-        <term name="Conductivity"/>
-        <term name="Category"/>
-        <term name="Block Fill Type"/>
-      </tag>
-    </tag>
-    <tag name="Occupant">
-      <term name="OpenStudio Type"/>
-      <term name="Women Heat Multiplier"/>
-      <term name="Total Heat Men"/>
-      <term name="Percent Sensible Heat that is Radiant"/>
-      <term name="Children Heat Multiplier"/>
-      <term name="Carbon Dioxide Generation Rate"/>
-    </tag>
-    <tag name="On-Site Power Generation">
-      <term name="OpenStudio Type"/>
-      <tag name="Photovoltaic System">
-        <term name="OpenStudio Type"/>
-        <tag name="Photovoltaic Module">
-          <term name="OpenStudio Type"/>
-          <term name="Short Circuit Current"/>
-          <term name="Open Circuit Voltage"/>
-          <term name="Maximum Power Voltage"/>
-          <term name="Maximum Power Current"/>
-          <term name="Maximum Power"/>
-          <term name="Efficiency at Maximum Power"/>
-          <term name="Cell Technology"/>
-          <term name="Area"/>
+    <tag>
+      <name>MEL</name>
+      <tag>
+        <name>Appliance</name>
+        <tag>
+          <name>Beverage Fountain</name>
+          <term>
+            <name>Cycling Percent On</name>
+            <description>The percent of time that this piece of equipment is in the on state.  Equipment is assumed to be in standby mode when not on.</description>
+            <data_type>double</data_type>
+            <ip_written>%</ip_written>
+            <ip_symbol>%</ip_symbol>
+            <si_written>%</si_written>
+            <si_symbol>%</si_symbol>
+          </term>
+          <term>
+            <name>OpenStudio Type</name>
+            <description>Type of OpenStudio Object</description>
+          </term>
+          <term>
+            <name>Peak Power</name>
+            <description>The peak power drawn by this piece of equipment.  This may either be measured or nameplate rated.</description>
+            <data_type>double</data_type>
+            <ip_written>W</ip_written>
+            <ip_symbol>W</ip_symbol>
+            <si_written>W</si_written>
+            <si_symbol>W</si_symbol>
+          </term>
+          <term>
+            <name>Standby Power</name>
+            <description>The power drawn by this piece of equipment when not in the on state.  This value is measured.</description>
+            <data_type>double</data_type>
+            <ip_written>W</ip_written>
+            <ip_symbol>W</ip_symbol>
+            <si_written>W</si_written>
+            <si_symbol>W</si_symbol>
+          </term>
+        </tag>
+        <tag>
+          <name>Cash Exchange</name>
+          <term>
+            <name>Cycling Percent On</name>
+            <description>The percent of time that this piece of equipment is in the on state.  Equipment is assumed to be in standby mode when not on.</description>
+            <data_type>double</data_type>
+            <ip_written>%</ip_written>
+            <ip_symbol>%</ip_symbol>
+            <si_written>%</si_written>
+            <si_symbol>%</si_symbol>
+          </term>
+          <term>
+            <name>OpenStudio Type</name>
+            <description>Type of OpenStudio Object</description>
+          </term>
+          <term>
+            <name>Peak Power</name>
+            <description>The peak power drawn by this piece of equipment.  This may either be measured or nameplate rated.</description>
+            <data_type>double</data_type>
+            <ip_written>W</ip_written>
+            <ip_symbol>W</ip_symbol>
+            <si_written>W</si_written>
+            <si_symbol>W</si_symbol>
+          </term>
+          <term>
+            <name>Standby Power</name>
+            <description>The power drawn by this piece of equipment when not in the on state.  This value is measured.</description>
+            <data_type>double</data_type>
+            <ip_written>W</ip_written>
+            <ip_symbol>W</ip_symbol>
+            <si_written>W</si_written>
+            <si_symbol>W</si_symbol>
+          </term>
+        </tag>
+        <tag>
+          <name>Coffee Maker</name>
+          <term>
+            <name>Cycling Percent On</name>
+            <description>The percent of time that this piece of equipment is in the on state.  Equipment is assumed to be in standby mode when not on.</description>
+            <data_type>double</data_type>
+            <ip_written>%</ip_written>
+            <ip_symbol>%</ip_symbol>
+            <si_written>%</si_written>
+            <si_symbol>%</si_symbol>
+          </term>
+          <term>
+            <name>OpenStudio Type</name>
+            <description>Type of OpenStudio Object</description>
+          </term>
+          <term>
+            <name>Peak Power</name>
+            <description>The peak power drawn by this piece of equipment.  This may either be measured or nameplate rated.</description>
+            <data_type>double</data_type>
+            <ip_written>W</ip_written>
+            <ip_symbol>W</ip_symbol>
+            <si_written>W</si_written>
+            <si_symbol>W</si_symbol>
+          </term>
+          <term>
+            <name>Standby Power</name>
+            <description>The power drawn by this piece of equipment when not in the on state.  This value is measured.</description>
+            <data_type>double</data_type>
+            <ip_written>W</ip_written>
+            <ip_symbol>W</ip_symbol>
+            <si_written>W</si_written>
+            <si_symbol>W</si_symbol>
+          </term>
+        </tag>
+        <tag>
+          <name>Desktop Fan</name>
+          <term>
+            <name>Cycling Percent On</name>
+            <description>The percent of time that this piece of equipment is in the on state.  Equipment is assumed to be in standby mode when not on.</description>
+            <data_type>double</data_type>
+            <ip_written>%</ip_written>
+            <ip_symbol>%</ip_symbol>
+            <si_written>%</si_written>
+            <si_symbol>%</si_symbol>
+          </term>
+          <term>
+            <name>OpenStudio Type</name>
+            <description>Type of OpenStudio Object</description>
+          </term>
+          <term>
+            <name>Peak Power</name>
+            <description>The peak power drawn by this piece of equipment.  This may either be measured or nameplate rated.</description>
+            <data_type>double</data_type>
+            <ip_written>W</ip_written>
+            <ip_symbol>W</ip_symbol>
+            <si_written>W</si_written>
+            <si_symbol>W</si_symbol>
+          </term>
+          <term>
+            <name>Standby Power</name>
+            <description>The power drawn by this piece of equipment when not in the on state.  This value is measured.</description>
+            <data_type>double</data_type>
+            <ip_written>W</ip_written>
+            <ip_symbol>W</ip_symbol>
+            <si_written>W</si_written>
+            <si_symbol>W</si_symbol>
+          </term>
+        </tag>
+        <tag>
+          <name>Drinking Fountain</name>
+          <term>
+            <name>Cycling Percent On</name>
+            <description>The percent of time that this piece of equipment is in the on state.  Equipment is assumed to be in standby mode when not on.</description>
+            <data_type>double</data_type>
+            <ip_written>%</ip_written>
+            <ip_symbol>%</ip_symbol>
+            <si_written>%</si_written>
+            <si_symbol>%</si_symbol>
+          </term>
+          <term>
+            <name>OpenStudio Type</name>
+            <description>Type of OpenStudio Object</description>
+          </term>
+          <term>
+            <name>Peak Power</name>
+            <description>The peak power drawn by this piece of equipment.  This may either be measured or nameplate rated.</description>
+            <data_type>double</data_type>
+            <ip_written>W</ip_written>
+            <ip_symbol>W</ip_symbol>
+            <si_written>W</si_written>
+            <si_symbol>W</si_symbol>
+          </term>
+          <term>
+            <name>Standby Power</name>
+            <description>The power drawn by this piece of equipment when not in the on state.  This value is measured.</description>
+            <data_type>double</data_type>
+            <ip_written>W</ip_written>
+            <ip_symbol>W</ip_symbol>
+            <si_written>W</si_written>
+            <si_symbol>W</si_symbol>
+          </term>
+        </tag>
+        <tag>
+          <name>Food Warmer</name>
+          <term>
+            <name>Cycling Percent On</name>
+            <description>The percent of time that this piece of equipment is in the on state.  Equipment is assumed to be in standby mode when not on.</description>
+            <data_type>double</data_type>
+            <ip_written>%</ip_written>
+            <ip_symbol>%</ip_symbol>
+            <si_written>%</si_written>
+            <si_symbol>%</si_symbol>
+          </term>
+          <term>
+            <name>OpenStudio Type</name>
+            <description>Type of OpenStudio Object</description>
+          </term>
+          <term>
+            <name>Peak Power</name>
+            <description>The peak power drawn by this piece of equipment.  This may either be measured or nameplate rated.</description>
+            <data_type>double</data_type>
+            <ip_written>W</ip_written>
+            <ip_symbol>W</ip_symbol>
+            <si_written>W</si_written>
+            <si_symbol>W</si_symbol>
+          </term>
+          <term>
+            <name>Standby Power</name>
+            <description>The power drawn by this piece of equipment when not in the on state.  This value is measured.</description>
+            <data_type>double</data_type>
+            <ip_written>W</ip_written>
+            <ip_symbol>W</ip_symbol>
+            <si_written>W</si_written>
+            <si_symbol>W</si_symbol>
+          </term>
+        </tag>
+        <tag>
+          <name>Freezer</name>
+          <term>
+            <name>Cycling Percent On</name>
+            <description>The percent of time that this piece of equipment is in the on state.  Equipment is assumed to be in standby mode when not on.</description>
+            <data_type>double</data_type>
+            <ip_written>%</ip_written>
+            <ip_symbol>%</ip_symbol>
+            <si_written>%</si_written>
+            <si_symbol>%</si_symbol>
+          </term>
+          <term>
+            <name>OpenStudio Type</name>
+            <description>Type of OpenStudio Object</description>
+          </term>
+          <term>
+            <name>Peak Power</name>
+            <description>The peak power drawn by this piece of equipment.  This may either be measured or nameplate rated.</description>
+            <data_type>double</data_type>
+            <ip_written>W</ip_written>
+            <ip_symbol>W</ip_symbol>
+            <si_written>W</si_written>
+            <si_symbol>W</si_symbol>
+          </term>
+          <term>
+            <name>Standby Power</name>
+            <description>The power drawn by this piece of equipment when not in the on state.  This value is measured.</description>
+            <data_type>double</data_type>
+            <ip_written>W</ip_written>
+            <ip_symbol>W</ip_symbol>
+            <si_written>W</si_written>
+            <si_symbol>W</si_symbol>
+          </term>
+        </tag>
+        <tag>
+          <name>Ice Machine</name>
+          <term>
+            <name>Cycling Percent On</name>
+            <description>The percent of time that this piece of equipment is in the on state.  Equipment is assumed to be in standby mode when not on.</description>
+            <data_type>double</data_type>
+            <ip_written>%</ip_written>
+            <ip_symbol>%</ip_symbol>
+            <si_written>%</si_written>
+            <si_symbol>%</si_symbol>
+          </term>
+          <term>
+            <name>OpenStudio Type</name>
+            <description>Type of OpenStudio Object</description>
+          </term>
+          <term>
+            <name>Peak Power</name>
+            <description>The peak power drawn by this piece of equipment.  This may either be measured or nameplate rated.</description>
+            <data_type>double</data_type>
+            <ip_written>W</ip_written>
+            <ip_symbol>W</ip_symbol>
+            <si_written>W</si_written>
+            <si_symbol>W</si_symbol>
+          </term>
+          <term>
+            <name>Standby Power</name>
+            <description>The power drawn by this piece of equipment when not in the on state.  This value is measured.</description>
+            <data_type>double</data_type>
+            <ip_written>W</ip_written>
+            <ip_symbol>W</ip_symbol>
+            <si_written>W</si_written>
+            <si_symbol>W</si_symbol>
+          </term>
+        </tag>
+        <tag>
+          <name>Microwave</name>
+          <term>
+            <name>Cycling Percent On</name>
+            <description>The percent of time that this piece of equipment is in the on state.  Equipment is assumed to be in standby mode when not on.</description>
+            <data_type>double</data_type>
+            <ip_written>%</ip_written>
+            <ip_symbol>%</ip_symbol>
+            <si_written>%</si_written>
+            <si_symbol>%</si_symbol>
+          </term>
+          <term>
+            <name>OpenStudio Type</name>
+            <description>Type of OpenStudio Object</description>
+          </term>
+          <term>
+            <name>Peak Power</name>
+            <description>The peak power drawn by this piece of equipment.  This may either be measured or nameplate rated.</description>
+            <data_type>double</data_type>
+            <ip_written>W</ip_written>
+            <ip_symbol>W</ip_symbol>
+            <si_written>W</si_written>
+            <si_symbol>W</si_symbol>
+          </term>
+          <term>
+            <name>Standby Power</name>
+            <description>The power drawn by this piece of equipment when not in the on state.  This value is measured.</description>
+            <data_type>double</data_type>
+            <ip_written>W</ip_written>
+            <ip_symbol>W</ip_symbol>
+            <si_written>W</si_written>
+            <si_symbol>W</si_symbol>
+          </term>
+        </tag>
+        <tag>
+          <name>Mini-fridge</name>
+          <term>
+            <name>Cycling Percent On</name>
+            <description>The percent of time that this piece of equipment is in the on state.  Equipment is assumed to be in standby mode when not on.</description>
+            <data_type>double</data_type>
+            <ip_written>%</ip_written>
+            <ip_symbol>%</ip_symbol>
+            <si_written>%</si_written>
+            <si_symbol>%</si_symbol>
+          </term>
+          <term>
+            <name>OpenStudio Type</name>
+            <description>Type of OpenStudio Object</description>
+          </term>
+          <term>
+            <name>Peak Power</name>
+            <description>The peak power drawn by this piece of equipment.  This may either be measured or nameplate rated.</description>
+            <data_type>double</data_type>
+            <ip_written>W</ip_written>
+            <ip_symbol>W</ip_symbol>
+            <si_written>W</si_written>
+            <si_symbol>W</si_symbol>
+          </term>
+          <term>
+            <name>Standby Power</name>
+            <description>The power drawn by this piece of equipment when not in the on state.  This value is measured.</description>
+            <data_type>double</data_type>
+            <ip_written>W</ip_written>
+            <ip_symbol>W</ip_symbol>
+            <si_written>W</si_written>
+            <si_symbol>W</si_symbol>
+          </term>
+        </tag>
+        <tag>
+          <name>Personal Heater</name>
+          <term>
+            <name>Cycling Percent On</name>
+            <description>The percent of time that this piece of equipment is in the on state.  Equipment is assumed to be in standby mode when not on.</description>
+            <data_type>double</data_type>
+            <ip_written>%</ip_written>
+            <ip_symbol>%</ip_symbol>
+            <si_written>%</si_written>
+            <si_symbol>%</si_symbol>
+          </term>
+          <term>
+            <name>OpenStudio Type</name>
+            <description>Type of OpenStudio Object</description>
+          </term>
+          <term>
+            <name>Peak Power</name>
+            <description>The peak power drawn by this piece of equipment.  This may either be measured or nameplate rated.</description>
+            <data_type>double</data_type>
+            <ip_written>W</ip_written>
+            <ip_symbol>W</ip_symbol>
+            <si_written>W</si_written>
+            <si_symbol>W</si_symbol>
+          </term>
+          <term>
+            <name>Standby Power</name>
+            <description>The power drawn by this piece of equipment when not in the on state.  This value is measured.</description>
+            <data_type>double</data_type>
+            <ip_written>W</ip_written>
+            <ip_symbol>W</ip_symbol>
+            <si_written>W</si_written>
+            <si_symbol>W</si_symbol>
+          </term>
+        </tag>
+        <tag>
+          <name>Refrigerated Vending Machine</name>
+          <term>
+            <name>Cycling Percent On</name>
+            <description>The percent of time that this piece of equipment is in the on state.  Equipment is assumed to be in standby mode when not on.</description>
+            <data_type>double</data_type>
+            <ip_written>%</ip_written>
+            <ip_symbol>%</ip_symbol>
+            <si_written>%</si_written>
+            <si_symbol>%</si_symbol>
+          </term>
+          <term>
+            <name>OpenStudio Type</name>
+            <description>Type of OpenStudio Object</description>
+          </term>
+          <term>
+            <name>Peak Power</name>
+            <description>The peak power drawn by this piece of equipment.  This may either be measured or nameplate rated.</description>
+            <data_type>double</data_type>
+            <ip_written>W</ip_written>
+            <ip_symbol>W</ip_symbol>
+            <si_written>W</si_written>
+            <si_symbol>W</si_symbol>
+          </term>
+          <term>
+            <name>Standby Power</name>
+            <description>The power drawn by this piece of equipment when not in the on state.  This value is measured.</description>
+            <data_type>double</data_type>
+            <ip_written>W</ip_written>
+            <ip_symbol>W</ip_symbol>
+            <si_written>W</si_written>
+            <si_symbol>W</si_symbol>
+          </term>
+        </tag>
+        <tag>
+          <name>Refrigerator</name>
+          <term>
+            <name>Cycling Percent On</name>
+            <description>The percent of time that this piece of equipment is in the on state.  Equipment is assumed to be in standby mode when not on.</description>
+            <data_type>double</data_type>
+            <ip_written>%</ip_written>
+            <ip_symbol>%</ip_symbol>
+            <si_written>%</si_written>
+            <si_symbol>%</si_symbol>
+          </term>
+          <term>
+            <name>OpenStudio Type</name>
+            <description>Type of OpenStudio Object</description>
+          </term>
+          <term>
+            <name>Peak Power</name>
+            <description>The peak power drawn by this piece of equipment.  This may either be measured or nameplate rated.</description>
+            <data_type>double</data_type>
+            <ip_written>W</ip_written>
+            <ip_symbol>W</ip_symbol>
+            <si_written>W</si_written>
+            <si_symbol>W</si_symbol>
+          </term>
+          <term>
+            <name>Standby Power</name>
+            <description>The power drawn by this piece of equipment when not in the on state.  This value is measured.</description>
+            <data_type>double</data_type>
+            <ip_written>W</ip_written>
+            <ip_symbol>W</ip_symbol>
+            <si_written>W</si_written>
+            <si_symbol>W</si_symbol>
+          </term>
+        </tag>
+        <tag>
+          <name>Vending Machine</name>
+          <term>
+            <name>Cycling Percent On</name>
+            <description>The percent of time that this piece of equipment is in the on state.  Equipment is assumed to be in standby mode when not on.</description>
+            <data_type>double</data_type>
+            <ip_written>%</ip_written>
+            <ip_symbol>%</ip_symbol>
+            <si_written>%</si_written>
+            <si_symbol>%</si_symbol>
+          </term>
+          <term>
+            <name>OpenStudio Type</name>
+            <description>Type of OpenStudio Object</description>
+          </term>
+          <term>
+            <name>Peak Power</name>
+            <description>The peak power drawn by this piece of equipment.  This may either be measured or nameplate rated.</description>
+            <data_type>double</data_type>
+            <ip_written>W</ip_written>
+            <ip_symbol>W</ip_symbol>
+            <si_written>W</si_written>
+            <si_symbol>W</si_symbol>
+          </term>
+          <term>
+            <name>Standby Power</name>
+            <description>The power drawn by this piece of equipment when not in the on state.  This value is measured.</description>
+            <data_type>double</data_type>
+            <ip_written>W</ip_written>
+            <ip_symbol>W</ip_symbol>
+            <si_written>W</si_written>
+            <si_symbol>W</si_symbol>
+          </term>
+        </tag>
+        <tag>
+          <name>Water Cooler</name>
+          <term>
+            <name>Cycling Percent On</name>
+            <description>The percent of time that this piece of equipment is in the on state.  Equipment is assumed to be in standby mode when not on.</description>
+            <data_type>double</data_type>
+            <ip_written>%</ip_written>
+            <ip_symbol>%</ip_symbol>
+            <si_written>%</si_written>
+            <si_symbol>%</si_symbol>
+          </term>
+          <term>
+            <name>OpenStudio Type</name>
+            <description>Type of OpenStudio Object</description>
+          </term>
+          <term>
+            <name>Peak Power</name>
+            <description>The peak power drawn by this piece of equipment.  This may either be measured or nameplate rated.</description>
+            <data_type>double</data_type>
+            <ip_written>W</ip_written>
+            <ip_symbol>W</ip_symbol>
+            <si_written>W</si_written>
+            <si_symbol>W</si_symbol>
+          </term>
+          <term>
+            <name>Standby Power</name>
+            <description>The power drawn by this piece of equipment when not in the on state.  This value is measured.</description>
+            <data_type>double</data_type>
+            <ip_written>W</ip_written>
+            <ip_symbol>W</ip_symbol>
+            <si_written>W</si_written>
+            <si_symbol>W</si_symbol>
+          </term>
+        </tag>
+        <tag>
+          <name>Water Purifier</name>
+          <term>
+            <name>Cycling Percent On</name>
+            <description>The percent of time that this piece of equipment is in the on state.  Equipment is assumed to be in standby mode when not on.</description>
+            <data_type>double</data_type>
+            <ip_written>%</ip_written>
+            <ip_symbol>%</ip_symbol>
+            <si_written>%</si_written>
+            <si_symbol>%</si_symbol>
+          </term>
+          <term>
+            <name>OpenStudio Type</name>
+            <description>Type of OpenStudio Object</description>
+          </term>
+          <term>
+            <name>Peak Power</name>
+            <description>The peak power drawn by this piece of equipment.  This may either be measured or nameplate rated.</description>
+            <data_type>double</data_type>
+            <ip_written>W</ip_written>
+            <ip_symbol>W</ip_symbol>
+            <si_written>W</si_written>
+            <si_symbol>W</si_symbol>
+          </term>
+          <term>
+            <name>Standby Power</name>
+            <description>The power drawn by this piece of equipment when not in the on state.  This value is measured.</description>
+            <data_type>double</data_type>
+            <ip_written>W</ip_written>
+            <ip_symbol>W</ip_symbol>
+            <si_written>W</si_written>
+            <si_symbol>W</si_symbol>
+          </term>
         </tag>
       </tag>
-    </tag>
-    <tag name="Space Use">
-      <term name="OpenStudio Type"/>
-      <tag name="Electric Lighting">
-        <term name="OpenStudio Type"/>
-        <tag name="Lamp Ballast">
-          <term name="OpenStudio Type"/>
-          <term name="Total Harmonic Distortion"/>
-          <term name="Starting Method"/>
-          <term name="Product Number"/>
-          <term name="Number of Lamps"/>
-          <term name="Input Voltage"/>
-          <term name="Input Power Factor"/>
-          <term name="Input Power"/>
-          <term name="Ballast Type"/>
-          <term name="Ballast Manufacturer"/>
-          <term name="Ballast Factor"/>
-          <term name="ANSI Lamp Shape Designation"/>
+      <tag>
+        <name>Audio</name>
+        <term>
+          <name>Cycling Percent On</name>
+          <description>The percent of time that this piece of equipment is in the on state.  Equipment is assumed to be in standby mode when not on.</description>
+          <data_type>double</data_type>
+          <ip_written>%</ip_written>
+          <ip_symbol>%</ip_symbol>
+          <si_written>%</si_written>
+          <si_symbol>%</si_symbol>
+        </term>
+        <term>
+          <name>OpenStudio Type</name>
+          <description>Type of OpenStudio Object</description>
+        </term>
+        <term>
+          <name>Peak Power</name>
+          <description>The peak power drawn by this piece of equipment.  This may either be measured or nameplate rated.</description>
+          <data_type>double</data_type>
+          <ip_written>W</ip_written>
+          <ip_symbol>W</ip_symbol>
+          <si_written>W</si_written>
+          <si_symbol>W</si_symbol>
+        </term>
+        <term>
+          <name>Standby Power</name>
+          <description>The power drawn by this piece of equipment when not in the on state.  This value is measured.</description>
+          <data_type>double</data_type>
+          <ip_written>W</ip_written>
+          <ip_symbol>W</ip_symbol>
+          <si_written>W</si_written>
+          <si_symbol>W</si_symbol>
+        </term>
+      </tag>
+      <tag>
+        <name>Computer</name>
+        <tag>
+          <name>Desktop</name>
+          <term>
+            <name>Cycling Percent On</name>
+            <description>The percent of time that this piece of equipment is in the on state.  Equipment is assumed to be in standby mode when not on.</description>
+            <data_type>double</data_type>
+            <ip_written>%</ip_written>
+            <ip_symbol>%</ip_symbol>
+            <si_written>%</si_written>
+            <si_symbol>%</si_symbol>
+          </term>
+          <term>
+            <name>OpenStudio Type</name>
+            <description>Type of OpenStudio Object</description>
+          </term>
+          <term>
+            <name>Peak Power</name>
+            <description>The peak power drawn by this piece of equipment.  This may either be measured or nameplate rated.</description>
+            <data_type>double</data_type>
+            <ip_written>W</ip_written>
+            <ip_symbol>W</ip_symbol>
+            <si_written>W</si_written>
+            <si_symbol>W</si_symbol>
+          </term>
+          <term>
+            <name>Standby Power</name>
+            <description>The power drawn by this piece of equipment when not in the on state.  This value is measured.</description>
+            <data_type>double</data_type>
+            <ip_written>W</ip_written>
+            <ip_symbol>W</ip_symbol>
+            <si_written>W</si_written>
+            <si_symbol>W</si_symbol>
+          </term>
         </tag>
-        <tag name="Non-SSL Lamp">
-          <term name="OpenStudio Type"/>
-          <term name="Standard Photometric Data"/>
-          <term name="Rated Life"/>
-          <term name="Product Number"/>
-          <term name="Mean Luminous Flux"/>
-          <term name="Manufacturer"/>
-          <term name="Input Power"/>
-          <term name="Initial Luminous Flux"/>
-          <term name="Correlated Color Temperature"/>
-          <term name="Color Rendering Index"/>
-          <term name="ANSI Lamp Shape Designation"/>
+        <tag>
+          <name>Integrated Display Computer</name>
+          <term>
+            <name>Cycling Percent On</name>
+            <description>The percent of time that this piece of equipment is in the on state.  Equipment is assumed to be in standby mode when not on.</description>
+            <data_type>double</data_type>
+            <ip_written>%</ip_written>
+            <ip_symbol>%</ip_symbol>
+            <si_written>%</si_written>
+            <si_symbol>%</si_symbol>
+          </term>
+          <term>
+            <name>OpenStudio Type</name>
+            <description>Type of OpenStudio Object</description>
+          </term>
+          <term>
+            <name>Peak Power</name>
+            <description>The peak power drawn by this piece of equipment.  This may either be measured or nameplate rated.</description>
+            <data_type>double</data_type>
+            <ip_written>W</ip_written>
+            <ip_symbol>W</ip_symbol>
+            <si_written>W</si_written>
+            <si_symbol>W</si_symbol>
+          </term>
+          <term>
+            <name>Standby Power</name>
+            <description>The power drawn by this piece of equipment when not in the on state.  This value is measured.</description>
+            <data_type>double</data_type>
+            <ip_written>W</ip_written>
+            <ip_symbol>W</ip_symbol>
+            <si_written>W</si_written>
+            <si_symbol>W</si_symbol>
+          </term>
         </tag>
-        <tag name="Non-SSL Luminaire">
-          <term name="OpenStudio Type"/>
-          <term name="Standard Photometric Data"/>
-          <term name="Number of Lamps"/>
-          <term name="Mounting Type"/>
-          <term name="Luminaire Product Number"/>
-          <term name="Luminaire Manufacturer"/>
-          <term name="Light Source Type"/>
-          <term name="ANSI Lamp Shape Designation"/>
-        </tag>
-        <tag name="SSL Luminaire">
-          <term name="OpenStudio Type"/>
-          <term name="Total Luminous Flux"/>
-          <term name="Total Harmonic Distortion"/>
-          <term name="Standard Photometric Data"/>
-          <term name="Product Number"/>
-          <term name="Mounting Type"/>
-          <term name="Manufacturer"/>
-          <term name="Luminous Efficacy"/>
-          <term name="Lumen Maintenance"/>
-          <term name="Input Voltage"/>
-          <term name="Input Power Factor"/>
-          <term name="Input Power"/>
-          <term name="Correlated Color Temperature"/>
-          <term name="Color Rendering Index"/>
-        </tag>
-        <tag name="SSL Replacement Lamp">
-          <term name="OpenStudio Type"/>
-          <term name="Standard Photometric Data"/>
-          <term name="Lumen Maintenance"/>
-          <term name="Lamp Product Number"/>
-          <term name="Lamp Manufacturer"/>
-          <term name="Input Power"/>
-          <term name="Correlated Color Temperature"/>
-          <term name="Color Rendering Index"/>
-          <term name="ANSI Lamp Shape Designation"/>
+        <tag>
+          <name>Notebook</name>
+          <term>
+            <name>Cycling Percent On</name>
+            <description>The percent of time that this piece of equipment is in the on state.  Equipment is assumed to be in standby mode when not on.</description>
+            <data_type>double</data_type>
+            <ip_written>%</ip_written>
+            <ip_symbol>%</ip_symbol>
+            <si_written>%</si_written>
+            <si_symbol>%</si_symbol>
+          </term>
+          <term>
+            <name>OpenStudio Type</name>
+            <description>Type of OpenStudio Object</description>
+          </term>
+          <term>
+            <name>Peak Power</name>
+            <description>The peak power drawn by this piece of equipment.  This may either be measured or nameplate rated.</description>
+            <data_type>double</data_type>
+            <ip_written>W</ip_written>
+            <ip_symbol>W</ip_symbol>
+            <si_written>W</si_written>
+            <si_symbol>W</si_symbol>
+          </term>
+          <term>
+            <name>Standby Power</name>
+            <description>The power drawn by this piece of equipment when not in the on state.  This value is measured.</description>
+            <data_type>double</data_type>
+            <ip_written>W</ip_written>
+            <ip_symbol>W</ip_symbol>
+            <si_written>W</si_written>
+            <si_symbol>W</si_symbol>
+          </term>
         </tag>
       </tag>
-      <tag name="Lighting">
-        <term name="OpenStudio Type"/>
-        <tag name="SSL Replacement Lamp">
-          <term name="OpenStudio Type"/>
-          <term name="Initial Luminous Flux"/>
+      <tag>
+        <name>Display</name>
+        <tag>
+          <name>CRT Monitor</name>
+          <term>
+            <name>Cycling Percent On</name>
+            <description>The percent of time that this piece of equipment is in the on state.  Equipment is assumed to be in standby mode when not on.</description>
+            <data_type>double</data_type>
+            <ip_written>%</ip_written>
+            <ip_symbol>%</ip_symbol>
+            <si_written>%</si_written>
+            <si_symbol>%</si_symbol>
+          </term>
+          <term>
+            <name>OpenStudio Type</name>
+            <description>Type of OpenStudio Object</description>
+          </term>
+          <term>
+            <name>Peak Power</name>
+            <description>The peak power drawn by this piece of equipment.  This may either be measured or nameplate rated.</description>
+            <data_type>double</data_type>
+            <ip_written>W</ip_written>
+            <ip_symbol>W</ip_symbol>
+            <si_written>W</si_written>
+            <si_symbol>W</si_symbol>
+          </term>
+          <term>
+            <name>Standby Power</name>
+            <description>The power drawn by this piece of equipment when not in the on state.  This value is measured.</description>
+            <data_type>double</data_type>
+            <ip_written>W</ip_written>
+            <ip_symbol>W</ip_symbol>
+            <si_written>W</si_written>
+            <si_symbol>W</si_symbol>
+          </term>
         </tag>
+        <tag>
+          <name>CRT Television</name>
+          <term>
+            <name>Cycling Percent On</name>
+            <description>The percent of time that this piece of equipment is in the on state.  Equipment is assumed to be in standby mode when not on.</description>
+            <data_type>double</data_type>
+            <ip_written>%</ip_written>
+            <ip_symbol>%</ip_symbol>
+            <si_written>%</si_written>
+            <si_symbol>%</si_symbol>
+          </term>
+          <term>
+            <name>OpenStudio Type</name>
+            <description>Type of OpenStudio Object</description>
+          </term>
+          <term>
+            <name>Peak Power</name>
+            <description>The peak power drawn by this piece of equipment.  This may either be measured or nameplate rated.</description>
+            <data_type>double</data_type>
+            <ip_written>W</ip_written>
+            <ip_symbol>W</ip_symbol>
+            <si_written>W</si_written>
+            <si_symbol>W</si_symbol>
+          </term>
+          <term>
+            <name>Standby Power</name>
+            <description>The power drawn by this piece of equipment when not in the on state.  This value is measured.</description>
+            <data_type>double</data_type>
+            <ip_written>W</ip_written>
+            <ip_symbol>W</ip_symbol>
+            <si_written>W</si_written>
+            <si_symbol>W</si_symbol>
+          </term>
+        </tag>
+        <tag>
+          <name>Digital Photo Frame</name>
+          <term>
+            <name>Cycling Percent On</name>
+            <description>The percent of time that this piece of equipment is in the on state.  Equipment is assumed to be in standby mode when not on.</description>
+            <data_type>double</data_type>
+            <ip_written>%</ip_written>
+            <ip_symbol>%</ip_symbol>
+            <si_written>%</si_written>
+            <si_symbol>%</si_symbol>
+          </term>
+          <term>
+            <name>OpenStudio Type</name>
+            <description>Type of OpenStudio Object</description>
+          </term>
+          <term>
+            <name>Peak Power</name>
+            <description>The peak power drawn by this piece of equipment.  This may either be measured or nameplate rated.</description>
+            <data_type>double</data_type>
+            <ip_written>W</ip_written>
+            <ip_symbol>W</ip_symbol>
+            <si_written>W</si_written>
+            <si_symbol>W</si_symbol>
+          </term>
+          <term>
+            <name>Standby Power</name>
+            <description>The power drawn by this piece of equipment when not in the on state.  This value is measured.</description>
+            <data_type>double</data_type>
+            <ip_written>W</ip_written>
+            <ip_symbol>W</ip_symbol>
+            <si_written>W</si_written>
+            <si_symbol>W</si_symbol>
+          </term>
+        </tag>
+        <tag>
+          <name>LCD Monitor</name>
+          <term>
+            <name>Cycling Percent On</name>
+            <description>The percent of time that this piece of equipment is in the on state.  Equipment is assumed to be in standby mode when not on.</description>
+            <data_type>double</data_type>
+            <ip_written>%</ip_written>
+            <ip_symbol>%</ip_symbol>
+            <si_written>%</si_written>
+            <si_symbol>%</si_symbol>
+          </term>
+          <term>
+            <name>OpenStudio Type</name>
+            <description>Type of OpenStudio Object</description>
+          </term>
+          <term>
+            <name>Peak Power</name>
+            <description>The peak power drawn by this piece of equipment.  This may either be measured or nameplate rated.</description>
+            <data_type>double</data_type>
+            <ip_written>W</ip_written>
+            <ip_symbol>W</ip_symbol>
+            <si_written>W</si_written>
+            <si_symbol>W</si_symbol>
+          </term>
+          <term>
+            <name>Standby Power</name>
+            <description>The power drawn by this piece of equipment when not in the on state.  This value is measured.</description>
+            <data_type>double</data_type>
+            <ip_written>W</ip_written>
+            <ip_symbol>W</ip_symbol>
+            <si_written>W</si_written>
+            <si_symbol>W</si_symbol>
+          </term>
+        </tag>
+        <tag>
+          <name>LCD Television</name>
+          <term>
+            <name>Cycling Percent On</name>
+            <description>The percent of time that this piece of equipment is in the on state.  Equipment is assumed to be in standby mode when not on.</description>
+            <data_type>double</data_type>
+            <ip_written>%</ip_written>
+            <ip_symbol>%</ip_symbol>
+            <si_written>%</si_written>
+            <si_symbol>%</si_symbol>
+          </term>
+          <term>
+            <name>OpenStudio Type</name>
+            <description>Type of OpenStudio Object</description>
+          </term>
+          <term>
+            <name>Peak Power</name>
+            <description>The peak power drawn by this piece of equipment.  This may either be measured or nameplate rated.</description>
+            <data_type>double</data_type>
+            <ip_written>W</ip_written>
+            <ip_symbol>W</ip_symbol>
+            <si_written>W</si_written>
+            <si_symbol>W</si_symbol>
+          </term>
+          <term>
+            <name>Standby Power</name>
+            <description>The power drawn by this piece of equipment when not in the on state.  This value is measured.</description>
+            <data_type>double</data_type>
+            <ip_written>W</ip_written>
+            <ip_symbol>W</ip_symbol>
+            <si_written>W</si_written>
+            <si_symbol>W</si_symbol>
+          </term>
+        </tag>
+        <tag>
+          <name>Plasma Television</name>
+          <term>
+            <name>Cycling Percent On</name>
+            <description>The percent of time that this piece of equipment is in the on state.  Equipment is assumed to be in standby mode when not on.</description>
+            <data_type>double</data_type>
+            <ip_written>%</ip_written>
+            <ip_symbol>%</ip_symbol>
+            <si_written>%</si_written>
+            <si_symbol>%</si_symbol>
+          </term>
+          <term>
+            <name>OpenStudio Type</name>
+            <description>Type of OpenStudio Object</description>
+          </term>
+          <term>
+            <name>Peak Power</name>
+            <description>The peak power drawn by this piece of equipment.  This may either be measured or nameplate rated.</description>
+            <data_type>double</data_type>
+            <ip_written>W</ip_written>
+            <ip_symbol>W</ip_symbol>
+            <si_written>W</si_written>
+            <si_symbol>W</si_symbol>
+          </term>
+          <term>
+            <name>Standby Power</name>
+            <description>The power drawn by this piece of equipment when not in the on state.  This value is measured.</description>
+            <data_type>double</data_type>
+            <ip_written>W</ip_written>
+            <ip_symbol>W</ip_symbol>
+            <si_written>W</si_written>
+            <si_symbol>W</si_symbol>
+          </term>
+        </tag>
+        <tag>
+          <name>Projector</name>
+          <term>
+            <name>Cycling Percent On</name>
+            <description>The percent of time that this piece of equipment is in the on state.  Equipment is assumed to be in standby mode when not on.</description>
+            <data_type>double</data_type>
+            <ip_written>%</ip_written>
+            <ip_symbol>%</ip_symbol>
+            <si_written>%</si_written>
+            <si_symbol>%</si_symbol>
+          </term>
+          <term>
+            <name>OpenStudio Type</name>
+            <description>Type of OpenStudio Object</description>
+          </term>
+          <term>
+            <name>Peak Power</name>
+            <description>The peak power drawn by this piece of equipment.  This may either be measured or nameplate rated.</description>
+            <data_type>double</data_type>
+            <ip_written>W</ip_written>
+            <ip_symbol>W</ip_symbol>
+            <si_written>W</si_written>
+            <si_symbol>W</si_symbol>
+          </term>
+          <term>
+            <name>Standby Power</name>
+            <description>The power drawn by this piece of equipment when not in the on state.  This value is measured.</description>
+            <data_type>double</data_type>
+            <ip_written>W</ip_written>
+            <ip_symbol>W</ip_symbol>
+            <si_written>W</si_written>
+            <si_symbol>W</si_symbol>
+          </term>
+        </tag>
+      </tag>
+      <tag>
+        <name>Imaging and Printing</name>
+        <tag>
+          <name>Network Printer / Fax / Scanner</name>
+          <term>
+            <name>Cycling Percent On</name>
+            <description>The percent of time that this piece of equipment is in the on state.  Equipment is assumed to be in standby mode when not on.</description>
+            <data_type>double</data_type>
+            <ip_written>%</ip_written>
+            <ip_symbol>%</ip_symbol>
+            <si_written>%</si_written>
+            <si_symbol>%</si_symbol>
+          </term>
+          <term>
+            <name>OpenStudio Type</name>
+            <description>Type of OpenStudio Object</description>
+          </term>
+          <term>
+            <name>Peak Power</name>
+            <description>The peak power drawn by this piece of equipment.  This may either be measured or nameplate rated.</description>
+            <data_type>double</data_type>
+            <ip_written>W</ip_written>
+            <ip_symbol>W</ip_symbol>
+            <si_written>W</si_written>
+            <si_symbol>W</si_symbol>
+          </term>
+          <term>
+            <name>Standby Power</name>
+            <description>The power drawn by this piece of equipment when not in the on state.  This value is measured.</description>
+            <data_type>double</data_type>
+            <ip_written>W</ip_written>
+            <ip_symbol>W</ip_symbol>
+            <si_written>W</si_written>
+            <si_symbol>W</si_symbol>
+          </term>
+        </tag>
+        <tag>
+          <name>Personal Printer / Fax / Scanner</name>
+          <term>
+            <name>Cycling Percent On</name>
+            <description>The percent of time that this piece of equipment is in the on state.  Equipment is assumed to be in standby mode when not on.</description>
+            <data_type>double</data_type>
+            <ip_written>%</ip_written>
+            <ip_symbol>%</ip_symbol>
+            <si_written>%</si_written>
+            <si_symbol>%</si_symbol>
+          </term>
+          <term>
+            <name>OpenStudio Type</name>
+            <description>Type of OpenStudio Object</description>
+          </term>
+          <term>
+            <name>Peak Power</name>
+            <description>The peak power drawn by this piece of equipment.  This may either be measured or nameplate rated.</description>
+            <data_type>double</data_type>
+            <ip_written>W</ip_written>
+            <ip_symbol>W</ip_symbol>
+            <si_written>W</si_written>
+            <si_symbol>W</si_symbol>
+          </term>
+          <term>
+            <name>Standby Power</name>
+            <description>The power drawn by this piece of equipment when not in the on state.  This value is measured.</description>
+            <data_type>double</data_type>
+            <ip_written>W</ip_written>
+            <ip_symbol>W</ip_symbol>
+            <si_written>W</si_written>
+            <si_symbol>W</si_symbol>
+          </term>
+        </tag>
+      </tag>
+      <tag>
+        <name>Lighting</name>
+        <tag>
+          <name>Egress Light</name>
+          <term>
+            <name>Cycling Percent On</name>
+            <description>The percent of time that this piece of equipment is in the on state.  Equipment is assumed to be in standby mode when not on.</description>
+            <data_type>double</data_type>
+            <ip_written>%</ip_written>
+            <ip_symbol>%</ip_symbol>
+            <si_written>%</si_written>
+            <si_symbol>%</si_symbol>
+          </term>
+          <term>
+            <name>OpenStudio Type</name>
+            <description>Type of OpenStudio Object</description>
+          </term>
+          <term>
+            <name>Peak Power</name>
+            <description>The peak power drawn by this piece of equipment.  This may either be measured or nameplate rated.</description>
+            <data_type>double</data_type>
+            <ip_written>W</ip_written>
+            <ip_symbol>W</ip_symbol>
+            <si_written>W</si_written>
+            <si_symbol>W</si_symbol>
+          </term>
+          <term>
+            <name>Standby Power</name>
+            <description>The power drawn by this piece of equipment when not in the on state.  This value is measured.</description>
+            <data_type>double</data_type>
+            <ip_written>W</ip_written>
+            <ip_symbol>W</ip_symbol>
+            <si_written>W</si_written>
+            <si_symbol>W</si_symbol>
+          </term>
+        </tag>
+        <tag>
+          <name>Task Light</name>
+          <term>
+            <name>Cycling Percent On</name>
+            <description>The percent of time that this piece of equipment is in the on state.  Equipment is assumed to be in standby mode when not on.</description>
+            <data_type>double</data_type>
+            <ip_written>%</ip_written>
+            <ip_symbol>%</ip_symbol>
+            <si_written>%</si_written>
+            <si_symbol>%</si_symbol>
+          </term>
+          <term>
+            <name>OpenStudio Type</name>
+            <description>Type of OpenStudio Object</description>
+          </term>
+          <term>
+            <name>Peak Power</name>
+            <description>The peak power drawn by this piece of equipment.  This may either be measured or nameplate rated.</description>
+            <data_type>double</data_type>
+            <ip_written>W</ip_written>
+            <ip_symbol>W</ip_symbol>
+            <si_written>W</si_written>
+            <si_symbol>W</si_symbol>
+          </term>
+          <term>
+            <name>Standby Power</name>
+            <description>The power drawn by this piece of equipment when not in the on state.  This value is measured.</description>
+            <data_type>double</data_type>
+            <ip_written>W</ip_written>
+            <ip_symbol>W</ip_symbol>
+            <si_written>W</si_written>
+            <si_symbol>W</si_symbol>
+          </term>
+        </tag>
+      </tag>
+      <tag>
+        <name>Medical Diagnostic</name>
+        <term>
+          <name>Cycling Percent On</name>
+          <description>The percent of time that this piece of equipment is in the on state.  Equipment is assumed to be in standby mode when not on.</description>
+          <data_type>double</data_type>
+          <ip_written>%</ip_written>
+          <ip_symbol>%</ip_symbol>
+          <si_written>%</si_written>
+          <si_symbol>%</si_symbol>
+        </term>
+        <term>
+          <name>OpenStudio Type</name>
+          <description>Type of OpenStudio Object</description>
+        </term>
+        <term>
+          <name>Peak Power</name>
+          <description>The peak power drawn by this piece of equipment.  This may either be measured or nameplate rated.</description>
+          <data_type>double</data_type>
+          <ip_written>W</ip_written>
+          <ip_symbol>W</ip_symbol>
+          <si_written>W</si_written>
+          <si_symbol>W</si_symbol>
+        </term>
+        <term>
+          <name>Standby Power</name>
+          <description>The power drawn by this piece of equipment when not in the on state.  This value is measured.</description>
+          <data_type>double</data_type>
+          <ip_written>W</ip_written>
+          <ip_symbol>W</ip_symbol>
+          <si_written>W</si_written>
+          <si_symbol>W</si_symbol>
+        </term>
+      </tag>
+      <tag>
+        <name>Personal Care</name>
+        <term>
+          <name>Cycling Percent On</name>
+          <description>The percent of time that this piece of equipment is in the on state.  Equipment is assumed to be in standby mode when not on.</description>
+          <data_type>double</data_type>
+          <ip_written>%</ip_written>
+          <ip_symbol>%</ip_symbol>
+          <si_written>%</si_written>
+          <si_symbol>%</si_symbol>
+        </term>
+        <term>
+          <name>OpenStudio Type</name>
+          <description>Type of OpenStudio Object</description>
+        </term>
+        <term>
+          <name>Peak Power</name>
+          <description>The peak power drawn by this piece of equipment.  This may either be measured or nameplate rated.</description>
+          <data_type>double</data_type>
+          <ip_written>W</ip_written>
+          <ip_symbol>W</ip_symbol>
+          <si_written>W</si_written>
+          <si_symbol>W</si_symbol>
+        </term>
+        <term>
+          <name>Standby Power</name>
+          <description>The power drawn by this piece of equipment when not in the on state.  This value is measured.</description>
+          <data_type>double</data_type>
+          <ip_written>W</ip_written>
+          <ip_symbol>W</ip_symbol>
+          <si_written>W</si_written>
+          <si_symbol>W</si_symbol>
+        </term>
+      </tag>
+    </tag>
+    <tag>
+      <name>Material</name>
+      <tag>
+        <name>Opaque</name>
+        <tag>
+          <name>Building Board and Siding</name>
+          <term>
+            <name>Category</name>
+            <description>General category that this material fits into.</description>
+            <data_type>enum</data_type>
+            <enumerations>Asbestos Cement Board|Cement Board|Fiber Cement Board|Gypsum or Drywall|Oriented Strand Board|Plywood|Vegetable Fiber Board|Hardboard|Particleboard|Waferboard|Wood Subfloor   |Shingles|Architectural Glass|Siding</enumerations>
+          </term>
+          <term>
+            <name>Conductivity</name>
+            <description>Thermal conductivity of material layer at a mean temperature of 75&#176;F under dry conditions.</description>
+            <data_type>double</data_type>
+            <ip_written>British Thermal Units Inches per Hour Square Foot Degree Rankine</ip_written>
+            <ip_symbol>Btu*in/hr*ft^2*R</ip_symbol>
+            <si_written>Watts per Meter Degree Kelvin</si_written>
+            <si_symbol>W/m*K</si_symbol>
+          </term>
+          <term>
+            <name>Density</name>
+            <description>Density of material layer at a mean temperature of 75&#176;F under dry conditions.</description>
+            <data_type>double</data_type>
+            <ip_written>Pounds per Cubic Foot</ip_written>
+            <ip_symbol>lb/ft^3</ip_symbol>
+            <si_written>Kilograms per Meter Cubed</si_written>
+            <si_symbol>kg/m^3</si_symbol>
+          </term>
+          <term>
+            <name>OpenStudio Type</name>
+            <description>Type of OpenStudio Object</description>
+          </term>
+          <term>
+            <name>Resistance</name>
+            <description>Thermal resistance of material layer at a mean temperature of 75&#176;F under dry conditions; no film coefficients included.</description>
+            <data_type>double</data_type>
+            <ip_written>Hours Square Feet Degrees Rankine per British Thermal Unit</ip_written>
+            <ip_symbol>hr*ft^2*R/Btu</ip_symbol>
+            <si_written>Square Meters Degree Kelvin per Watt</si_written>
+            <si_symbol>m^2*K/W</si_symbol>
+          </term>
+          <term>
+            <name>Specific Heat</name>
+            <description>Specific heat of material layer at a mean temperature of 75&#176;F under dry conditions.</description>
+            <data_type>double</data_type>
+            <ip_written>British Thermal Units per Pound Mass Degree Rankine</ip_written>
+            <ip_symbol>Btu/lbm*R</ip_symbol>
+            <si_written>Joules per Kilogram Kelvin</si_written>
+            <si_symbol>J/kg*K</si_symbol>
+          </term>
+          <term>
+            <name>Thickness</name>
+            <description>Surface-to-surface thickness of material layer</description>
+            <data_type>double</data_type>
+            <ip_written>Inches</ip_written>
+            <ip_symbol>in</ip_symbol>
+            <si_written>Meters</si_written>
+            <si_symbol>m</si_symbol>
+          </term>
+          <term>
+            <name>Typical Application</name>
+            <description>Indicates where in the building this material is typically used.  May be used in more than one location.</description>
+            <data_type>enum</data_type>
+            <enumerations>Exterior Wall|Interior Wall|Below Grade Wall|Slab-On-Grade Floor|Attic Floor|Outdoor Exposed Floor|Interior Floor|Exterior Roof|Attic Roof|Interior Ceiling</enumerations>
+          </term>
+        </tag>
+        <tag>
+          <name>Building Membrane</name>
+          <term>
+            <name>Category</name>
+            <description>General category that this material fits into.</description>
+            <data_type>enum</data_type>
+            <enumerations>Vapor Permeable|Vapor Barrier</enumerations>
+          </term>
+          <term>
+            <name>Conductivity</name>
+            <description>Thermal conductivity of material layer at a mean temperature of 75&#176;F under dry conditions.</description>
+            <data_type>double</data_type>
+            <ip_written>British Thermal Units Inches per Hour Square Foot Degree Rankine</ip_written>
+            <ip_symbol>Btu*in/hr*ft^2*R</ip_symbol>
+            <si_written>Watts per Meter Degree Kelvin</si_written>
+            <si_symbol>W/m*K</si_symbol>
+          </term>
+          <term>
+            <name>Density</name>
+            <description>Density of material layer at a mean temperature of 75&#176;F under dry conditions.</description>
+            <data_type>double</data_type>
+            <ip_written>Pounds per Cubic Foot</ip_written>
+            <ip_symbol>lb/ft^3</ip_symbol>
+            <si_written>Kilograms per Meter Cubed</si_written>
+            <si_symbol>kg/m^3</si_symbol>
+          </term>
+          <term>
+            <name>OpenStudio Type</name>
+            <description>Type of OpenStudio Object</description>
+          </term>
+          <term>
+            <name>Resistance</name>
+            <description>Thermal resistance of material layer at a mean temperature of 75&#176;F under dry conditions; no film coefficients included.</description>
+            <data_type>double</data_type>
+            <ip_written>Hours Square Feet Degrees Rankine per British Thermal Unit</ip_written>
+            <ip_symbol>hr*ft^2*R/Btu</ip_symbol>
+            <si_written>Square Meters Degree Kelvin per Watt</si_written>
+            <si_symbol>m^2*K/W</si_symbol>
+          </term>
+          <term>
+            <name>Specific Heat</name>
+            <description>Specific heat of material layer at a mean temperature of 75&#176;F under dry conditions.</description>
+            <data_type>double</data_type>
+            <ip_written>British Thermal Units per Pound Mass Degree Rankine</ip_written>
+            <ip_symbol>Btu/lbm*R</ip_symbol>
+            <si_written>Joules per Kilogram Kelvin</si_written>
+            <si_symbol>J/kg*K</si_symbol>
+          </term>
+          <term>
+            <name>Thickness</name>
+            <description>Surface-to-surface thickness of material layer</description>
+            <data_type>double</data_type>
+            <ip_written>Inches</ip_written>
+            <ip_symbol>in</ip_symbol>
+            <si_written>Meters</si_written>
+            <si_symbol>m</si_symbol>
+          </term>
+          <term>
+            <name>Typical Application</name>
+            <description>Indicates where in the building this material is typically used.  May be used in more than one location.</description>
+            <data_type>enum</data_type>
+            <enumerations>Exterior Wall|Interior Wall|Below Grade Wall|Slab-On-Grade Floor|Attic Floor|Outdoor Exposed Floor|Interior Floor|Exterior Roof|Attic Roof|Interior Ceiling</enumerations>
+          </term>
+        </tag>
+        <tag>
+          <name>Finish Flooring</name>
+          <term>
+            <name>Category</name>
+            <description>General category that this material fits into.</description>
+            <data_type>enum</data_type>
+            <enumerations>Carpet and Carpet Pad|Cork|Terazzo|Tile</enumerations>
+          </term>
+          <term>
+            <name>Conductivity</name>
+            <description>Thermal conductivity of material layer at a mean temperature of 75&#176;F under dry conditions.</description>
+            <data_type>double</data_type>
+            <ip_written>British Thermal Units Inches per Hour Square Foot Degree Rankine</ip_written>
+            <ip_symbol>Btu*in/hr*ft^2*R</ip_symbol>
+            <si_written>Watts per Meter Degree Kelvin</si_written>
+            <si_symbol>W/m*K</si_symbol>
+          </term>
+          <term>
+            <name>Density</name>
+            <description>Density of material layer at a mean temperature of 75&#176;F under dry conditions.</description>
+            <data_type>double</data_type>
+            <ip_written>Pounds per Cubic Foot</ip_written>
+            <ip_symbol>lb/ft^3</ip_symbol>
+            <si_written>Kilograms per Meter Cubed</si_written>
+            <si_symbol>kg/m^3</si_symbol>
+          </term>
+          <term>
+            <name>OpenStudio Type</name>
+            <description>Type of OpenStudio Object</description>
+          </term>
+          <term>
+            <name>Resistance</name>
+            <description>Thermal resistance of material layer at a mean temperature of 75&#176;F under dry conditions; no film coefficients included.</description>
+            <data_type>double</data_type>
+            <ip_written>Hours Square Feet Degrees Rankine per British Thermal Unit</ip_written>
+            <ip_symbol>hr*ft^2*R/Btu</ip_symbol>
+            <si_written>Square Meters Degree Kelvin per Watt</si_written>
+            <si_symbol>m^2*K/W</si_symbol>
+          </term>
+          <term>
+            <name>Specific Heat</name>
+            <description>Specific heat of material layer at a mean temperature of 75&#176;F under dry conditions.</description>
+            <data_type>double</data_type>
+            <ip_written>British Thermal Units per Pound Mass Degree Rankine</ip_written>
+            <ip_symbol>Btu/lbm*R</ip_symbol>
+            <si_written>Joules per Kilogram Kelvin</si_written>
+            <si_symbol>J/kg*K</si_symbol>
+          </term>
+          <term>
+            <name>Thickness</name>
+            <description>Surface-to-surface thickness of material layer</description>
+            <data_type>double</data_type>
+            <ip_written>Inches</ip_written>
+            <ip_symbol>in</ip_symbol>
+            <si_written>Meters</si_written>
+            <si_symbol>m</si_symbol>
+          </term>
+          <term>
+            <name>Typical Application</name>
+            <description>Indicates where in the building this material is typically used.  May be used in more than one location.</description>
+            <data_type>enum</data_type>
+            <enumerations>Exterior Wall|Interior Wall|Below Grade Wall|Slab-On-Grade Floor|Attic Floor|Outdoor Exposed Floor|Interior Floor|Exterior Roof|Attic Roof|Interior Ceiling</enumerations>
+          </term>
+        </tag>
+        <tag>
+          <name>Framing with Cavity</name>
+          <term>
+            <name>Category</name>
+            <description>General category that this material fits into.</description>
+            <data_type>enum</data_type>
+            <enumerations>Wood-Framed|Steel-Framed</enumerations>
+          </term>
+          <term>
+            <name>Conductivity</name>
+            <description>Thermal conductivity of material layer at a mean temperature of 75&#176;F under dry conditions.</description>
+            <data_type>double</data_type>
+            <ip_written>British Thermal Units Inches per Hour Square Foot Degree Rankine</ip_written>
+            <ip_symbol>Btu*in/hr*ft^2*R</ip_symbol>
+            <si_written>Watts per Meter Degree Kelvin</si_written>
+            <si_symbol>W/m*K</si_symbol>
+          </term>
+          <term>
+            <name>Density</name>
+            <description>Density of material layer at a mean temperature of 75&#176;F under dry conditions.</description>
+            <data_type>double</data_type>
+            <ip_written>Pounds per Cubic Foot</ip_written>
+            <ip_symbol>lb/ft^3</ip_symbol>
+            <si_written>Kilograms per Meter Cubed</si_written>
+            <si_symbol>kg/m^3</si_symbol>
+          </term>
+          <term>
+            <name>Framing Spacing</name>
+            <description>Framing member on-center spacing represented in this material layer.</description>
+            <data_type>double</data_type>
+            <ip_written>Inches</ip_written>
+            <ip_symbol>in</ip_symbol>
+            <si_written>Meters</si_written>
+            <si_symbol>m</si_symbol>
+          </term>
+          <term>
+            <name>Nominal Cavity Insulation Resistance</name>
+            <description>The nominal thermal resistance of the cavity insulation in the material layer at a mean temperature of 75&#176;F under dry conditions; no film coefficients included</description>
+            <data_type>double</data_type>
+            <ip_written>Hours Square Feet Degrees Rankine per British Thermal Unit</ip_written>
+            <ip_symbol>hr*ft^2*R/Btu</ip_symbol>
+            <si_written>Square Meters Degree Kelvin per Watt</si_written>
+            <si_symbol>m^2*K/W</si_symbol>
+          </term>
+          <term>
+            <name>Nominal Framing Member Width</name>
+            <description>Nominal width of framing members.  Nominal dimensions are given in terms of green (not dried), rough (unfinished) dimensions. The actual finished size is smaller, as a result of drying and planing to smooth the wood.</description>
+            <data_type>double</data_type>
+            <ip_written>Inches</ip_written>
+            <ip_symbol>in</ip_symbol>
+            <si_written>Meters</si_written>
+            <si_symbol>m</si_symbol>
+          </term>
+          <term>
+            <name>Nominal Header Insulation Resistance</name>
+            <description>The nominal thermal resistance of the header insulation in the material layer at a mean temperature of 75&#176;F under dry conditions; no film coefficients included</description>
+            <data_type>double</data_type>
+            <ip_written>Hours Square Feet Degrees Rankine per British Thermal Unit</ip_written>
+            <ip_symbol>hr*ft^2*R/Btu</ip_symbol>
+            <si_written>Square Meters Degree Kelvin per Watt</si_written>
+            <si_symbol>m^2*K/W</si_symbol>
+          </term>
+          <term>
+            <name>OpenStudio Type</name>
+            <description>Type of OpenStudio Object</description>
+          </term>
+          <term>
+            <name>Resistance</name>
+            <description>Thermal resistance of material layer at a mean temperature of 75&#176;F under dry conditions; no film coefficients included.</description>
+            <data_type>double</data_type>
+            <ip_written>Hours Square Feet Degrees Rankine per British Thermal Unit</ip_written>
+            <ip_symbol>hr*ft^2*R/Btu</ip_symbol>
+            <si_written>Square Meters Degree Kelvin per Watt</si_written>
+            <si_symbol>m^2*K/W</si_symbol>
+          </term>
+          <term>
+            <name>Specific Heat</name>
+            <description>Specific heat of material layer at a mean temperature of 75&#176;F under dry conditions.</description>
+            <data_type>double</data_type>
+            <ip_written>British Thermal Units per Pound Mass Degree Rankine</ip_written>
+            <ip_symbol>Btu/lbm*R</ip_symbol>
+            <si_written>Joules per Kilogram Kelvin</si_written>
+            <si_symbol>J/kg*K</si_symbol>
+          </term>
+          <term>
+            <name>Thickness</name>
+            <description>Surface-to-surface thickness of material layer</description>
+            <data_type>double</data_type>
+            <ip_written>Inches</ip_written>
+            <ip_symbol>in</ip_symbol>
+            <si_written>Meters</si_written>
+            <si_symbol>m</si_symbol>
+          </term>
+          <term>
+            <name>Typical Application</name>
+            <description>Indicates where in the building this material is typically used.  May be used in more than one location.</description>
+            <data_type>enum</data_type>
+            <enumerations>Exterior Wall|Interior Wall|Below Grade Wall|Slab-On-Grade Floor|Attic Floor|Outdoor Exposed Floor|Interior Floor|Exterior Roof|Attic Roof|Interior Ceiling</enumerations>
+          </term>
+        </tag>
+        <tag>
+          <name>Insulation</name>
+          <term>
+            <name>Category</name>
+            <description>General category that this material fits into.</description>
+            <data_type>enum</data_type>
+            <enumerations>Batt and Blanket|Board and Slab|Loose Fill|Spray Applied</enumerations>
+          </term>
+          <term>
+            <name>Conductivity</name>
+            <description>Thermal conductivity of material layer at a mean temperature of 75&#176;F under dry conditions.</description>
+            <data_type>double</data_type>
+            <ip_written>British Thermal Units Inches per Hour Square Foot Degree Rankine</ip_written>
+            <ip_symbol>Btu*in/hr*ft^2*R</ip_symbol>
+            <si_written>Watts per Meter Degree Kelvin</si_written>
+            <si_symbol>W/m*K</si_symbol>
+          </term>
+          <term>
+            <name>Density</name>
+            <description>Density of material layer at a mean temperature of 75&#176;F under dry conditions.</description>
+            <data_type>double</data_type>
+            <ip_written>Pounds per Cubic Foot</ip_written>
+            <ip_symbol>lb/ft^3</ip_symbol>
+            <si_written>Kilograms per Meter Cubed</si_written>
+            <si_symbol>kg/m^3</si_symbol>
+          </term>
+          <term>
+            <name>OpenStudio Type</name>
+            <description>Type of OpenStudio Object</description>
+          </term>
+          <term>
+            <name>Resistance</name>
+            <description>Thermal resistance of material layer at a mean temperature of 75&#176;F under dry conditions; no film coefficients included.</description>
+            <data_type>double</data_type>
+            <ip_written>Hours Square Feet Degrees Rankine per British Thermal Unit</ip_written>
+            <ip_symbol>hr*ft^2*R/Btu</ip_symbol>
+            <si_written>Square Meters Degree Kelvin per Watt</si_written>
+            <si_symbol>m^2*K/W</si_symbol>
+          </term>
+          <term>
+            <name>Specific Heat</name>
+            <description>Specific heat of material layer at a mean temperature of 75&#176;F under dry conditions.</description>
+            <data_type>double</data_type>
+            <ip_written>British Thermal Units per Pound Mass Degree Rankine</ip_written>
+            <ip_symbol>Btu/lbm*R</ip_symbol>
+            <si_written>Joules per Kilogram Kelvin</si_written>
+            <si_symbol>J/kg*K</si_symbol>
+          </term>
+          <term>
+            <name>Thickness</name>
+            <description>Surface-to-surface thickness of material layer</description>
+            <data_type>double</data_type>
+            <ip_written>Inches</ip_written>
+            <ip_symbol>in</ip_symbol>
+            <si_written>Meters</si_written>
+            <si_symbol>m</si_symbol>
+          </term>
+          <term>
+            <name>Typical Application</name>
+            <description>Indicates where in the building this material is typically used.  May be used in more than one location.</description>
+            <data_type>enum</data_type>
+            <enumerations>Exterior Wall|Interior Wall|Below Grade Wall|Slab-On-Grade Floor|Attic Floor|Outdoor Exposed Floor|Interior Floor|Exterior Roof|Attic Roof|Interior Ceiling</enumerations>
+          </term>
+        </tag>
+        <tag>
+          <name>Masonry</name>
+          <term>
+            <name>Block Fill Type</name>
+            <description>The type of material used to fill the interior cavities in concrete block construction.</description>
+            <data_type>enum</data_type>
+            <enumerations>Partly Grouted - Cells Empty|Partly Grouted - Cells Insulated|Solid Grouted|Unreinforced - Cells Empty|Unreinforced - Cells Insulated</enumerations>
+            <ip_symbol>in</ip_symbol>
+          </term>
+          <term>
+            <name>Category</name>
+            <description>General category that this material fits into.</description>
+            <data_type>enum</data_type>
+            <enumerations>Concrete Block|Poured Concrete|Brick|Clay Tile|Stone</enumerations>
+          </term>
+          <term>
+            <name>Conductivity</name>
+            <description>Thermal conductivity of material layer at a mean temperature of 75&#176;F under dry conditions.</description>
+            <data_type>double</data_type>
+            <ip_written>British Thermal Units Inches per Hour Square Foot Degree Rankine</ip_written>
+            <ip_symbol>Btu*in/hr*ft^2*R</ip_symbol>
+            <si_written>Watts per Meter Degree Kelvin</si_written>
+            <si_symbol>W/m*K</si_symbol>
+          </term>
+          <term>
+            <name>Density</name>
+            <description>Density of material layer at a mean temperature of 75&#176;F under dry conditions.</description>
+            <data_type>double</data_type>
+            <ip_written>Pounds per Cubic Foot</ip_written>
+            <ip_symbol>lb/ft^3</ip_symbol>
+            <si_written>Kilograms per Meter Cubed</si_written>
+            <si_symbol>kg/m^3</si_symbol>
+          </term>
+          <term>
+            <name>OpenStudio Type</name>
+            <description>Type of OpenStudio Object</description>
+          </term>
+          <term>
+            <name>Resistance</name>
+            <description>Thermal resistance of material layer at a mean temperature of 75&#176;F under dry conditions; no film coefficients included.</description>
+            <data_type>double</data_type>
+            <ip_written>Hours Square Feet Degrees Rankine per British Thermal Unit</ip_written>
+            <ip_symbol>hr*ft^2*R/Btu</ip_symbol>
+            <si_written>Square Meters Degree Kelvin per Watt</si_written>
+            <si_symbol>m^2*K/W</si_symbol>
+          </term>
+          <term>
+            <name>Specific Heat</name>
+            <description>Specific heat of material layer at a mean temperature of 75&#176;F under dry conditions.</description>
+            <data_type>double</data_type>
+            <ip_written>British Thermal Units per Pound Mass Degree Rankine</ip_written>
+            <ip_symbol>Btu/lbm*R</ip_symbol>
+            <si_written>Joules per Kilogram Kelvin</si_written>
+            <si_symbol>J/kg*K</si_symbol>
+          </term>
+          <term>
+            <name>Thickness</name>
+            <description>Surface-to-surface thickness of material layer</description>
+            <data_type>double</data_type>
+            <ip_written>Inches</ip_written>
+            <ip_symbol>in</ip_symbol>
+            <si_written>Meters</si_written>
+            <si_symbol>m</si_symbol>
+          </term>
+          <term>
+            <name>Typical Application</name>
+            <description>Indicates where in the building this material is typically used.  May be used in more than one location.</description>
+            <data_type>enum</data_type>
+            <enumerations>Exterior Wall|Interior Wall|Below Grade Wall|Slab-On-Grade Floor|Attic Floor|Outdoor Exposed Floor|Interior Floor|Exterior Roof|Attic Roof|Interior Ceiling</enumerations>
+          </term>
+        </tag>
+        <tag>
+          <name>Plaster</name>
+          <term>
+            <name>Category</name>
+            <description>General category that this material fits into.</description>
+            <data_type>enum</data_type>
+            <enumerations>Cement Plaster|Gypsum Plaster|Stucco</enumerations>
+          </term>
+          <term>
+            <name>Conductivity</name>
+            <description>Thermal conductivity of material layer at a mean temperature of 75&#176;F under dry conditions.</description>
+            <data_type>double</data_type>
+            <ip_written>British Thermal Units Inches per Hour Square Foot Degree Rankine</ip_written>
+            <ip_symbol>Btu*in/hr*ft^2*R</ip_symbol>
+            <si_written>Watts per Meter Degree Kelvin</si_written>
+            <si_symbol>W/m*K</si_symbol>
+          </term>
+          <term>
+            <name>Density</name>
+            <description>Density of material layer at a mean temperature of 75&#176;F under dry conditions.</description>
+            <data_type>double</data_type>
+            <ip_written>Pounds per Cubic Foot</ip_written>
+            <ip_symbol>lb/ft^3</ip_symbol>
+            <si_written>Kilograms per Meter Cubed</si_written>
+            <si_symbol>kg/m^3</si_symbol>
+          </term>
+          <term>
+            <name>OpenStudio Type</name>
+            <description>Type of OpenStudio Object</description>
+          </term>
+          <term>
+            <name>Resistance</name>
+            <description>Thermal resistance of material layer at a mean temperature of 75&#176;F under dry conditions; no film coefficients included.</description>
+            <data_type>double</data_type>
+            <ip_written>Hours Square Feet Degrees Rankine per British Thermal Unit</ip_written>
+            <ip_symbol>hr*ft^2*R/Btu</ip_symbol>
+            <si_written>Square Meters Degree Kelvin per Watt</si_written>
+            <si_symbol>m^2*K/W</si_symbol>
+          </term>
+          <term>
+            <name>Specific Heat</name>
+            <description>Specific heat of material layer at a mean temperature of 75&#176;F under dry conditions.</description>
+            <data_type>double</data_type>
+            <ip_written>British Thermal Units per Pound Mass Degree Rankine</ip_written>
+            <ip_symbol>Btu/lbm*R</ip_symbol>
+            <si_written>Joules per Kilogram Kelvin</si_written>
+            <si_symbol>J/kg*K</si_symbol>
+          </term>
+          <term>
+            <name>Thickness</name>
+            <description>Surface-to-surface thickness of material layer</description>
+            <data_type>double</data_type>
+            <ip_written>Inches</ip_written>
+            <ip_symbol>in</ip_symbol>
+            <si_written>Meters</si_written>
+            <si_symbol>m</si_symbol>
+          </term>
+          <term>
+            <name>Typical Application</name>
+            <description>Indicates where in the building this material is typically used.  May be used in more than one location.</description>
+            <data_type>enum</data_type>
+            <enumerations>Exterior Wall|Interior Wall|Below Grade Wall|Slab-On-Grade Floor|Attic Floor|Outdoor Exposed Floor|Interior Floor|Exterior Roof|Attic Roof|Interior Ceiling</enumerations>
+          </term>
+        </tag>
+        <tag>
+          <name>Roofing</name>
+          <term>
+            <name>Category</name>
+            <description>General category that this material fits into.</description>
+            <data_type>enum</data_type>
+            <enumerations>Shingles|Roofing Roll|Gravel|Built-Up Roofing|Backing|Ballast|Metal Roofing</enumerations>
+          </term>
+          <term>
+            <name>Conductivity</name>
+            <description>Thermal conductivity of material layer at a mean temperature of 75&#176;F under dry conditions.</description>
+            <data_type>double</data_type>
+            <ip_written>British Thermal Units Inches per Hour Square Foot Degree Rankine</ip_written>
+            <ip_symbol>Btu*in/hr*ft^2*R</ip_symbol>
+            <si_written>Watts per Meter Degree Kelvin</si_written>
+            <si_symbol>W/m*K</si_symbol>
+          </term>
+          <term>
+            <name>Density</name>
+            <description>Density of material layer at a mean temperature of 75&#176;F under dry conditions.</description>
+            <data_type>double</data_type>
+            <ip_written>Pounds per Cubic Foot</ip_written>
+            <ip_symbol>lb/ft^3</ip_symbol>
+            <si_written>Kilograms per Meter Cubed</si_written>
+            <si_symbol>kg/m^3</si_symbol>
+          </term>
+          <term>
+            <name>OpenStudio Type</name>
+            <description>Type of OpenStudio Object</description>
+          </term>
+          <term>
+            <name>Resistance</name>
+            <description>Thermal resistance of material layer at a mean temperature of 75&#176;F under dry conditions; no film coefficients included.</description>
+            <data_type>double</data_type>
+            <ip_written>Hours Square Feet Degrees Rankine per British Thermal Unit</ip_written>
+            <ip_symbol>hr*ft^2*R/Btu</ip_symbol>
+            <si_written>Square Meters Degree Kelvin per Watt</si_written>
+            <si_symbol>m^2*K/W</si_symbol>
+          </term>
+          <term>
+            <name>Specific Heat</name>
+            <description>Specific heat of material layer at a mean temperature of 75&#176;F under dry conditions.</description>
+            <data_type>double</data_type>
+            <ip_written>British Thermal Units per Pound Mass Degree Rankine</ip_written>
+            <ip_symbol>Btu/lbm*R</ip_symbol>
+            <si_written>Joules per Kilogram Kelvin</si_written>
+            <si_symbol>J/kg*K</si_symbol>
+          </term>
+          <term>
+            <name>Thickness</name>
+            <description>Surface-to-surface thickness of material layer</description>
+            <data_type>double</data_type>
+            <ip_written>Inches</ip_written>
+            <ip_symbol>in</ip_symbol>
+            <si_written>Meters</si_written>
+            <si_symbol>m</si_symbol>
+          </term>
+          <term>
+            <name>Typical Application</name>
+            <description>Indicates where in the building this material is typically used.  May be used in more than one location.</description>
+            <data_type>enum</data_type>
+            <enumerations>Exterior Wall|Interior Wall|Below Grade Wall|Slab-On-Grade Floor|Attic Floor|Outdoor Exposed Floor|Interior Floor|Exterior Roof|Attic Roof|Interior Ceiling</enumerations>
+          </term>
+        </tag>
+        <tag>
+          <name>Solid Wood</name>
+          <term>
+            <name>Category</name>
+            <description>General category that this material fits into.</description>
+            <data_type>enum</data_type>
+            <enumerations>Softwood|Hardwood</enumerations>
+          </term>
+          <term>
+            <name>Conductivity</name>
+            <description>Thermal conductivity of material layer at a mean temperature of 75&#176;F under dry conditions.</description>
+            <data_type>double</data_type>
+            <ip_written>British Thermal Units Inches per Hour Square Foot Degree Rankine</ip_written>
+            <ip_symbol>Btu*in/hr*ft^2*R</ip_symbol>
+            <si_written>Watts per Meter Degree Kelvin</si_written>
+            <si_symbol>W/m*K</si_symbol>
+          </term>
+          <term>
+            <name>Density</name>
+            <description>Density of material layer at a mean temperature of 75&#176;F under dry conditions.</description>
+            <data_type>double</data_type>
+            <ip_written>Pounds per Cubic Foot</ip_written>
+            <ip_symbol>lb/ft^3</ip_symbol>
+            <si_written>Kilograms per Meter Cubed</si_written>
+            <si_symbol>kg/m^3</si_symbol>
+          </term>
+          <term>
+            <name>OpenStudio Type</name>
+            <description>Type of OpenStudio Object</description>
+          </term>
+          <term>
+            <name>Resistance</name>
+            <description>Thermal resistance of material layer at a mean temperature of 75&#176;F under dry conditions; no film coefficients included.</description>
+            <data_type>double</data_type>
+            <ip_written>Hours Square Feet Degrees Rankine per British Thermal Unit</ip_written>
+            <ip_symbol>hr*ft^2*R/Btu</ip_symbol>
+            <si_written>Square Meters Degree Kelvin per Watt</si_written>
+            <si_symbol>m^2*K/W</si_symbol>
+          </term>
+          <term>
+            <name>Specific Heat</name>
+            <description>Specific heat of material layer at a mean temperature of 75&#176;F under dry conditions.</description>
+            <data_type>double</data_type>
+            <ip_written>British Thermal Units per Pound Mass Degree Rankine</ip_written>
+            <ip_symbol>Btu/lbm*R</ip_symbol>
+            <si_written>Joules per Kilogram Kelvin</si_written>
+            <si_symbol>J/kg*K</si_symbol>
+          </term>
+          <term>
+            <name>Thickness</name>
+            <description>Surface-to-surface thickness of material layer</description>
+            <data_type>double</data_type>
+            <ip_written>Inches</ip_written>
+            <ip_symbol>in</ip_symbol>
+            <si_written>Meters</si_written>
+            <si_symbol>m</si_symbol>
+          </term>
+          <term>
+            <name>Typical Application</name>
+            <description>Indicates where in the building this material is typically used.  May be used in more than one location.</description>
+            <data_type>enum</data_type>
+            <enumerations>Exterior Wall|Interior Wall|Below Grade Wall|Slab-On-Grade Floor|Attic Floor|Outdoor Exposed Floor|Interior Floor|Exterior Roof|Attic Roof|Interior Ceiling</enumerations>
+          </term>
+        </tag>
+      </tag>
+    </tag>
+    <tag>
+      <name>Occupant</name>
+      <term>
+        <name>Carbon Dioxide Generation Rate</name>
+        <data_type>double</data_type>
+        <si_written>m3/s-W</si_written>
+        <si_symbol>m3/s-W</si_symbol>
+      </term>
+      <term>
+        <name>Children Heat Multiplier</name>
+        <data_type>double</data_type>
+        <ip_written>%</ip_written>
+        <ip_symbol>%</ip_symbol>
+        <si_written>%</si_written>
+        <si_symbol>%</si_symbol>
+      </term>
+      <term>
+        <name>OpenStudio Type</name>
+        <description>Type of OpenStudio Object</description>
+      </term>
+      <term>
+        <name>Percent Sensible Heat that is Radiant</name>
+        <data_type>double</data_type>
+        <ip_written>%</ip_written>
+        <ip_symbol>%</ip_symbol>
+        <si_written>%</si_written>
+        <si_symbol>%</si_symbol>
+      </term>
+      <term>
+        <name>Total Heat Men</name>
+        <data_type>double</data_type>
+        <ip_written>Btu/hr</ip_written>
+        <ip_symbol>Btu/hr</ip_symbol>
+        <si_written>W</si_written>
+        <si_symbol>W</si_symbol>
+      </term>
+      <term>
+        <name>Women Heat Multiplier</name>
+        <data_type>double</data_type>
+        <ip_written>%</ip_written>
+        <ip_symbol>%</ip_symbol>
+        <si_written>%</si_written>
+        <si_symbol>%</si_symbol>
+      </term>
+    </tag>
+    <tag>
+      <name>On-Site Power Generation</name>
+      <tag>
+        <name>Photovoltaic System</name>
+        <tag>
+          <name>Photovoltaic Module</name>
+          <term>
+            <name>Area</name>
+            <description>The total area of the module, including spaces between cells and the frame. Reference conditions are 1,000 W/m^2 insolation, 25&#176;C.</description>
+            <data_type>double</data_type>
+            <ip_written>Square Feet</ip_written>
+            <ip_symbol>ft^2</ip_symbol>
+            <si_written>Square Meters</si_written>
+            <si_symbol>m^2</si_symbol>
+          </term>
+          <term>
+            <name>Cell Technology</name>
+            <description>A description of the semiconductor technology used in the photovoltaic cells. Reference conditions are 1,000 W/m^2 insolation, 25&#176;C.</description>
+            <data_type>enum</data_type>
+            <enumerations>Single-crystal Silicon (c-Si)|Cadmium Telluride (CdTe)|Multi-crystalline Silicon (mc-Si)|Amorphous Silicon Heterojunction (HIT-Si)|Single-junction Amorphous Silicon (1-a-Si)|Amorphous Silicon Microcrystalline Silicon Tandem Module (a-Si/nc)|Triple-junction Amorphous Silicon (3-a-Si)|Copper Indium Diselenide (CIS)</enumerations>
+          </term>
+          <term>
+            <name>Efficiency at Maximum Power</name>
+            <description>The module's rated efficiency at reference conditions. Reference conditions are 1,000 W/m^2 insolation, 25&#176;C.</description>
+            <data_type>double</data_type>
+            <ip_written>Percent</ip_written>
+            <ip_symbol>%</ip_symbol>
+            <si_written>Percent</si_written>
+            <si_symbol>%</si_symbol>
+          </term>
+          <term>
+            <name>Maximum Power</name>
+            <description>The module rated power at reference conditions. Equal to the product of the maximum power voltage and maximum power current. Reference conditions are 1,000 W/m^2 insolation, 25&#176;C.</description>
+            <data_type>double</data_type>
+            <ip_written>Watts</ip_written>
+            <ip_symbol>W</ip_symbol>
+            <si_written>Watts</si_written>
+            <si_symbol>W</si_symbol>
+          </term>
+          <term>
+            <name>Maximum Power Current</name>
+            <description>Reference maximum power current at the reference conditions. Reference conditions are 1,000 W/m^2 insolation, 25&#176;C.</description>
+            <data_type>double</data_type>
+            <ip_written>Amps Direct Current</ip_written>
+            <ip_symbol>Adc</ip_symbol>
+            <si_written>Amps Direct Current</si_written>
+            <si_symbol>Adc</si_symbol>
+          </term>
+          <term>
+            <name>Maximum Power Voltage</name>
+            <description>Reference maximum power voltage at the reference conditions. Reference conditions are 1,000 W/m^2 insolation, 25&#176;C.</description>
+            <data_type>double</data_type>
+            <ip_written>Voltage Direct Current</ip_written>
+            <ip_symbol>Vdc</ip_symbol>
+            <si_written>Voltage Direct Current</si_written>
+            <si_symbol>Vdc</si_symbol>
+          </term>
+          <term>
+            <name>Open Circuit Voltage</name>
+            <description>Reference open circuit voltage at the reference conditions. Reference conditions are 1,000 W/m^2 insolation, 25&#176;C.</description>
+            <data_type>double</data_type>
+            <ip_written>Voltage Direct Current</ip_written>
+            <ip_symbol>Vdc</ip_symbol>
+            <si_written>Voltage Direct Current</si_written>
+            <si_symbol>Vdc</si_symbol>
+          </term>
+          <term>
+            <name>OpenStudio Type</name>
+            <description>Type of OpenStudio Object</description>
+          </term>
+          <term>
+            <name>Short Circuit Current</name>
+            <description>Reference short circuit current at the reference conditions. Reference conditions are 1,000 W/m^2 insolation, 25&#176;C.</description>
+            <data_type>double</data_type>
+            <ip_written>Amps Direct Current</ip_written>
+            <ip_symbol>Adc</ip_symbol>
+            <si_written>Amps Direct Current</si_written>
+            <si_symbol>Adc</si_symbol>
+          </term>
+        </tag>
+      </tag>
+    </tag>
+    <tag>
+      <name>Site</name>
+      <tag>
+        <name>Design Day</name>
+        <term>
+          <name>Dewpoint</name>
+          <description>Dewpoint:  temperature below which water vapor will condense into liquid water</description>
+          <data_type>double</data_type>
+          <ip_written>Degrees Fahrenheit</ip_written>
+          <ip_symbol>&#176;F</ip_symbol>
+          <si_written>Degrees Celsius</si_written>
+          <si_symbol>&#176;C</si_symbol>
+        </term>
+        <term>
+          <name>Enthalpy</name>
+          <description>Enthalpy: sum of internal energy plus the product of pressure and volume</description>
+          <ip_written>Btu per pound</ip_written>
+          <ip_symbol>Btu/lb</ip_symbol>
+          <si_written>kilojoule per kilogram</si_written>
+          <si_symbol>kJ/kg</si_symbol>
+        </term>
+        <term>
+          <name>Maximum drybulb temperature</name>
+          <description>Maximum drybulb temperature</description>
+          <data_type>double</data_type>
+          <ip_written>Degrees Fahrenheit</ip_written>
+          <ip_symbol>&#176;F</ip_symbol>
+          <si_written>Degrees Celsius</si_written>
+          <si_symbol>&#176;C</si_symbol>
+        </term>
+        <term>
+          <name>OpenStudio Type</name>
+          <description>Type of OpenStudio Object</description>
+        </term>
+        <term>
+          <name>Windspeed</name>
+          <description>Windspeed</description>
+          <data_type>double</data_type>
+          <ip_written>Miles per hour</ip_written>
+          <ip_symbol>mph</ip_symbol>
+          <si_written>Meters per Second</si_written>
+          <si_symbol>m/s</si_symbol>
+        </term>
+      </tag>
+      <tag>
+        <name>Location</name>
+        <term>
+          <name>City</name>
+          <description>Weather station city or text identifier (sometimes this is more than city:  "Zanesville municipal Ap" or "Climate Zone 9")</description>
+          <data_type>string</data_type>
+        </term>
+        <term>
+          <name>Cooling Degree Days base 10&#176;C</name>
+          <abbr>CDD10</abbr>
+          <description>Annual cooling degree days.  A cooling degree day (CDD) is the number of degrees the daily average temperature lies above some base value (in this case 10&#176;C). If the daily average temperature lies at or below the base temperature, the CDD for that day is zero.  Annual Cooling Degree Days is the sum of daily CDD over an entire year.</description>
+          <data_type>double</data_type>
+          <ip_written>Degrees Fahrenheit</ip_written>
+          <ip_symbol>&#176;F</ip_symbol>
+          <si_written>Degrees Celsius</si_written>
+          <si_symbol>&#176;C</si_symbol>
+        </term>
+        <term>
+          <name>Cooling Degree Days base 18&#176;C</name>
+          <abbr>CDD18</abbr>
+          <description>Annual cooling degree days.  A cooling degree day (CDD) is the number of degrees the daily average temperature lies above some base value (in this case 18&#176;C). If the daily average temperature lies at or below the base temperature, the CDD for that day is zero.  Annual Cooling Degree Days is the sum of daily CDD over an entire year.</description>
+          <data_type>double</data_type>
+          <ip_written>Degrees Fahrenheit</ip_written>
+          <ip_symbol>&#176;F</ip_symbol>
+          <si_written>Degrees Celsius</si_written>
+          <si_symbol>&#176;C</si_symbol>
+        </term>
+        <term>
+          <name>Cooling Degree Days base 50&#176;F</name>
+          <abbr>CDD50</abbr>
+          <description>Annual cooling degree days.  A cooling degree day (CDD) is the number of degrees the daily average temperature lies above some base value (in this case 50&#176;F). If the daily average temperature lies at or below the base temperature, the CDD for that day is zero.  Annual Cooling Degree Days is the sum of daily CDD over an entire year.</description>
+          <data_type>double</data_type>
+          <ip_written>Degrees Fahrenheit</ip_written>
+          <ip_symbol>&#176;F</ip_symbol>
+          <si_written>Degrees Celsius</si_written>
+          <si_symbol>&#176;C</si_symbol>
+        </term>
+        <term>
+          <name>Cooling Degree Days base 65&#176;F</name>
+          <abbr>CDD65</abbr>
+          <description>Annual cooling degree days.  A cooling degree day (CDD) is the number of degrees the daily average temperature lies above some base value (in this case 65&#176;F). If the daily average temperature lies at or below the base temperature, the CDD for that day is zero.  Annual Cooling Degree Days is the sum of daily CDD over an entire year.</description>
+          <data_type>double</data_type>
+          <ip_written>Degrees Fahrenheit</ip_written>
+          <ip_symbol>&#176;F</ip_symbol>
+          <si_written>Degrees Celsius</si_written>
+          <si_symbol>&#176;C</si_symbol>
+        </term>
+        <term>
+          <name>Country</name>
+          <description>Weather station country</description>
+          <data_type>string</data_type>
+        </term>
+        <term>
+          <name>Delta mean db temperature</name>
+          <description>Highest dry bulb temperature minus lowest dry bulb temperature recorded in a year</description>
+          <data_type>double</data_type>
+          <ip_written>Delta &#176;F</ip_written>
+          <ip_symbol>Delta &#176;F</ip_symbol>
+          <si_written>Delta &#176;C</si_written>
+          <si_symbol>Delta &#176;C</si_symbol>
+        </term>
+        <term>
+          <name>Elevation</name>
+          <description>Elevation of the weather station</description>
+          <data_type>double</data_type>
+          <ip_written>Feet</ip_written>
+          <ip_symbol>ft</ip_symbol>
+          <si_written>Meters</si_written>
+          <si_symbol>m</si_symbol>
+        </term>
+        <term>
+          <name>Heating Degree Days base 10&#176;C</name>
+          <abbr>HDD10</abbr>
+          <description>Annual heating degree days.  A heating degree day (HDD) is the number of degrees the daily average temperature lies below some base value (in this case 10&#176;C).  If the daily average temperature lies at or above the base temperature, the HDD for that day is zero.  Annual Heating Degree Days is the sum of daily HDD over an entire year. </description>
+          <data_type>double</data_type>
+          <ip_written>Degrees Fahrenheit</ip_written>
+          <ip_symbol>&#176;F</ip_symbol>
+          <si_written>Degrees Celsius</si_written>
+          <si_symbol>&#176;C</si_symbol>
+        </term>
+        <term>
+          <name>Heating Degree Days base 18&#176;C</name>
+          <abbr>HDD18</abbr>
+          <description>Annual heating degree days.  A heating degree day (HDD) is the number of degrees the daily average temperature lies below some base value (in this case 18&#176;C).  If the daily average temperature lies at or above the base temperature, the HDD for that day is zero.  Annual Heating Degree Days is the sum of daily HDD over an entire year. </description>
+          <data_type>double</data_type>
+          <ip_written>Degrees Fahrenheit</ip_written>
+          <ip_symbol>&#176;F</ip_symbol>
+          <si_written>Degrees Celsius</si_written>
+          <si_symbol>&#176;C</si_symbol>
+        </term>
+        <term>
+          <name>Heating Degree Days base 50&#176;F</name>
+          <abbr>HDD50</abbr>
+          <description>Annual heating degree days.  A heating degree day (HDD) is the number of degrees the daily average temperature lies below some base value (in this case 50&#176;F).  If the daily average temperature lies at or above the base temperature, the HDD for that day is zero.  Annual Heating Degree Days is the sum of daily HDD over an entire year. </description>
+          <data_type>double</data_type>
+          <ip_written>Degrees Fahrenheit</ip_written>
+          <ip_symbol>&#176;F</ip_symbol>
+          <si_written>Degrees Celsius</si_written>
+          <si_symbol>&#176;C</si_symbol>
+        </term>
+        <term>
+          <name>Heating Degree Days base 65&#176;F</name>
+          <abbr>HDD65</abbr>
+          <description>Annual heating degree days.  A heating degree day (HDD) is the number of degrees the daily average temperature lies below some base value (in this case 65&#176;F).  If the daily average temperature lies at or above the base temperature, the HDD for that day is zero.  Annual Heating Degree Days is the sum of daily HDD over an entire year. </description>
+          <data_type>double</data_type>
+          <ip_written>Degrees Fahrenheit</ip_written>
+          <ip_symbol>&#176;F</ip_symbol>
+          <si_written>Degrees Celsius</si_written>
+          <si_symbol>&#176;C</si_symbol>
+        </term>
+        <term>
+          <name>Latitude</name>
+          <description>Latitude of the weather station</description>
+          <data_type>double</data_type>
+          <ip_written>&#176;N/S</ip_written>
+          <ip_symbol>&#176;N/S</ip_symbol>
+          <si_written>&#176;N/S</si_written>
+          <si_symbol>&#176;N/S</si_symbol>
+        </term>
+        <term>
+          <name>License</name>
+          <description>License for the weather information.  Example: ASHRAE</description>
+          <data_type>string</data_type>
+        </term>
+        <term>
+          <name>Longitude</name>
+          <description>Longitude of the weather station</description>
+          <data_type>double</data_type>
+          <ip_written>&#176;E/W</ip_written>
+          <ip_symbol>&#176;E/W</ip_symbol>
+          <si_written>&#176;E/W</si_written>
+          <si_symbol>&#176;E/W</si_symbol>
+        </term>
+        <term>
+          <name>Monthly mean db temperature</name>
+          <description>Average hourly dry bulb temperature per month over a year</description>
+          <data_type>double</data_type>
+          <ip_written>Degrees Fahrenheit</ip_written>
+          <ip_symbol>&#176;F</ip_symbol>
+          <si_written>Degrees Celsius</si_written>
+          <si_symbol>&#176;C</si_symbol>
+        </term>
+        <term>
+          <name>OpenStudio Type</name>
+          <description>Type of OpenStudio Object</description>
+        </term>
+        <term>
+          <name>Standard Pressure at Elevation</name>
+          <description>Barometric pressure calculated at the weather station's elevation.</description>
+          <data_type>double</data_type>
+          <ip_written>Pounds per square inch</ip_written>
+          <ip_symbol>psi</ip_symbol>
+          <si_written>Pascal</si_written>
+          <si_symbol>P</si_symbol>
+        </term>
+        <term>
+          <name>State</name>
+          <description>Weather station state</description>
+          <data_type>string</data_type>
+        </term>
+        <term>
+          <name>WMO</name>
+          <description>Weather station index number, assigned by the World Meteorological Organization</description>
+          <data_type>integer</data_type>
+        </term>
+      </tag>
+      <tag>
+        <name>Water Mains Temperature</name>
+        <term>
+          <name>OpenStudio Type</name>
+          <description>Type of OpenStudio Object</description>
+        </term>
+        <term>
+          <name>Water main calculation</name>
+          <description>Method used to calculate the water main temperature</description>
+          <data_type>enum</data_type>
+          <enumerations>No enum found</enumerations>
+        </term>
       </tag>
     </tag>
   </tag>
