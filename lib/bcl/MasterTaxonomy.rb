@@ -39,7 +39,11 @@ TagStruct = Struct.new(:level_hierarchy, :name, :description, :parent_tag, :chil
 
 # each TermStruct represents a row in the master taxonomy
 TermStruct = Struct.new(:first_level, :second_level, :third_level, :level_hierarchy, :name, :description, 
-					    :abbr, :data_type, :enums, :ip_written, :ip_symbol, :ip_mask, :si_written, :si_symbol, :si_mask, :row)
+					    :abbr, :data_type, :enums, :ip_written, :ip_symbol, :ip_mask, :si_written, :si_symbol, :si_mask, :allow_multiple, :row, :tp_include, :tp_required, :tp_use_in_search, :tp_use_in_facets, :tp_hide_from_data_users, :tp_third_party_testing, :tp_additional_web_dev_info, :tp_additional_data_user_info, :tp_additional_data_submitter_info)
+
+						
+						
+						
 
 # class for parsing, validating, and querying the master taxonomy document
 class MasterTaxonomy
@@ -135,8 +139,9 @@ class MasterTaxonomy
 	
 	#sort the terms as they come out
 	result = terms.uniq
-	result = result.sort {|x, y| x.row <=> y.row}
-	if @sort_alphabetical
+	if !@sort_alphabetical
+	  result = result.sort {|x, y| x.row <=> y.row}
+	else
 	  result = result.sort {|x, y| x.name <=> y.name}
 	end
 	 
@@ -246,62 +251,87 @@ class MasterTaxonomy
   
   
   def validate_terms_header(terms_worksheet)
-    header_error = false
-    
-    first_level      = terms_worksheet.Range("A2").Value
-    second_level     = terms_worksheet.Range("B2").Value
-    third_level      = terms_worksheet.Range("C2").Value
-    level_hierarchy  = terms_worksheet.Range("D2").Value
-    name             = terms_worksheet.Range("E2").Value
-    abbr             = terms_worksheet.Range("F2").Value
-    description      = terms_worksheet.Range("G2").Value
-	data_type		 = terms_worksheet.Range("I2").Value
-	enums			 = terms_worksheet.Range("J2").Value
-	ip_written		 = terms_worksheet.Range("K2").Value
-	ip_symbol		 = terms_worksheet.Range("L2").Value
-	ip_mask			 = terms_worksheet.Range("M2").Value
-	si_written		 = terms_worksheet.Range("N2").Value
-	si_symbol		 = terms_worksheet.Range("O2").Value
-	si_mask			 = terms_worksheet.Range("P2").Value
+    test_arr = []
+	test_arr << "First Level"
+	test_arr << "Second Level"
+    test_arr << "Third Level"
+    test_arr << "Level Hierarchy"
+    test_arr << "Term"
+    test_arr << "Abbr"
+    test_arr << "Description"
+	test_arr << "Data Type"
+	test_arr << "Allow Multiple"
+	test_arr << "Enumerations"
+	test_arr << "IP Units Written Out"
+	test_arr << "IP Units Symbol"
+	test_arr << "IP Display Mask"
+	test_arr << "SI Units Written Out"
+	test_arr << "SI Units Symbol"
+	test_arr << "SI Display Mask"
+	test_arr << "Unit Conversion"
+	test_arr << "Default"
+	test_arr << "Min"
+	test_arr << "Max"
+	test_arr << "Source"
+	test_arr << "Review State"
+	test_arr << "General Comments"
+	test_arr << "Requested By / Project"
+	test_arr << "Include in TPE"
+	test_arr << "Required for Adding a New Product"
+	test_arr << "Use in Search Results"
+	test_arr << "Use in Search Facets"
+	test_arr << "Show/Hide Data from Data Users"
+	test_arr << "Additional Instructions for Web Developers"
+	test_arr << "Related Third Party Testing Standards"
+	test_arr << "Additional Guidance to Data Submitters"
+	test_arr << "Additional Guidance to Data Users"
+
 	
-    header_error = true if not first_level == "First Level"
-    header_error = true if not second_level == "Second Level"
-    header_error = true if not third_level == "Third Level"
-    header_error = true if not level_hierarchy == "Level Hierarchy"
-    header_error = true if not name  == "Term"
-    header_error = true if not abbr  == "Abbr"
-    header_error = true if not description  == "Description"
-	header_error = true if not data_type  == "Data Type"
-	header_error = true if not enums  == "Enumerations"
-	header_error = true if not ip_written  == "IP Units Written Out"
-	header_error = true if not ip_symbol  == "IP Units Symbol"
-	header_error = true if not ip_mask  == "IP Display Mask"
-	header_error = true if not si_written  == "SI Units Written Out"
-	header_error = true if not si_symbol  == "SI Units Symbol"
-	header_error = true if not si_mask  == "SI Display Mask"
-    
-    return header_error
+	parse = true
+	col = 1
+	while parse
+	  if terms_worksheet.Columns(col).Rows(2).Value.nil? || col > test_arr.size
+	    parse = false
+	  else
+	    if not terms_worksheet.Columns(col).Rows(2).Value == test_arr[col-1]
+		  raise "Header does not match: #{col}: '#{terms_worksheet.Columns(col).Rows(2).Value} <> #{test_arr[col-1]}'"
+		end 
+	  end
+	  col += 1
+	end
   end
   
   def parse_term(terms_worksheet, row)
  
     term = TermStruct.new
-    term.first_level      	= terms_worksheet.Range("A#{row}").Value
-    term.second_level     	= terms_worksheet.Range("B#{row}").Value
-    term.third_level      	= terms_worksheet.Range("C#{row}").Value
-    term.level_hierarchy  	= terms_worksheet.Range("D#{row}").Value
-    term.name             	= terms_worksheet.Range("E#{row}").Value
-    term.abbr             	= terms_worksheet.Range("F#{row}").Value
-    term.description      	= terms_worksheet.Range("G#{row}").Value
-	term.data_type		  	= terms_worksheet.Range("I#{row}").Value
-	term.enums    		  	= terms_worksheet.Range("J#{row}").Value
-	term.ip_written			= terms_worksheet.Range("K#{row}").Value
-	term.ip_symbol			= terms_worksheet.Range("L#{row}").Value
-	term.ip_mask			= terms_worksheet.Range("M#{row}").Value
-	term.si_written			= terms_worksheet.Range("N#{row}").Value
-	term.si_symbol			= terms_worksheet.Range("O#{row}").Value
-	term.si_mask			= terms_worksheet.Range("P#{row}").Value
-    term.row = row
+	term.row 				= row
+    term.first_level      	= terms_worksheet.Columns(1).Rows(row).Value
+    term.second_level     	= terms_worksheet.Columns(2).Rows(row).Value
+    term.third_level      	= terms_worksheet.Columns(3).Rows(row).Value
+    term.level_hierarchy  	= terms_worksheet.Columns(4).Rows(row).Value
+    term.name             	= terms_worksheet.Columns(5).Rows(row).Value
+    term.abbr             	= terms_worksheet.Columns(6).Rows(row).Value
+    term.description      	= terms_worksheet.Columns(7).Rows(row).Value
+	term.data_type		  	= terms_worksheet.Columns(8).Rows(row).Value
+	term.allow_multiple	  	= terms_worksheet.Columns(9).Rows(row).Value
+	term.enums    		  	= terms_worksheet.Columns(10).Rows(row).Value
+	term.ip_written			= terms_worksheet.Columns(11).Rows(row).Value
+	term.ip_symbol			= terms_worksheet.Columns(12).Rows(row).Value
+	term.ip_mask			= terms_worksheet.Columns(13).Rows(row).Value
+	term.si_written			= terms_worksheet.Columns(14).Rows(row).Value
+	term.si_symbol			= terms_worksheet.Columns(15).Rows(row).Value
+	term.si_mask			= terms_worksheet.Columns(16).Rows(row).Value
+	
+	#custom TPex Columns
+	term.tp_include				= terms_worksheet.Columns(25).Rows(row).Value
+	term.tp_required			= terms_worksheet.Columns(26).Rows(row).Value
+	term.tp_use_in_search		= terms_worksheet.Columns(27).Rows(row).Value
+	term.tp_use_in_facets		= terms_worksheet.Columns(28).Rows(row).Value
+	term.tp_hide_from_data_users	= terms_worksheet.Columns(29).Rows(row).Value
+	term.tp_third_party_testing		= terms_worksheet.Columns(30).Rows(row).Value
+	term.tp_additional_web_dev_info			= terms_worksheet.Columns(31).Rows(row).Value
+	term.tp_additional_data_user_info		= terms_worksheet.Columns(32).Rows(row).Value
+	term.tp_additional_data_submitter_info	= terms_worksheet.Columns(33).Rows(row).Value
 	
 	# trigger to quit parsing the xcel doc
     if term.first_level.nil? or term.first_level.empty?
@@ -445,7 +475,17 @@ class MasterTaxonomy
 	      xml.abbr term.abbr if !term.abbr.nil? 
 		  xml.description term.description if !term.description.nil?
 		  xml.data_type term.data_type if !term.data_type.nil?
-		  xml.enumerations term.enums if !term.enums.nil? && term.enums != ""
+		  xml.allow_multiple term.allow_multiple if !term.allow_multiple.nil?
+		  
+		  if !term.enums.nil? && term.enums != "" 
+		    xml.enumerations {
+			  out = term.enums.split("|")
+			  out.sort! if @sort_alphabetical
+			  out.each do |enum|
+  			    xml.enumeration enum
+			  end
+			}
+		  end
 		  xml.ip_written term.ip_written if !term.ip_written.nil?
 		  xml.ip_symbol term.ip_symbol if !term.ip_symbol.nil?
 		  xml.ip_mask term.ip_mask if !term.ip_mask.nil?
@@ -453,9 +493,17 @@ class MasterTaxonomy
 		  xml.si_symbol term.si_symbol if !term.si_symbol.nil?
 		  xml.si_mask term.si_mask if !term.si_mask.nil?
 		  xml.row term.row if !term.row.nil?
-				 
+
 		  if output_type == 'tpex'
-		    xml.use_search_facets true
+		    xml.tp_include term.tp_include if !term.tp_include.nil?
+			xml.tp_required term.tp_required if !term.tp_required.nil?
+			xml.tp_use_in_search term.tp_use_in_search if !term.tp_use_in_search.nil?
+			xml.tp_use_in_facets term.tp_use_in_facets if !term.tp_use_in_facets.nil?
+			xml.tp_hide_from_data_users term.tp_hide_from_data_users if !term.tp_hide_from_data_users.nil?
+			xml.tp_third_party_testing term.tp_third_party_testing if !term.tp_third_party_testing.nil?
+			xml.tp_additional_web_dev_info term.tp_additional_web_dev_info if !term.tp_additional_web_dev_info.nil?
+			xml.tp_additional_data_user_info term.tp_additional_data_user_info if !term.tp_additional_data_user_info.nil?
+			xml.tp_additional_data_submitter_info term.tp_additional_data_submitter_info if !term.tp_additional_data_submitter_info.nil?
 		  end
 	    }
 	  end
