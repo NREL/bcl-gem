@@ -39,14 +39,14 @@ TagStruct = Struct.new(:level_hierarchy, :name, :description, :parent_tag, :chil
 
 # each TermStruct represents a row in the master taxonomy
 TermStruct = Struct.new(:first_level, :second_level, :third_level, :level_hierarchy, :name, :description, 
-					    :abbr, :data_type, :enums, :ip_written, :ip_symbol, :ip_mask, :si_written, :si_symbol, :si_mask)
+					    :abbr, :data_type, :enums, :ip_written, :ip_symbol, :ip_mask, :si_written, :si_symbol, :si_mask, :row)
 
 # class for parsing, validating, and querying the master taxonomy document
 class MasterTaxonomy
 
   # parse the master taxonomy document
-  def initialize(xlsx_path = nil)
-	@sort_terms_on_write = true
+  def initialize(xlsx_path = nil, sort_alpha = false)
+	@sort_alphabetical = sort_alpha
   
     # hash of level_taxonomy to tag
     @tag_hash = Hash.new
@@ -98,7 +98,7 @@ class MasterTaxonomy
   end
   
   # write taxonomy to xml
-  def write_xml(path)
+  def write_xml(path, output_type = 'tpex')
   
     root_tag = @tag_hash[""]
     
@@ -113,7 +113,7 @@ class MasterTaxonomy
       #setup the xml file
       xml.instruct!(:xml, :version=>"1.0", :encoding=>"UTF-8")
       xml.schema("xmlns:xsi"=>"http://www.w3.org/2001/XMLSchema-instance") {
-        write_tag_to_xml(root_tag, xml)       
+        write_tag_to_xml(root_tag, 0, xml, output_type)       
       }
     end
     
@@ -125,17 +125,19 @@ class MasterTaxonomy
   def get_terms(tag)
     
     terms = tag.terms
-    
+		
     parent_tag = tag.parent_tag
     while not parent_tag.nil?
-      terms.concat(parent_tag.terms)
+	  terms.concat(parent_tag.terms)
       parent_tag = parent_tag.parent_tag
     end
-
+	
+	
 	#sort the terms as they come out
-	result = terms.reverse.uniq
-	if @sort_terms_on_write
-      result = result.sort {|x, y| x.name <=> y.name}
+	result = terms.uniq
+	result = result.sort {|x, y| x.row <=> y.row}
+	if @sort_alphabetical
+	  result = result.sort {|x, y| x.name <=> y.name}
 	end
 	 
     return result
@@ -216,6 +218,8 @@ class MasterTaxonomy
     # add root tag
     root_terms = []
     root_terms << TermStruct.new("", "", "", "", "OpenStudio Type", "Type of OpenStudio Object")
+	root_terms[0].row = 0
+	#root_terms << TermStruct.new()
     root_tag = TagStruct.new("", "root", "Root of the taxonomy", nil, [], root_terms)
     @tag_hash[""] = root_tag
 
@@ -297,11 +301,9 @@ class MasterTaxonomy
 	term.si_written			= terms_worksheet.Range("N#{row}").Value
 	term.si_symbol			= terms_worksheet.Range("O#{row}").Value
 	term.si_mask			= terms_worksheet.Range("P#{row}").Value
-
+    term.row = row
 	
-	
-	
-    # trigger to quit parsing the xcel doc
+	# trigger to quit parsing the xcel doc
     if term.first_level.nil? or term.first_level.empty?
       return nil
     end
@@ -362,9 +364,13 @@ class MasterTaxonomy
   end
   
   def sort_tag(tag)
-    tag.terms = tag.terms.sort {|x, y| x.name <=> y.name}
-    tag.child_tags = tag.child_tags.sort {|x, y| x.name <=> y.name}
+    #tag.terms = tag.terms.sort {|x, y| x.level_hierarchy <=> y.level_hierarchy}
+    tag.child_tags = tag.child_tags.sort {|x, y| x.level_hierarchy <=> y.level_hierarchy}
     tag.child_tags.each {|child_tag| sort_tag(child_tag) }
+  
+    #tag.terms = tag.terms.sort {|x, y| x.name <=> y.name}
+    #tag.child_tags = tag.child_tags.sort {|x, y| x.name <=> y.name}
+    #tag.child_tags.each {|child_tag| sort_tag(child_tag) }
   end
   
   def check_tag(tag)
@@ -430,7 +436,7 @@ class MasterTaxonomy
   end
   
   # write term to xml
-  def write_terms_to_xml(tag, xml)
+  def write_terms_to_xml(tag, xml, output_type)
     terms = get_terms(tag) 
 	if terms.size > 0
       terms.each do |term|
@@ -446,28 +452,32 @@ class MasterTaxonomy
 		  xml.si_written term.si_written if !term.si_written.nil?
 		  xml.si_symbol term.si_symbol if !term.si_symbol.nil?
 		  xml.si_mask term.si_mask if !term.si_mask.nil?
+		  xml.row term.row if !term.row.nil?
 				 
+		  if output_type == 'tpex'
+		    xml.use_search_facets true
+		  end
 	    }
 	  end
 	end
   end
   
   # write a tag to xml
-  def write_tag_to_xml(tag, xml)
-	xml.tag {
-	  s_temp = tag.name  #.gsub("Electric Lighting","Space Use")
+  def write_tag_to_xml(tag, level, xml, output_type)
+    level_string = "level_#{level}"
+	xml.tag!(level_string) {
+	  s_temp = tag.name 
 	  xml.name s_temp
-	  
-	  #puts "Writing Tag Name: #{tag.name}"
-	 
 	  	  
+	  level += 1
+	    
 	  if tag.child_tags.size == 0
-	    write_terms_to_xml(tag, xml)
+	    write_terms_to_xml(tag, xml, output_type)
 	  end
 	  
 	  child_tags = tag.child_tags
       child_tags.each do |child_tag|
-        write_tag_to_xml(child_tag, xml)
+        write_tag_to_xml(child_tag, level, xml, output_type)
       end
 		 
 	}
