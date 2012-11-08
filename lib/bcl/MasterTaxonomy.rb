@@ -252,39 +252,39 @@ class MasterTaxonomy
   
   def validate_terms_header(terms_worksheet)
     test_arr = []
-	test_arr << "First Level"
-	test_arr << "Second Level"
-    test_arr << "Third Level"
-    test_arr << "Level Hierarchy"
-    test_arr << "Term"
-    test_arr << "Abbr"
-    test_arr << "Description"
-	test_arr << "Data Type"
-	test_arr << "Allow Multiple"
-	test_arr << "Enumerations"
-	test_arr << "IP Units Written Out"
-	test_arr << "IP Units Symbol"
-	test_arr << "IP Display Mask"
-	test_arr << "SI Units Written Out"
-	test_arr << "SI Units Symbol"
-	test_arr << "SI Display Mask"
-	test_arr << "Unit Conversion"
-	test_arr << "Default"
-	test_arr << "Min"
-	test_arr << "Max"
-	test_arr << "Source"
-	test_arr << "Review State"
-	test_arr << "General Comments"
-	test_arr << "Requested By / Project"
-	test_arr << "Include in TPE"
-	test_arr << "Required for Adding a New Product"
-	test_arr << "Use in Search Results"
-	test_arr << "Use in Search Facets"
-	test_arr << "Show/Hide Data from Data Users"
-	test_arr << "Additional Instructions for Web Developers"
-	test_arr << "Related Third Party Testing Standards"
-	test_arr << "Additional Guidance to Data Submitters"
-	test_arr << "Additional Guidance to Data Users"
+	test_arr << {"name"=>"First Level", "strict"=>true}
+	test_arr << {"name"=>"Second Level", "strict"=>true}
+    test_arr << {"name"=>"Third Level", "strict"=>true}
+    test_arr << {"name"=>"Level Hierarchy", "strict"=>true}
+    test_arr << {"name"=>"Term", "strict"=>true}
+    test_arr << {"name"=>"Abbr", "strict"=>true}
+    test_arr << {"name"=>"Description", "strict"=>true}
+	test_arr << {"name"=>"Data Type", "strict"=>true}
+	test_arr << {"name"=>"Allow Multiple", "strict"=>true}
+	test_arr << {"name"=>"Enumerations", "strict"=>true}
+	test_arr << {"name"=>"IP Units Written Out", "strict"=>true}
+	test_arr << {"name"=>"IP Units Symbol", "strict"=>true}
+	test_arr << {"name"=>"IP Display Mask", "strict"=>true}
+	test_arr << {"name"=>"SI Units Written Out", "strict"=>true}
+	test_arr << {"name"=>"SI Units Symbol", "strict"=>true}
+	test_arr << {"name"=>"SI Display Mask", "strict"=>true}
+	test_arr << {"name"=>"Unit Conversion", "strict"=>true}
+	test_arr << {"name"=>"Default", "strict"=>true}
+	test_arr << {"name"=>"Min", "strict"=>true}
+	test_arr << {"name"=>"Max", "strict"=>true}
+	test_arr << {"name"=>"Source", "strict"=>true}
+	test_arr << {"name"=>"Review State", "strict"=>true}
+	test_arr << {"name"=>"General Comments", "strict"=>true}
+	test_arr << {"name"=>"Requested By / Project", "strict"=>true}
+	test_arr << {"name"=>"Include in TPE", "strict"=>false}
+	test_arr << {"name"=>"Required for Adding a New Product", "strict"=>false}
+	test_arr << {"name"=>"Use in Search Results", "strict"=>false}
+	test_arr << {"name"=>"Use in Search Facets", "strict"=>false}
+	test_arr << {"name"=>"Show/Hide Data from Data Users", "strict"=>false}
+	test_arr << {"name"=>"Additional Instructions for Web Developers", "strict"=>false}
+	test_arr << {"name"=>"Related Third Party Testing Standards", "strict"=>false}
+	test_arr << {"name"=>"Additional Guidance to Data Submitters", "strict"=>false}
+	test_arr << {"name"=>"Additional Guidance to Data Users", "strict"=>false}
 
 	
 	parse = true
@@ -293,8 +293,12 @@ class MasterTaxonomy
 	  if terms_worksheet.Columns(col).Rows(2).Value.nil? || col > test_arr.size
 	    parse = false
 	  else
-	    if not terms_worksheet.Columns(col).Rows(2).Value == test_arr[col-1]
-		  raise "Header does not match: #{col}: '#{terms_worksheet.Columns(col).Rows(2).Value} <> #{test_arr[col-1]}'"
+	    if not terms_worksheet.Columns(col).Rows(2).Value == test_arr[col-1]["name"]
+		  if test_arr[col-1]["strict"]
+		    raise "[ERROR] Header does not match: #{col}: '#{terms_worksheet.Columns(col).Rows(2).Value} <> #{test_arr[col-1]["name"]}'"
+		  else
+		    puts "[WARNING] Header does not match: #{col}: '#{terms_worksheet.Columns(col).Rows(2).Value} <> #{test_arr[col-1]["name"]}'"
+		  end
 		end 
 	  end
 	  col += 1
@@ -302,7 +306,6 @@ class MasterTaxonomy
   end
   
   def parse_term(terms_worksheet, row)
- 
     term = TermStruct.new
 	term.row 				= row
     term.first_level      	= terms_worksheet.Columns(1).Rows(row).Value
@@ -444,7 +447,7 @@ class MasterTaxonomy
     end
     
 	if !term.data_type.nil?
-	  valid_types = ["double", "integer", "enum", "file", "string"]
+	  valid_types = ["double", "integer", "enum", "file", "string", "autocomplete"]
 	  if (term.data_type.downcase != term.data_type) || !valid_types.include?(term.data_type) 
  	    puts "[ERROR] Term '#{term.name}' does not have a valid data type with '#{term.data_type}'"
 	  end
