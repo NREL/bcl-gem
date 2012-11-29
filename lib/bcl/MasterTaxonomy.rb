@@ -278,8 +278,8 @@ class MasterTaxonomy
 	test_arr << {"name"=>"Requested By / Project", "strict"=>true}
 	test_arr << {"name"=>"Include in TPE", "strict"=>false}
 	test_arr << {"name"=>"Required for Adding a New Product", "strict"=>false}
-	test_arr << {"name"=>"Use in Search Results", "strict"=>false}
-	test_arr << {"name"=>"Use in Search Facets", "strict"=>false}
+	test_arr << {"name"=>"Use as a Column Header in Search Results", "strict"=>false}
+	test_arr << {"name"=>"Allow Users to Filter with this Facet", "strict"=>false}
 	test_arr << {"name"=>"Show/Hide Data from Data Users", "strict"=>false}
 	test_arr << {"name"=>"Additional Instructions for Web Developers", "strict"=>false}
 	test_arr << {"name"=>"Related Third Party Testing Standards", "strict"=>false}

@@ -4,7 +4,7 @@ Gem::Specification.new do |s|
   s.date = '2012-09-26'
   s.summary = "Classes for creating component XML files for the BCL"
   s.description = "Classes for creating component XML files for the BCL"
-  s.authors = ["Dan Macumber","Nicholas Long","Andrew Parker", "Katherine Fleming"]
+  s.authors = ["Daniel Macumber","Nicholas Long","Andrew Parker", "Katherine Fleming"]
   s.email = "Daniel.Macumber@nrel.gov"
   s.files = ["lib/bcl.rb", 
              "lib/bcl/ComponentSpreadsheet.rb", 
