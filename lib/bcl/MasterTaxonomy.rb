@@ -39,7 +39,7 @@ TagStruct = Struct.new(:level_hierarchy, :name, :description, :parent_tag, :chil
 
 # each TermStruct represents a row in the master taxonomy
 TermStruct = Struct.new(:first_level, :second_level, :third_level, :level_hierarchy, :name, :description, 
-					    :abbr, :data_type, :enums, :ip_written, :ip_symbol, :ip_mask, :si_written, :si_symbol, :si_mask, :allow_multiple, :row, :tp_include, :tp_required, :tp_use_in_search, :tp_use_in_facets, :tp_hide_from_data_users, :tp_third_party_testing, :tp_additional_web_dev_info, :tp_additional_data_user_info, :tp_additional_data_submitter_info)
+					    :abbr, :data_type, :enums, :ip_written, :ip_symbol, :ip_mask, :si_written, :si_symbol, :si_mask, :unit_conversion, :default_val, :min_val, :max_val, :allow_multiple, :row, :tp_include, :tp_required, :tp_use_in_search, :tp_use_in_facets, :tp_show_data_to_data_users, :tp_third_party_testing, :tp_additional_web_dev_info, :tp_additional_data_user_info, :tp_additional_data_submitter_info)
 
 						
 						
@@ -307,7 +307,7 @@ class MasterTaxonomy
   
   def parse_term(terms_worksheet, row)
     term = TermStruct.new
-	term.row 				= row
+    term.row 				= row
     term.first_level      	= terms_worksheet.Columns(1).Rows(row).Value
     term.second_level     	= terms_worksheet.Columns(2).Rows(row).Value
     term.third_level      	= terms_worksheet.Columns(3).Rows(row).Value
@@ -315,26 +315,30 @@ class MasterTaxonomy
     term.name             	= terms_worksheet.Columns(5).Rows(row).Value
     term.abbr             	= terms_worksheet.Columns(6).Rows(row).Value
     term.description      	= terms_worksheet.Columns(7).Rows(row).Value
-	term.data_type		  	= terms_worksheet.Columns(8).Rows(row).Value
-	term.allow_multiple	  	= terms_worksheet.Columns(9).Rows(row).Value
-	term.enums    		  	= terms_worksheet.Columns(10).Rows(row).Value
-	term.ip_written			= terms_worksheet.Columns(11).Rows(row).Value
-	term.ip_symbol			= terms_worksheet.Columns(12).Rows(row).Value
-	term.ip_mask			= terms_worksheet.Columns(13).Rows(row).Value
-	term.si_written			= terms_worksheet.Columns(14).Rows(row).Value
-	term.si_symbol			= terms_worksheet.Columns(15).Rows(row).Value
-	term.si_mask			= terms_worksheet.Columns(16).Rows(row).Value
+    term.data_type		= terms_worksheet.Columns(8).Rows(row).Value
+	term.allow_multiple	= terms_worksheet.Columns(9).Rows(row).Value
+	term.enums    		= terms_worksheet.Columns(10).Rows(row).Value
+	term.ip_written		= terms_worksheet.Columns(11).Rows(row).Value
+	term.ip_symbol		= terms_worksheet.Columns(12).Rows(row).Value
+	term.ip_mask		= terms_worksheet.Columns(13).Rows(row).Value
+	term.si_written		= terms_worksheet.Columns(14).Rows(row).Value
+	term.si_symbol		= terms_worksheet.Columns(15).Rows(row).Value
+	term.si_mask		= terms_worksheet.Columns(16).Rows(row).Value
+	term.unit_conversion	= terms_worksheet.Columns(17).Rows(row).Value
+	term.default_val	= terms_worksheet.Columns(18).Rows(row).Value
+	term.min_val		= terms_worksheet.Columns(19).Rows(row).Value
+	term.max_val		= terms_worksheet.Columns(20).Rows(row).Value
 	
 	#custom TPex Columns
 	term.tp_include				= terms_worksheet.Columns(25).Rows(row).Value
 	term.tp_required			= terms_worksheet.Columns(26).Rows(row).Value
 	term.tp_use_in_search		= terms_worksheet.Columns(27).Rows(row).Value
 	term.tp_use_in_facets		= terms_worksheet.Columns(28).Rows(row).Value
-	term.tp_hide_from_data_users	= terms_worksheet.Columns(29).Rows(row).Value
-	term.tp_third_party_testing		= terms_worksheet.Columns(30).Rows(row).Value
-	term.tp_additional_web_dev_info			= terms_worksheet.Columns(31).Rows(row).Value
-	term.tp_additional_data_user_info		= terms_worksheet.Columns(32).Rows(row).Value
-	term.tp_additional_data_submitter_info	= terms_worksheet.Columns(33).Rows(row).Value
+	term.tp_show_data_to_data_users	= terms_worksheet.Columns(29).Rows(row).Value
+	term.tp_additional_web_dev_info			= terms_worksheet.Columns(30).Rows(row).Value
+	term.tp_third_party_testing		= terms_worksheet.Columns(31).Rows(row).Value
+	term.tp_additional_data_submitter_info	= terms_worksheet.Columns(32).Rows(row).Value
+	term.tp_additional_data_user_info		= terms_worksheet.Columns(33).Rows(row).Value
 	
 	# trigger to quit parsing the xcel doc
     if term.first_level.nil? or term.first_level.empty?
@@ -496,13 +500,17 @@ class MasterTaxonomy
 		  xml.si_symbol term.si_symbol if !term.si_symbol.nil?
 		  xml.si_mask term.si_mask if !term.si_mask.nil?
 		  xml.row term.row if !term.row.nil?
-
+		  xml.unit_conversion term.unit_conversion if !term.unit_conversion.nil?
+		  xml.default_val term.default_val if !term.default_val.nil?
+		  xml.min_val term.min_val if !term.min_val.nil?
+		  xml.max_val term.max_val if !term.max_val.nil?
+		  
 		  if output_type == 'tpex'
 		    xml.tp_include term.tp_include if !term.tp_include.nil?
 			xml.tp_required term.tp_required if !term.tp_required.nil?
 			xml.tp_use_in_search term.tp_use_in_search if !term.tp_use_in_search.nil?
 			xml.tp_use_in_facets term.tp_use_in_facets if !term.tp_use_in_facets.nil?
-			xml.tp_hide_from_data_users term.tp_hide_from_data_users if !term.tp_hide_from_data_users.nil?
+			xml.tp_show_data_to_data_users term.tp_show_data_to_data_users if !term.tp_show_data_to_data_users.nil?
 			xml.tp_third_party_testing term.tp_third_party_testing if !term.tp_third_party_testing.nil?
 			xml.tp_additional_web_dev_info term.tp_additional_web_dev_info if !term.tp_additional_web_dev_info.nil?
 			xml.tp_additional_data_user_info term.tp_additional_data_user_info if !term.tp_additional_data_user_info.nil?
