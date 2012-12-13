@@ -64,7 +64,8 @@ class MasterTaxonomy
       end
     else
       xlsx_path = Pathname.new(xlsx_path).realpath.to_s
-
+      puts "Loading taxonomy file #{xlsx_path}"
+      
       # WINDOWS ONLY SECTION BECAUSE THIS USES WIN32OLE
       if $have_win32ole
         begin
@@ -227,6 +228,8 @@ class MasterTaxonomy
 	#root_terms << TermStruct.new()
     root_tag = TagStruct.new("", "root", "Root of the taxonomy", nil, [], root_terms)
     @tag_hash[""] = root_tag
+    
+   ### puts "**** tag hash: #{@tag_hash}"
 
     # find number of rows by parsing until hit empty value in first column
     row_num = 3
@@ -280,7 +283,7 @@ class MasterTaxonomy
 	test_arr << {"name"=>"Required for Adding a New Product", "strict"=>false}
 	test_arr << {"name"=>"Use as a Column Header in Search Results", "strict"=>false}
 	test_arr << {"name"=>"Allow Users to Filter with this Facet", "strict"=>false}
-	test_arr << {"name"=>"Show/Hide Data from Data Users", "strict"=>false}
+	test_arr << {"name"=>"Show Data to Data Users", "strict"=>false}
 	test_arr << {"name"=>"Additional Instructions for Web Developers", "strict"=>false}
 	test_arr << {"name"=>"Related Third Party Testing Standards", "strict"=>false}
 	test_arr << {"name"=>"Additional Guidance to Data Submitters", "strict"=>false}
@@ -306,6 +309,7 @@ class MasterTaxonomy
   end
   
   def parse_term(terms_worksheet, row)
+      
     term = TermStruct.new
     term.row 				= row
     term.first_level      	= terms_worksheet.Columns(1).Rows(row).Value
@@ -351,18 +355,18 @@ class MasterTaxonomy
   def add_term(term)
   
     level_hierarchy = term.level_hierarchy
-    
-    #puts "add_term called for #{level_hierarchy}"
-    
+       
     # create the tag
     tag = @tag_hash[level_hierarchy]
+
     if tag.nil?
-      tag = create_tag(level_hierarchy)
+      tag = create_tag(level_hierarchy, term.description)
     end
     
     if term.name.nil? or term.name.strip.empty?
       # this row is really about the tag
-      tag.description = term.description
+      tag.description = term.description 
+
     else
       # this row is about a term
       if not validate_term(term)
@@ -374,7 +378,7 @@ class MasterTaxonomy
     end
   end
   
-  def create_tag(level_hierarchy)
+  def create_tag(level_hierarchy, tag_description="")
   
     #puts "create_tag called for #{level_hierarchy}"
   
@@ -388,7 +392,7 @@ class MasterTaxonomy
       parent_tag = create_tag(parent_level)
     end
     
-    description = ""
+    description = tag_description
     child_tags = []
     terms = []
     tag = TagStruct.new(level_hierarchy, name, description, parent_tag, child_tags, terms)
@@ -413,7 +417,7 @@ class MasterTaxonomy
   def check_tag(tag)
     
     if tag.description.nil? or tag.description.empty?
-      #puts "tag '#{tag.level_hierarchy}' has no description"
+      puts "[check_tag] tag '#{tag.level_hierarchy}' has no description"
     end
 	
     tag.terms.each {|term| check_term(term) }
@@ -468,7 +472,7 @@ class MasterTaxonomy
   
   def check_term(term)
     if term.description.nil? or term.description.empty?
-      #puts "term '#{term.level_hierarchy}.#{term.name}' has no description"
+      #puts "[check_term] term '#{term.level_hierarchy}.#{term.name}' has no description"
     end
   end
   
@@ -527,6 +531,7 @@ class MasterTaxonomy
 	xml.tag!(level_string) {
 	  s_temp = tag.name 
 	  xml.name s_temp
+	  xml.description tag.description
 	  	  
 	  level += 1
 	    
