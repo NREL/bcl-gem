@@ -8,3 +8,10 @@ end
 
 desc "Run tests"
 task :default => :test
+
+desc "Build gem"
+task :build do
+  `gem build bcl.gemspec`
+  `gem uninstall bcl`
+  `gem install bcl`
+end
