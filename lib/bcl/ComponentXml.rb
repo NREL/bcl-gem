@@ -169,19 +169,29 @@ class Component
     @tags << tag
   end
   
-  def add_attribute(name, value, units)
+  def add_attribute(name, value, units, datatype = nil)
     attr = AttrStruct.new
     attr.name = name
     attr.value = value
-    
-    if value.is_a? Fixnum
-      attr.datatype = "int"
-    elsif value.is_a? Float
-      attr.datatype = "float"
+
+    if !datatype.nil?
+      attribute.datatype = datatype
     else
-      attr.datatype = "string"
+      isint = true if Integer(value) rescue false
+      isfloat = true if Float(value) rescue false
+
+      if value.is_a? Fixnum
+        attr.datatype = "int"
+      elsif value.is_a? Float
+        attr.datatype = "float"
+      elsif isfloat
+        attr.datatype = "float"
+      elsif isint
+        attr.datatype = "int"
+      else
+        attr.datatype = "string"
+      end
     end
-    
     attr.units = units
 
     @attributes << attr  
