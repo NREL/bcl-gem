@@ -1,17 +1,47 @@
 require 'rake/testtask'
 
+$LOAD_PATH.unshift File.expand_path("../lib", __FILE__)
+require "bcl/version"
+
 Rake::TestTask.new do |t|
   t.libs << 'test'
   t.test_files = FileList['test/*.rb']
   t.verbose = true
 end
 
-desc "Run tests"
-task :default => :test
+task :release => :build do
+  ""
+end
 
 desc "Build gem"
 task :build do
-  `gem build bcl.gemspec`
-  `gem uninstall bcl`
-  `gem install bcl`
+  system "gem build bcl.gemspec"
 end
+
+desc "import a new build of the taxonomy"
+task :import_taxonomy
+  require 'rubygems'
+  require 'bcl'
+
+  dirname = File.dirname(__FILE__)
+
+  taxonomy = BCL::MasterTaxonomy.new(dirname + '\..\..\Taxonomy\unified taxonomy.xlsm')
+  taxonomy.save_as_current_taxonomy()
+  taxonomy.save_as_current_taxonomy(dirname + '\lib\bcl\current_taxonomy.json')
+  taxonomy.write_xml(dirname + '\lib\bcl\current_taxonomy.xml')
+end
+
+desc "install gem"
+task :install => :build do
+  system "gem install bcl-#{BCL::VERSION}.gem"
+end
+
+desc "uninstall all gems"
+task :uninstall do
+  system "gem uninstall bcl -a"
+end
+
+task :reinstall => [:uninstall, :install]
+
+desc "Run tests"
+task :default => :test

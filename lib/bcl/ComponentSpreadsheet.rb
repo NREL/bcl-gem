@@ -1,5 +1,5 @@
 ######################################################################
-#  Copyright (c) 2008-2010, Alliance for Sustainable Energy.  
+#  Copyright (c) 2008-2013, Alliance for Sustainable Energy.
 #  All rights reserved.
 #  
 #  This library is free software; you can redistribute it and/or
@@ -30,14 +30,15 @@ require 'bcl/ComponentXml'
 require 'bcl/GatherComponents'
 require 'bcl/MasterTaxonomy'
 
-$have_win32ole = false
-begin
-  # apparently this is not a gem
-  require 'win32ole'
-  mod = WIN32OLE
-  $have_win32ole = true
-rescue NameError
-  # do not have win32ole
+if RbConfig::CONFIG['host_os'] =~ /mswin|mingw|cygwin/
+  begin
+    # apparently this is not a gem
+    require 'win32ole'
+    mod = WIN32OLE
+    $have_win32ole = true
+  rescue NameError
+    # do not have win32ole
+  end
 end
 
 module BCL

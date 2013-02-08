@@ -1,5 +1,5 @@
 ######################################################################
-#  Copyright (c) 2008-2010, Alliance for Sustainable Energy.  
+#  Copyright (c) 2008-2013, Alliance for Sustainable Energy.
 #  All rights reserved.
 #  
 #  This library is free software; you can redistribute it and/or
@@ -21,15 +21,19 @@ require 'rubygems'
 require 'pathname'
 require 'fileutils'
 require 'builder'  #gem install builder (creates xml files)
+require 'rbconfig'
 
 $have_win32ole = false
-begin
-  # apparently this is not a gem
-  require 'win32ole'
-  mod = WIN32OLE
-  $have_win32ole = true
-rescue NameError
-  # do not have win32ole
+
+if RbConfig::CONFIG['host_os'] =~ /mswin|mingw|cygwin/
+  begin
+    # apparently this is not a gem
+    require 'win32ole'
+    mod = WIN32OLE
+    $have_win32ole = true
+  rescue NameError
+    # do not have win32ole
+  end
 end
 
 module BCL
@@ -41,9 +45,6 @@ TagStruct = Struct.new(:level_hierarchy, :name, :description, :parent_tag, :chil
 TermStruct = Struct.new(:first_level, :second_level, :third_level, :level_hierarchy, :name, :description, 
 					    :abbr, :data_type, :enums, :ip_written, :ip_symbol, :ip_mask, :si_written, :si_symbol, :si_mask, :unit_conversion, :default_val, :min_val, :max_val, :allow_multiple, :row, :tp_include, :tp_required, :tp_use_in_search, :tp_use_in_facets, :tp_show_data_to_data_users, :tp_third_party_testing, :tp_additional_web_dev_info, :tp_additional_data_user_info, :tp_additional_data_submitter_info)
 
-						
-						
-						
 
 # class for parsing, validating, and querying the master taxonomy document
 class MasterTaxonomy
