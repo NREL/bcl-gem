@@ -10,7 +10,8 @@ Rake::TestTask.new do |t|
 end
 
 task :release => :build do
-  ""
+  system "gem push bcl-#{BCL::VERSION}.gem"
+  system "rm bcl-#{BCL::VERSION}.gem"
 end
 
 desc "Build gem"

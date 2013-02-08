@@ -8,7 +8,7 @@ Gem::Specification.new do |s|
   s.version = BCL::VERSION
   s.platform = Gem::Platform::RUBY
   s.authors = ["Daniel Macumber","Nicholas Long","Andrew Parker", "Katherine Fleming"]
-  s.email = "Daniel.Macumber@nrel.gov"
+  s.email = "Nicholas.Long@nrel.gov"
   s.homepage = 'http://bcl.nrel.gov'
   s.summary = "Classes for creating component XML files for the BCL"
   s.description = "Classes for creating component XML files for the BCL"
