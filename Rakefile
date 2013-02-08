@@ -20,7 +20,7 @@ task :build do
 end
 
 desc "import a new build of the taxonomy"
-task :import_taxonomy
+task :import_taxonomy do
   require 'rubygems'
   require 'bcl'
 
