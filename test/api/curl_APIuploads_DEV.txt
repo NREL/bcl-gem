@@ -1,0 +1,61 @@
+// Working commands (NREL dev server).  
+// For --cookie, use the format "session_name=sessid" from the return JSON from logging in
+
+// On Windows:
+// 1. Surround -d in double quotes, not single quotes.
+// 2. Escape your double quotes. (Example: \")
+// (These changes have already been incorporated in the 2nd set of example below.)
+
+
+
+GENERAL EXAMPLES (LINUX)
+
+1. login:
+
+curl -v -H "Content-Type: application/json" -X POST -d '{"username":"xxxx", "password":"xxxx"}' http://bcl.development.nrel.gov/api/user/login?oauth_consumer_key=APIKEYHERE
+
+response (example): {"sessid":"xxxx","session_name":"xx","user":{"uid":"xxxx","name":"xxxx" ...}
+
+
+2. get session name / sessid from above response (and use in following commands)
+if "sessid":"xxxx","session_name":"yyyy"  then use:  --cookie "yyyy=xxxx"
+
+
+3.upload file: 
+
+curl -v -H "Content-Type: application/json" -X POST --cookie "yyyy=xxxx" -d '{"file":{"file":"dGVzdCBmaWxlIGNvbnRlbnRz","filename":"testfile.idf","filesize":"24", "uid":"USER_ID HERE"}}' http://bcl.development.nrel.gov/api/file?oauth_consumer_key=APIKEYHERE
+
+response (example): where xxxx = fid
+{"filename":"testfile.idf","filesize":"24","uid":0,"filepath":"sites\/bcl.development.nrel.gov\/files\/nv_data\/nrel_tar\/1\/xxxx\/testfile.idf","filemime":"application\/octet-stream","status":0,"timestamp":1316203147,"fid":"xxxx"}
+
+
+4. Add component and associate with uploaded file from 3 by using the entire response from above as the associated file in the following json:
+
+curl -v -H "Content-Type: application/json" -X POST --cookie "yyyy=xxxx" -d '{"node":{"type":"nrel_component","title":"Testing API","component":{"general":{"name":"Test API through curl","attributes":{"attribute":{"0":{"name":"WMO","value":"555"}}}, "files":{"file":{"0":{"filename":"testfile","filetype":"idf"}}}}},"field_files":{"0":xxxxFileFromPreviousResponsexxxx}}}' http://bcl.development.nrel.gov/api/component?oauth_consumer_key=APIKEYHERE
+response: {"nid":"zzzz","uri":"http:\/\/bcl.development.nrel.gov\/api\/component\/zzzz"}
+
+5.  update node created above
+
+curl -v -H "Content-Type: application/json" -X PUT --cookie "yyyy=xxxx" -d '{"node":{"type":"nrel_component","title":"Testing API Update","component":{"general":{"name":"Test API update through curl","attributes":{"attribute":{"0":{"name":"WMO","value":"555"}}},"files":{"file":{"0":{"filename":"testfile","filetype":"idf"}}}}},"field_files":{"0":xxxxFileFromPreviousResponsexxxx}}}' http://bcl.development.nrel.gov/api/component/zzzz?oauth_consumer_key=APIKEYHERE
+
+response (example): {"nid":"zzzz","uri":"http:\/\/bcl.development.nrel.gov\/api\/component\/zzzz"}
+
+
+
+EXAMPLES (WINDOWS)
+
+// Login
+curl -v -H "Content-Type: application/json" -X POST -d "{\"username\":\"USERNAME\",\"password\":\"PWD\"}" http://bcl.development.nrel.gov/api/user/login?oauth_consumer_key=fM9SwvMbeWeDevZwKsgrBrXqQc5TvpSv
+
+// File
+curl -v -H "Content-Type: application/json" -X POST --cookie "SESS031c9fd91fdd3621d6aada21141a1f72=muoj0fv3tits9j48e4d6g4b041" -d "{\"file\":{\"file\":\"dGVzdCBmaWxlIGNvbnRlbnRz\",\"filename\":\"testfile.idf\",\"filesize\":\"24\", \"uid\":\"USERID HERE\"}}" http://bcl.development.nrel.gov/api/file?oauth_consumer_key=APIKEY
+
+// Add node
+curl -v -H "Content-Type: application/json" -X POST --cookie "SESS031c9fd91fdd3621d6aada21141a1f72=muoj0fv3tits9j48e4d6g4b041" -d "{\"node\":{\"type\":\"nrel_component\",\"title\":\"API test\",\"component\":{\"general\":{\"name\":\"Test node\",\"attributes\":{\"attribute\":{\"0\":{\"name\":\"WMO\",\"value\":\"555\"}}},\"files\":{\"file\":{\"0\":{\"filename\":\"testfile\",\"filetype\":\"idf\"}}}}},\"field_files\":{\"0\":{\"filename\":\"testfile.idf\",\"filesize\":\"24\",\"uid\":0,\"filepath\":\"sites\/bcl.development.nrel.gov\/files\/nv_data\/nrel_tar\/1\/XXXXX\/testfile.idf\",\"filemime\":\"application\/octet-stream\",\"status\":0,\"timestamp\":1315337670,\"fid\":\"XXXXX\"}}}}" http://bcl.development.nrel.gov/api/component?oauth_consumer_key=APIKEY
+
+// Update node
+curl -v -H "Content-Type: application/json" -X PUT --cookie "SESS031c9fd91fdd3621d6aada21141a1f72=muoj0fv3tits9j48e4d6g4b041" -d "{\"node\":{\"type\":\"nrel_component\",\"title\":\"Testing API Update\",\"component\":{\"general\":{\"name\":\"Test node updated \",\"attributes\":{\"attribute\":{\"0\":{\"name\":\"WMO\",\"value\":\"555\"}}},{\"files\":{\"file\":{\"0\":{\"filename\":\"testfile\",\"filetype\":\"idf\"}}}}},\"field_files\":{\"0\":{\"filename\":\"testfile.idf\",\"filesize\":\"24\",\"uid\":0,\"filepath\":\"sites\/bcl.development.nrel.gov\/files\/nv_data\/nrel_tar\/1\/XXXXX\/testfile.idf\",\"filemime\":\"application\/octet-stream\",\"status\":0,\"timestamp\":1315337670,\"fid\":\"XXXXX\"}}}}" http://bcl.development.nrel.gov/api/component/44814?oauth_consumer_key=APIKEY
+
+// Delete node
+curl -v -H "Content-Type: application/json" -X DELETE --cookie "SESS031c9fd91fdd3621d6aada21141a1f72=muoj0fv3tits9j48e4d6g4b041" http://bcl.development.nrel.gov/api/component/NODEID?oauth_consumer_key=APIKEY
+
