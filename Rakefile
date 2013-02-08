@@ -23,13 +23,14 @@ desc "import a new build of the taxonomy"
 task :import_taxonomy do
   require 'rubygems'
   require 'bcl'
+  require 'pathname'
 
-  dirname = File.dirname(__FILE__)
+  dirname = Pathname.new(__FILE__)
 
-  taxonomy = BCL::MasterTaxonomy.new(dirname + '\..\..\Taxonomy\unified taxonomy.xlsm')
+  taxonomy = BCL::MasterTaxonomy.new(dirname + '../../../Taxonomy/unified taxonomy.xlsm')
   taxonomy.save_as_current_taxonomy()
-  taxonomy.save_as_current_taxonomy(dirname + '\lib\bcl\current_taxonomy.json')
-  taxonomy.write_xml(dirname + '\lib\bcl\current_taxonomy.xml')
+  taxonomy.save_as_current_taxonomy(dirname + 'lib/bcl/current_taxonomy.json')
+  taxonomy.write_xml(dirname + 'lib/bcl/current_taxonomy.xml')
 end
 
 desc "install gem"
