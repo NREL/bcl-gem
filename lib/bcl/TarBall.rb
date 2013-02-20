@@ -23,6 +23,7 @@ require 'zlib' #gem install zliby
 require 'archive/tar/minitar' #gem install archive-tar-minitar
 
 module BCL
+
 module_function
 
 def tarball(destination, paths)

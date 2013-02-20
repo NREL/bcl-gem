@@ -9,12 +9,13 @@ Rake::TestTask.new do |t|
   t.verbose = true
 end
 
+desc "build and release version of gem on rubygems.org"
 task :release => :build do
   system "gem push bcl-#{BCL::VERSION}.gem"
   system "rm bcl-#{BCL::VERSION}.gem"
 end
 
-desc "Build gem"
+desc "build gem"
 task :build do
   system "gem build bcl.gemspec"
 end
@@ -33,9 +34,14 @@ task :import_taxonomy do
   taxonomy.write_xml(dirname + 'lib/bcl/current_taxonomy.xml')
 end
 
-desc "install gem"
+desc "install gem from rubygems.org"
 task :install => :build do
   system "gem install bcl-#{BCL::VERSION}.gem"
+end
+
+desc "build and install gem locally for testing"
+task :install_local => :build do
+  system "gem install ./bcl-#{BCL::VERSION}.gem"
 end
 
 desc "uninstall all gems"
