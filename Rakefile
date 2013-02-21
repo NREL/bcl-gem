@@ -1,13 +1,18 @@
-require 'rake/testtask'
+require "bundler"
+Bundler.setup
+
+require "rake"
+require "rspec/core/rake_task"
 
 $LOAD_PATH.unshift File.expand_path("../lib", __FILE__)
 require "bcl/version"
 
-Rake::TestTask.new do |t|
-  t.libs << 'test'
-  t.test_files = FileList['test/*.rb']
-  t.verbose = true
-end
+
+#Rake::TestTask.new do |t|
+#  t.libs << 'test'
+#  t.test_files = FileList['test/*.rb']
+#  t.verbose = true
+#end
 
 desc "build and release version of gem on rubygems.org"
 task :release => :build do
@@ -51,5 +56,12 @@ end
 
 task :reinstall => [:uninstall, :install]
 
-desc "Run tests"
-task :default => :test
+
+RSpec::Core::RakeTask.new("spec") do |spec|
+  puts "running tests..."
+  spec.pattern = "spec/**/*_spec.rb"
+end
+
+desc "Default task run rspec tests"
+task :test => :spec
+task :default => :spec

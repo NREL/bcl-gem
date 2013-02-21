@@ -175,22 +175,9 @@ class Component
     attr.value = value
 
     if !datatype.nil?
-      attribute.datatype = datatype
+      attr.datatype = datatype
     else
-      isint = true if Integer(value) rescue false
-      isfloat = true if Float(value) rescue false
-
-      if value.is_a? Fixnum
-        attr.datatype = "int"
-      elsif value.is_a? Float
-        attr.datatype = "float"
-      elsif isfloat
-        attr.datatype = "float"
-      elsif isint
-        attr.datatype = "int"
-      else
-        attr.datatype = "string"
-      end
+      attr.datatype = get_datatype(value)
     end
     attr.units = units
 
@@ -443,10 +430,20 @@ class Component
     }
     
     xmlfile.close
-  end  
-    
-  private
-  
+  end
+
+  def get_attribute(attribute_name)
+    result = nil
+    @attributes.each do |attr|
+      if attr.name == attribute_name
+        result = attr
+      end
+    end
+
+    result
+
+  end
+
   #return the title case of the string
   def tc(input)
     val = input.gsub(/\b\w/){$&.upcase}
@@ -454,6 +451,27 @@ class Component
       val = "EnergyPlus"
     end
     return val
+  end
+
+  private
+
+  def get_datatype(input_value)
+    dt = 'undefined'
+
+    # simple method to test if the input_value is a string, float, or integer.
+    # First convert the value back to a string for testing (in case it was passed as a float/integer)
+    test = input_value.to_s
+    input_value = test.match('\.').nil? ? Integer(test) : Float(test) rescue test.to_s
+
+    if input_value.is_a?(Fixnum) || input_value.is_a?(Bignum)
+      dt = "int"
+    elsif input_value.is_a?(Float)
+      dt = "float"
+    else
+      dt = "string"
+    end
+
+    dt
   end
   
 end
