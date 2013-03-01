@@ -3,9 +3,6 @@ $LOAD_PATH.unshift(File.join(File.dirname(__FILE__), "..", "lib"))
 
 require 'rspec'
 require 'bcl'
-require 'fileutils'
-require 'yaml'
-require 'pathname'
 
 
 

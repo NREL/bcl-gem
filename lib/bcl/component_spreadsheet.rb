@@ -27,7 +27,7 @@ require 'fileutils'
 require 'uuid' # gem install uuid
 
 require 'bcl/component_xml'
-require 'bcl/GatherComponents'
+require 'bcl/component_methods'
 require 'bcl/MasterTaxonomy'
 
 if RbConfig::CONFIG['host_os'] =~ /mswin|mingw|cygwin/

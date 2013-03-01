@@ -21,13 +21,150 @@ require 'rubygems'
 require 'pathname'
 require 'fileutils'
 require 'enumerator'
+require 'yaml'
+require 'base64'
 
-require 'rubygems'
-require 'pathname'
-require 'FileUtils'
 require 'bcl/TarBall'
+require 'rest-client'
 
 module BCL
+
+  class ComponentMethods
+
+    attr_accessor :config
+    attr_accessor :session
+
+    def initialize()
+      @config = nil
+      @session = nil
+      config_path = File.expand_path('~') + '/.bcl'
+      config_name = 'config.yml'
+      if File.exists?(config_path + "/" + config_name)
+        puts "loading config settings from #{config_path + "/" + config_name}"
+        @config = YAML.load_file(config_path + "/" + config_name)
+      else
+        #location of template file
+        FileUtils.mkdir_p(config_path)
+        File.open(config_path + "/" + config_name, 'w') do |file|
+          file << default_yaml.to_yaml
+        end
+        puts "******** Please fill in user credentials in #{config_path}/#{config_name} file.  DO NOT COMMIT THIS FILE. **********"
+        exit
+      end
+
+    end
+
+    def default_yaml
+      settings = { :admin_user => { :username => "ENTER_BCL_USERNAME", :password => "ENTER_BCL_PASSWORD"} }
+
+      settings
+    end
+
+    def login(username, password)
+      data = {"username" => username, "password" => password}
+      res = RestClient.post "http://#{@config[:server][:url]}/api/user/login", data.to_json, :content_type => :json, :accept => :json
+
+      if res.code == 200
+        #pull out the session key
+        res_j = JSON.parse(res.body)
+
+        sessid = res_j["sessid"]
+        session_name = res_j["session_name"]
+
+        @session = { session_name => sessid }
+      end
+
+      res
+    end
+
+
+    # pushes component to the bcl and sets to published (for now). Username and password and
+    # set in ~/.bcl/config.yml file which determines the permissions and the group to which
+    # the component will be uploaded
+    def push_component(filename_and_path, write_receipt_file)
+      raise "Please login before pushing components" if @session.nil?
+
+      valid = false
+      res_j = nil
+      filename = File.basename(filename_and_path)
+      filepath = File.dirname(filename_and_path) + "/"
+
+      # TODO: BCL will be moving over to single endpoint to manage the file upload and node creation (update eventually)
+      file = File.open(filename_and_path, 'r')
+      file_b64 = Base64.encode64(file.read)
+      @data = {"file" =>
+                   {
+                       "file" => "#{file_b64}",
+                       "filesize" => "#{File.size(filename_and_path)}",
+                       "filename" => filename
+                   }
+      }
+
+      res = RestClient.post "http://#{@config[:server][:url]}/api/file", @data.to_json, :content_type => :json, :cookies => @session, :accept => :json
+
+      if res.code == 200
+        fid = JSON.parse(res.body)["fid"]
+
+        #post the node now with reference to this fid
+        @data = {"node" =>
+                     {"type" => "nrel_component",
+                      "status" => 1,  #NOTE THIS ONLY WORKS IF YOU ARE ADMIN
+                      "field_tar_file" =>
+                          {"und" => [
+                              {"fid" => fid}
+                          ]
+                          }
+                     }
+        }
+
+        res = RestClient.post "http://#{@config[:server][:url]}/api/node", @data.to_json, :content_type => :json, :cookies => @session, :accept => :json
+
+        res_j = JSON.parse(res.body)
+
+        if res.code == 200
+          valid = true
+        else
+          valid = false
+        end
+      else
+        res = nil
+      end
+
+      if valid
+        #write out a receipt file into the same directory of the component with the same file name as
+        #the component
+        if write_receipt_file
+          File.open(filepath + File.basename(filename, '.tar.gz') + ".receipt", 'w') do |file|
+            file << Time.now.to_s
+          end
+        end
+      end
+
+      [valid, res_j]
+    end
+
+    def push_components(array_of_components, skip_files_with_receipts)
+      logs = []
+      array_of_components.each do |comp|
+        receipt_file = File.basename(comp, '.tar.gz') + ".receipt"
+        if skip_files_with_receipts && File.exists?(receipt_file)
+          logs << "skipping component because found receipt for #{comp}"
+          next
+        end
+
+        log_message = "pushing component #{comp}: "
+        valid, res = push_component(comp, true)
+        logs << "#{log_message} #{valid} #{res.inspect.chomp}"
+      end
+
+      logs
+    end
+
+  end
+
+  # TODO make this extend the component_xml class (or create a super class around components)
+
+
 
   module_function
 
@@ -86,11 +223,6 @@ module BCL
 
   end
 
-  def push_components(component_dir)
-    # read in the configuration data
 
-    return true
-
-  end
 
 end # module BCL
