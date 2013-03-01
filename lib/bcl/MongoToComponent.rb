@@ -19,7 +19,7 @@
 
 #Mongo Record to Component
 require 'rubygems'
-require 'bcl/ComponentXml'
+require 'bcl/component_xml'
 
 module BCL
 

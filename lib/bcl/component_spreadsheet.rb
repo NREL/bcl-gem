@@ -26,7 +26,7 @@ require 'pathname'
 require 'fileutils'
 require 'uuid' # gem install uuid
 
-require 'bcl/ComponentXml'
+require 'bcl/component_xml'
 require 'bcl/GatherComponents'
 require 'bcl/MasterTaxonomy'
 

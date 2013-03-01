@@ -7,13 +7,6 @@ require "rspec/core/rake_task"
 $LOAD_PATH.unshift File.expand_path("../lib", __FILE__)
 require "bcl/version"
 
-
-#Rake::TestTask.new do |t|
-#  t.libs << 'test'
-#  t.test_files = FileList['test/*.rb']
-#  t.verbose = true
-#end
-
 desc "build and release version of gem on rubygems.org"
 task :release => :build do
   system "gem push bcl-#{BCL::VERSION}.gem"
@@ -41,17 +34,19 @@ end
 
 desc "install gem from rubygems.org"
 task :install => :build do
-  system "gem install bcl-#{BCL::VERSION}.gem"
+  system "gem install bcl-#{BCL::VERSION}.gem --no-ri --no-rdoc"
 end
 
 desc "build and install gem locally for testing"
 task :install_local => :build do
-  system "gem install ./bcl-#{BCL::VERSION}.gem"
+  out = `gem install bcl-#{BCL::VERSION}.gem --no-ri --no-rdoc`
+  puts out
 end
 
 desc "uninstall all gems"
 task :uninstall do
-  system "gem uninstall bcl -a"
+  out = `gem uninstall bcl -a`
+  puts out
 end
 
 task :reinstall => [:uninstall, :install]
