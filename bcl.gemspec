@@ -11,7 +11,7 @@ Gem::Specification.new do |s|
   s.email = "Nicholas.Long@nrel.gov"
   s.homepage = 'http://bcl.nrel.gov'
   s.summary = "Classes for creating component XML files for the BCL"
-  s.description = "Classes for creating component XML files for the BCL"
+  s.description = "This gem contains helper methods for generating the Component XML file needed to upload files to the Building Component Library. It also contains the classes needed for logging in via the api and uploading generating components"
   s.license = "LGPL"
 
 
