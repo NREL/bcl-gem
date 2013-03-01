@@ -5,28 +5,27 @@ require 'libxml'
 require 'base64'
 
 describe BCL::Component do
-  before :all do
-    @username = $config["admin_user"]["username"]
-    @password = $config["admin_user"]["password"]  #MOVE THIS TO CONFIG FILE or hash
-
+  before :each do
+    @cm = BCL::ComponentMethods.new
+    @username = @cm.config[:server][:admin_user][:username]
+    @password = @cm.config[:server][:admin_user][:password]  #MOVE THIS TO CONFIG FILE or hash
     # @url = "bcl.concept3d.com/api"
-    @url = "bcl7.development.nrel.gov/api"
+    @cm.config[:server][:url] = "bcl7.development.nrel.gov"  #force tests to use this server and not the value in the .bcl config
     @url_bwc = "#{@url}?api_version=1.1"
   end
 
   context "login tests" do
     it "should not authenticate" do
-      data = {"username" => @username, "password" => "abc"}
-      res = RestClient.post "http://#{@url}/user/login", data.to_json, :content_type => :json, :accept => :json
+      res = @cm.login(@username, "BAD_PASSWORD")
       res.code.should eq(401)
     end
   end
 
   context "login and return session" do
-    before :all do
-      data = {"username" => @username, "password" => @password}
-      res = RestClient.post "http://#{@url}/user/login", data.to_json, :content_type => :json, :accept => :json
+    before :each do
+      res = @cm.login(@username, @password)
       res.code.should eq(200)
+      puts res.inspect
 
       res_j = JSON.parse(res.body)
 
@@ -118,7 +117,16 @@ describe BCL::Component do
       it "should be able to post a file as tar.gz and then reference in new component" do
         # NOTE: This is uploading the exact same component every time. It should automatically error out
         # if the file has been uploaded before
+
+
+
+
         filename = "#{File.dirname(__FILE__)}/resources/component_example.tar.gz"
+
+
+        #comp_data, res = @cm.push_component()
+
+
         file = File.open(filename, 'r')
         file_b64 = Base64.encode64(file.read)
         @data = {"file" =>
