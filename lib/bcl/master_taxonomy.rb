@@ -20,9 +20,10 @@
 require 'rubygems'
 require 'pathname'
 require 'fileutils'
-require 'builder'  #gem install builder (creates xml files)
 require 'rbconfig'
 
+#require gems
+require 'builder'  #gem install builder (creates xml files)
 $have_win32ole = false
 
 if RbConfig::CONFIG['host_os'] =~ /mswin|mingw|cygwin/

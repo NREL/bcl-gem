@@ -21,14 +21,14 @@
 # Format of the Excel spreadsheet is documented in /doc/ComponentSpreadsheet.docx
 
 require 'rubygems'
-
 require 'pathname'
 require 'fileutils'
-require 'uuid' # gem install uuid
 
+# required gems
+require 'uuid' # gem install uuid
 require 'bcl/component_xml'
 require 'bcl/component_methods'
-require 'bcl/MasterTaxonomy'
+require 'bcl/master_taxonomy'
 
 if RbConfig::CONFIG['host_os'] =~ /mswin|mingw|cygwin/
   begin

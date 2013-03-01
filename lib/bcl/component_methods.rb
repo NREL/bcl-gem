@@ -23,9 +23,10 @@ require 'fileutils'
 require 'enumerator'
 require 'yaml'
 require 'base64'
-require 'json/pure'
 
-require 'bcl/TarBall'
+# required gems
+require 'json/pure'
+require 'bcl/tar_ball'
 require 'rest-client'
 
 module BCL
@@ -161,6 +162,7 @@ module BCL
           log_message = "skipping component because found receipt for #{comp}"
         else
           log_message = "pushing component #{comp}: "
+          puts log_message
           valid, res = push_component(comp, true)
           log_message += " #{valid} #{res.inspect.chomp}"
         end

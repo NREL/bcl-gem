@@ -22,14 +22,15 @@
 # the Building Component Library.
 
 require 'rubygems'
-
 require 'pathname'
+require 'fileutils'
 require 'csv'
+
+# required gems
 require 'builder'  #gem install builder (creates xml files)
 require 'uuid' # gem install uuid
-require 'fileutils'
+require 'bcl/tar_ball'
 
-require 'bcl/TarBall'
 
 module BCL
 
@@ -131,7 +132,7 @@ module BCL
       #the directory
 
       Dir.chdir("#{resolve_path}")
-      destination = "#{@name.gsub(" ","_").gsub("/","_").gsub("-","_").gsub("___","_").gsub("__","_").gsub("in.","in").gsub(",","").strip}.tar.gz"
+      destination = "#{@name.gsub(" ","_").gsub(".","").gsub("/","_").gsub("-","_").gsub("___","_").gsub("__","_").gsub("in.","in").gsub(",","").strip}.tar.gz"
 
       File.delete(destination) if File.exists?(destination)
 

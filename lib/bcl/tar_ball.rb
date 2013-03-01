@@ -19,6 +19,7 @@
 
 require 'rubygems'
 
+# require gems
 require 'zlib' #gem install zliby
 require 'archive/tar/minitar' #gem install archive-tar-minitar
 
