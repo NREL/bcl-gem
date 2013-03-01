@@ -146,8 +146,9 @@ module BCL
     def push_components(array_of_components, skip_files_with_receipts)
       logs = []
       array_of_components.each do |comp|
-        receipt_file = File.basename(comp, '.tar.gz') + ".receipt"
-        if skip_files_with_receipts && File.exists?(receipt_file)
+        receipt_file = File.dirname(comp) + "/" + File.basename(comp, '.tar.gz') + ".receipt"
+        puts receipt_file
+        if !skip_files_with_receipts && File.exists?(receipt_file)
           logs << "skipping component because found receipt for #{comp}"
           next
         end

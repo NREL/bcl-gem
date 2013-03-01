@@ -24,29 +24,29 @@ require 'archive/tar/minitar' #gem install archive-tar-minitar
 
 module BCL
 
-module_function
+  module_function
 
-def tarball(destination, paths)
-  Zlib::GzipWriter.open(destination) do |gzip|
-    out = Archive::Tar::Minitar::Output.new(gzip)
-    puts "[TarBall] Starting #{destination}"
-    paths.each do |fi|
-      puts "[TarBall] Packing #{fi}"
-      if File.exists?(fi) 
-        Archive::Tar::Minitar.pack_file(fi, out)
-      else
-        puts "[TarBall] Could not file file: #{fi}"
+  def tarball(destination, paths)
+    Zlib::GzipWriter.open(destination) do |gzip|
+      out = Archive::Tar::Minitar::Output.new(gzip)
+      puts "[TarBall] Starting #{destination}"
+      paths.each do |fi|
+        puts "[TarBall] Packing #{fi}"
+        if File.exists?(fi)
+          Archive::Tar::Minitar.pack_file(fi, out)
+        else
+          puts "[TarBall] Could not file file: #{fi}"
+        end
       end
+      puts "[TarBall] Finished #{destination}"
+      out.close
     end
-    puts "[TarBall] Finished #{destination}"
-    out.close
   end
-end
 
-def extract_tarball(filename, destination)
-  Zlib::GzipReader.open(filename) {|gz|
-      Archive::Tar::Minitar.unpack(gz, destination)
-  }
-end
+  def extract_tarball(filename, destination)
+    Zlib::GzipReader.open(filename) {|gz|
+        Archive::Tar::Minitar.unpack(gz, destination)
+    }
+  end
 
 end # module BCL

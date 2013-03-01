@@ -124,11 +124,27 @@ describe BCL::Component do
       context "posting multiple components" do
         it "should post 3 components" do
           files = Pathname.glob("#{File.dirname(__FILE__)}/resources/*.tar.gz")
+          log = @cm.push_components(files, true)
+
+          log.size.should eq(3)
+          puts log
+        end
+
+        it "should post 0 components when checking receipt files" do
+          files = Pathname.glob("#{File.dirname(__FILE__)}/resources/*.tar.gz")
           log = @cm.push_components(files, false)
 
           puts log
+          log.size.should eq(3)
+
+          test = true
+          log.each do |comp|
+            test = false if !comp.include?("skipping")
+          end
+          test.should be_true
         end
       end
+
     end
   end
 end
