@@ -56,7 +56,7 @@ module BCL
     end
 
     def default_yaml
-      settings = { :admin_user => { :username => "ENTER_BCL_USERNAME", :password => "ENTER_BCL_PASSWORD"} }
+      settings = { :server => { :url => "bcl7.development.nrel.gov", :admin_user => { :username => "ENTER_BCL_USERNAME", :password => "ENTER_BCL_PASSWORD"} } }
 
       settings
     end
