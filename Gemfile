@@ -6,6 +6,7 @@ gem "builder"
 gem "roo"
 gem "rest-client"
 gem "yaml"
+gem "json_pure"
 
 #group :test do
 gem "rspec", "~> 2.12"

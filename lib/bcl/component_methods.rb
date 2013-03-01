@@ -23,6 +23,7 @@ require 'fileutils'
 require 'enumerator'
 require 'yaml'
 require 'base64'
+require 'json/pure'
 
 require 'bcl/TarBall'
 require 'rest-client'
@@ -48,8 +49,7 @@ module BCL
         File.open(config_path + "/" + config_name, 'w') do |file|
           file << default_yaml.to_yaml
         end
-        puts "******** Please fill in user credentials in #{config_path}/#{config_name} file.  DO NOT COMMIT THIS FILE. **********"
-        exit
+        raise "******** Please fill in user credentials in #{config_path}/#{config_name} file.  DO NOT COMMIT THIS FILE. **********"
       end
 
     end
@@ -60,7 +60,13 @@ module BCL
       settings
     end
 
-    def login(username, password)
+    def login(username=nil, password=nil)
+      if username.nil? || password.nil?
+        # log in via cached creditials
+        username = @config[:server][:admin_user][:username]
+        password = @config[:server][:admin_user][:password]
+      end
+
       data = {"username" => username, "password" => password}
       res = RestClient.post "http://#{@config[:server][:url]}/api/user/login", data.to_json, :content_type => :json, :accept => :json
 
@@ -123,6 +129,9 @@ module BCL
 
         if res.code == 200
           valid = true
+        elsif res.code == 500
+          raise "server exception"
+          valid = false
         else
           valid = false
         end
@@ -147,15 +156,16 @@ module BCL
       logs = []
       array_of_components.each do |comp|
         receipt_file = File.dirname(comp) + "/" + File.basename(comp, '.tar.gz') + ".receipt"
-        puts receipt_file
-        if !skip_files_with_receipts && File.exists?(receipt_file)
-          logs << "skipping component because found receipt for #{comp}"
-          next
+        log_message = ""
+        if skip_files_with_receipts && File.exists?(receipt_file)
+          log_message = "skipping component because found receipt for #{comp}"
+        else
+          log_message = "pushing component #{comp}: "
+          valid, res = push_component(comp, true)
+          log_message += " #{valid} #{res.inspect.chomp}"
         end
-
-        log_message = "pushing component #{comp}: "
-        valid, res = push_component(comp, true)
-        logs << "#{log_message} #{valid} #{res.inspect.chomp}"
+        puts log_message
+        logs << log_message
       end
 
       logs
