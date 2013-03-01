@@ -164,8 +164,6 @@ module BCL
 
   # TODO make this extend the component_xml class (or create a super class around components)
 
-
-
   module_function
 
   def gather_components(component_dir, chunk_size = 0, delete_previous_gather = false)
