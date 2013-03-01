@@ -8,18 +8,16 @@ describe BCL::Component do
   before :all do
     @username = $config["admin_user"]["username"]
     @password = $config["admin_user"]["password"]  #MOVE THIS TO CONFIG FILE or hash
-    puts @password
 
-    @url = "bcl7.development.nrel.gov/api"
     # @url = "bcl.concept3d.com/api"
-    @url_bwc = "bcl.concept3d.com/api?api_version=1.1"
+    @url = "bcl7.development.nrel.gov/api"
+    @url_bwc = "#{@url}?api_version=1.1"
   end
 
   context "login tests" do
     it "should not authenticate" do
       data = {"username" => @username, "password" => "abc"}
       res = RestClient.post "http://#{@url}/user/login", data.to_json, :content_type => :json, :accept => :json
-      puts res.inspect
       res.code.should eq(401)
     end
   end
