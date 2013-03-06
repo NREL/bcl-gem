@@ -10,7 +10,7 @@ describe BCL::Component do
       @username = @cm.config[:server][:admin_user][:username]
       @password = @cm.config[:server][:admin_user][:password]
       # @url = "bcl.concept3d.com/api"
-      @cm.config[:server][:url] = "bcl7.development.nrel.gov"  #force tests to use this server and not the value in the .bcl config
+      #@cm.config[:server][:url] = "bcl7.development.nrel.gov"  #force tests to use this server and not the value in the .bcl config
       @url_bwc = "#{@url}?api_version=1.1"
     end
 

@@ -96,7 +96,6 @@ module BCL
       filename = File.basename(filename_and_path)
       filepath = File.dirname(filename_and_path) + "/"
 
-      # TODO: BCL will be moving over to single endpoint to manage the file upload and node creation (update eventually)
       file = File.open(filename_and_path, 'r')
       file_b64 = Base64.encode64(file.read)
       @data = {"file" =>
@@ -104,28 +103,17 @@ module BCL
                        "file" => "#{file_b64}",
                        "filesize" => "#{File.size(filename_and_path)}",
                        "filename" => filename
-                   }
-      }
+                   },
+               "node" =>
+                     {
+                        "type" => "nrel_component",
+                        "status" => 1  #NOTE THIS ONLY WORKS IF YOU ARE ADMIN
+                     }
+                }
 
-      res = RestClient.post "http://#{@config[:server][:url]}/api/file", @data.to_json, :content_type => :json, :cookies => @session, :accept => :json
+      res = RestClient.post "http://#{@config[:server][:url]}/api/content", @data.to_json, :content_type => :json, :cookies => @session, :accept => :json
 
       if res.code == 200
-        fid = JSON.parse(res.body)["fid"]
-
-        #post the node now with reference to this fid
-        @data = {"node" =>
-                     {"type" => "nrel_component",
-                      "status" => 1,  #NOTE THIS ONLY WORKS IF YOU ARE ADMIN
-                      "field_tar_file" =>
-                          {"und" => [
-                              {"fid" => fid}
-                          ]
-                          }
-                     }
-        }
-
-        res = RestClient.post "http://#{@config[:server][:url]}/api/node", @data.to_json, :content_type => :json, :cookies => @session, :accept => :json
-
         res_j = JSON.parse(res.body)
 
         if res.code == 200
