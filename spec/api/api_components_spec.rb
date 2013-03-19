@@ -9,7 +9,6 @@ describe BCL::Component do
       @cm = BCL::ComponentMethods.new
       @username = @cm.config[:server][:admin_user][:username]
       @password = @cm.config[:server][:admin_user][:password]
-      @url_bwc = "#{@url}?api_version=1.1"
     end
 
     context "bad login" do

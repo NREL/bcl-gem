@@ -107,7 +107,7 @@ module BCL
                    },
                "node" =>
                      {
-                        "type" => "nrel_component",
+                        "type" => "#{content_type}",
                         "status" => 1  #NOTE THIS ONLY WORKS IF YOU ARE ADMIN
                      }
                 }

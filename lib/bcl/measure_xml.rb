@@ -43,6 +43,8 @@ module BCL
       xmlfile = File.open(filepath, 'r').read
 
       @xml = LibXML::XML::Document.string(xmlfile)
+
+
     end
 
 
