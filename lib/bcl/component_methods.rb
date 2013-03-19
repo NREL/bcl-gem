@@ -39,6 +39,7 @@ module BCL
     def initialize()
       @config = nil
       @session = nil
+      @api_version = 2.0
       config_path = File.expand_path('~') + '/.bcl'
       config_name = 'config.yml'
       if File.exists?(config_path + "/" + config_name)
@@ -88,7 +89,7 @@ module BCL
     # pushes component to the bcl and sets to published (for now). Username and password and
     # set in ~/.bcl/config.yml file which determines the permissions and the group to which
     # the component will be uploaded
-    def push_component(filename_and_path, write_receipt_file)
+    def push_content(filename_and_path, write_receipt_file, content_type)
       raise "Please login before pushing components" if @session.nil?
 
       valid = false
@@ -141,7 +142,7 @@ module BCL
       [valid, res_j]
     end
 
-    def push_components(array_of_components, skip_files_with_receipts)
+    def push_contents(array_of_components, skip_files_with_receipts, content_type)
       logs = []
       array_of_components.each do |comp|
         receipt_file = File.dirname(comp) + "/" + File.basename(comp, '.tar.gz') + ".receipt"
@@ -151,23 +152,29 @@ module BCL
         else
           log_message = "pushing component #{comp}: "
           puts log_message
-          valid, res = push_component(comp, true)
+          valid, res = push_content(comp, true, content_type)
           log_message += " #{valid} #{res.inspect.chomp}"
         end
-        puts log_message
         logs << log_message
       end
 
       logs
     end
 
+    # Simple method to search bcl and return the result as an XML object
+    def search(search_str)
+      full_url = "http://#{@config[:server][:url]}/api/search/#{search_str}&api_version=#{@api_version}"
+      res = RestClient.get "#{full_url}"
+      xml = LibXML::XML::Document.string(res.body)
+
+      xml
+    end
+
   end
 
   # TODO make this extend the component_xml class (or create a super class around components)
 
-  module_function
-
-  def gather_components(component_dir, chunk_size = 0, delete_previous_gather = false)
+  def BCL.gather_components(component_dir, chunk_size = 0, delete_previous_gather = false)
     @dest_filename = "components"
     @dest_file_ext = "tar.gz"
 

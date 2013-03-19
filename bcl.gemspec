@@ -15,12 +15,13 @@ Gem::Specification.new do |s|
   s.license = "LGPL"
 
   s.add_runtime_dependency("uuid")
+  s.add_runtime_dependency("libxml-ruby")
   s.add_runtime_dependency("builder")
   s.add_runtime_dependency("zliby")
   s.add_runtime_dependency("archive-tar-minitar")
   s.add_runtime_dependency("mongo")
   s.add_runtime_dependency("json_pure")
-  s.add_runtime_dependency("rest-client") 
+  s.add_runtime_dependency("rest-client")
 
   s.files = Dir.glob("lib/**/*")
   s.require_path = "lib"

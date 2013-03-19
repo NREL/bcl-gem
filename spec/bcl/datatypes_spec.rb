@@ -12,7 +12,6 @@ describe BCL::Component do
   end
 
   context "after component initializes" do
-
     it "should have some attributes" do
       @comp.attributes.size.should eql(5)
     end

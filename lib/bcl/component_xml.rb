@@ -28,51 +28,25 @@ require 'csv'
 
 # required gems
 require 'builder'  #gem install builder (creates xml files)
-require 'uuid' # gem install uuid
+
 require 'bcl/tar_ball'
+require 'bcl/bcl_xml'
 
 
 module BCL
-
-  SCHEMA_LOCATION = "component.xsd"
-
-  ProvStruct = Struct.new(:author, :datetime, :comment)
-  TagsStruct = Struct.new(:descriptor)
-  AttrStruct = Struct.new(:name, :value, :datatype, :units)
-  FileStruct = Struct.new(:version_software_program, :version_id, :fqp_file, :filename, :filetype)
-  #cost_type is an enumeration (not enforced) of installation, material, operations and maintenance,
-  #variable operations and maintenance, salvage
-  CostStruct = Struct.new(:cost_name, :cost_type, :category, :value, :interval,
-         :interval_units, :year, :location, :units, :currency, :source,
-         :reference_component_name, :reference_component_id)
-  ObjectStruct = Struct.new(:obj_type, :obj_instance)
-
-  class Component
-    attr_accessor :name
-    attr_accessor :uid
-    attr_accessor :comp_version_id
-    attr_accessor :description
+  class Component < BaseXml
     attr_accessor :comment
     attr_accessor :source_manufacturer
     attr_accessor :source_model
     attr_accessor :source_serial_no
     attr_accessor :source_year
     attr_accessor :source_url
-    attr_accessor :tags
-    attr_accessor :provenance
-    attr_accessor :attributes
-    attr_accessor :files
-    attr_accessor :costs
     attr_accessor :objects
-
-    public
 
     #the save path is where the component will be saved
     def initialize(save_path)
-      @name = ""  #this is also a unique identifier to the component...
-      @uid = UUID.new.generate
-      @comp_version_id = UUID.new.generate
-      @description = ""
+      super(save_path)
+
       @comment = ""
       @source_manufacturer = ""
       @source_model = ""
@@ -81,23 +55,17 @@ module BCL
       @source_url = ""
 
       #these items have multiple instances
-      @provenance = []
-      @tags = []
-      @attributes = []
-      @files = []
+
       @costs = []
       @objects = [] #container for saving the idf/osm snippets
 
       @path = save_path
 
-      #puts "[ComponentXml] " + @path
-      #need to hit a webservice to validate which tags and attributes are
-      #available (including units?)
-
       #todo: validate against master taxonomy
     end
 
-    def open_component(filename)
+    # TODO This isn't implemented at the moment
+    def open_component_xml(filename)
       read_component_xml(filename)
     end
 
@@ -151,49 +119,6 @@ module BCL
 
       #puts "[ComponentXml] " + Dir.pwd
     end
-
-    def add_provenance(author, datetime, comment)
-      prov = ProvStruct.new
-      prov.author = author
-      prov.datetime = datetime
-      prov.comment = comment
-
-      @provenance << prov
-    end
-
-    def add_tag(tag_name)
-      tag = TagsStruct.new
-      tag.descriptor = tag_name
-
-      @tags << tag
-    end
-
-    def add_attribute(name, value, units, datatype = nil)
-      attr = AttrStruct.new
-      attr.name = name
-      attr.value = value
-
-      if !datatype.nil?
-        attr.datatype = datatype
-      else
-        attr.datatype = get_datatype(value)
-      end
-      attr.units = units
-
-      @attributes << attr
-    end
-
-    def add_file(version_sp, version_id, fqp_file, filename, filetype)
-      fs = FileStruct.new
-      fs.version_software_program = version_sp
-      fs.version_id = version_id
-      fs.fqp_file = fqp_file
-      fs.filename = filename
-      fs.filetype = filetype
-
-      @files << fs
-    end
-
 
     def add_cost(cost_name, cost_type, category, value, units, interval, interval_units, year, location, currency,
              source, reference_component_name, reference_component_id)
@@ -325,21 +250,26 @@ module BCL
     end
 
     def save_component_xml(dir_path = resolve_path)
+      FileUtils.mkpath(dir_path) if !File.exists?(dir_path)
+
+      generate_uuid() if @uuid.nil?
+      generate_vuid() if @vuid.nil?
+
       xmlfile = File.new(dir_path + '/component.xml', 'w')
       comp_xml = Builder::XmlMarkup.new(:target => xmlfile, :indent=>2)
 
       #setup the xml file
       comp_xml.instruct! :xml, :version=>"1.0", :encoding=>"UTF-8"
       comp_xml.component("xmlns:xsi"=>"http://www.w3.org/2001/XMLSchema-instance",
-                 "xsi:noNamespaceSchemaLocation"=>"#{SCHEMA_LOCATION}") {
+                 "xsi:noNamespaceSchemaLocation"=>"#{@schema_url}") {
         comp_xml.name @name
-        comp_xml.uid @uid
-        comp_xml.version_id @comp_version_id
+        comp_xml.uid @uuid
+        comp_xml.version_id @vuid
         comp_xml.description @description if @description != ""
         comp_xml.comment @comment if @comment != ""
 
         comp_xml.provenances {
-          @provenance.each do |prov|
+          @provenances.each do |prov|
             comp_xml.provenance {
               comp_xml.author prov.author
               comp_xml.datetime prov.datetime
@@ -428,49 +358,6 @@ module BCL
 
       xmlfile.close
     end
-
-    def get_attribute(attribute_name)
-      result = nil
-      @attributes.each do |attr|
-        if attr.name == attribute_name
-          result = attr
-        end
-      end
-
-      result
-
-    end
-
-    #return the title case of the string
-    def tc(input)
-      val = input.gsub(/\b\w/){$&.upcase}
-      if val.downcase == "energyplus"
-        val = "EnergyPlus"
-      end
-      return val
-    end
-
-    private
-
-    def get_datatype(input_value)
-      dt = 'undefined'
-
-      # simple method to test if the input_value is a string, float, or integer.
-      # First convert the value back to a string for testing (in case it was passed as a float/integer)
-      test = input_value.to_s
-      input_value = test.match('\.').nil? ? Integer(test) : Float(test) rescue test.to_s
-
-      if input_value.is_a?(Fixnum) || input_value.is_a?(Bignum)
-        dt = "int"
-      elsif input_value.is_a?(Float)
-        dt = "float"
-      else
-        dt = "string"
-      end
-
-      dt
-    end
-
   end
 
 end # module BCL

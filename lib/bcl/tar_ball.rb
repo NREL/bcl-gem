@@ -25,9 +25,7 @@ require 'archive/tar/minitar' #gem install archive-tar-minitar
 
 module BCL
 
-  module_function
-
-  def tarball(destination, paths)
+  def BCL.tarball(destination, paths)
     Zlib::GzipWriter.open(destination) do |gzip|
       out = Archive::Tar::Minitar::Output.new(gzip)
       puts "[TarBall] Starting #{destination}"
@@ -44,7 +42,7 @@ module BCL
     end
   end
 
-  def extract_tarball(filename, destination)
+  def BCL.extract_tarball(filename, destination)
     Zlib::GzipReader.open(filename) {|gz|
         Archive::Tar::Minitar.unpack(gz, destination)
     }
