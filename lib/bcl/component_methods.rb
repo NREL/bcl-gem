@@ -80,6 +80,7 @@ module BCL
         session_name = res_j["session_name"]
 
         @session = { session_name => sessid }
+
       end
 
       res
@@ -97,7 +98,7 @@ module BCL
       filename = File.basename(filename_and_path)
       filepath = File.dirname(filename_and_path) + "/"
 
-      file = File.open(filename_and_path, 'r')
+      file = File.open(filename_and_path, 'rb')
       file_b64 = Base64.encode64(file.read)
       @data = {"file" =>
                    {
@@ -107,13 +108,13 @@ module BCL
                    },
                "node" =>
                      {
-                        "type" => "#{content_type}",
-                        "status" => 1  #NOTE THIS ONLY WORKS IF YOU ARE ADMIN
+                        "type" => "#{content_type}"#,
+                        #"status" => 1  #NOTE THIS ONLY WORKS IF YOU ARE ADMIN
                      }
                 }
 
       res = RestClient.post "http://#{@config[:server][:url]}/api/content", @data.to_json, :content_type => :json, :cookies => @session, :accept => :json
-
+	    
       if res.code == 200
         res_j = JSON.parse(res.body)
 
