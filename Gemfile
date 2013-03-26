@@ -3,9 +3,9 @@ gemspec
 
 gem "rake"
 gem "builder"
-gem "roo"
+#gem "roo"
 gem "rest-client"
-gem "yaml"
+gem "yamler"
 gem "json_pure"
 gem "uuid"
 gem "libxml-ruby"

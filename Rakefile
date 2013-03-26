@@ -24,9 +24,9 @@ task :import_taxonomy do
   require 'bcl'
   require 'pathname'
 
-  dirname = Pathname.new(__FILE__)
-
-  taxonomy = BCL::MasterTaxonomy.new(dirname + '../../../Taxonomy/unified taxonomy.xlsm')
+  dirname = Pathname.new(File.dirname(__FILE__))
+  puts dirname
+  taxonomy = BCL::MasterTaxonomy.new(dirname + '../../Taxonomy/unified taxonomy.xlsm')
   taxonomy.save_as_current_taxonomy()
   taxonomy.save_as_current_taxonomy(dirname + 'lib/bcl/current_taxonomy.json')
   taxonomy.write_xml(dirname + 'lib/bcl/current_taxonomy.xml')
