@@ -15,7 +15,6 @@ Gem::Specification.new do |s|
   s.license = "LGPL"
 
   s.add_runtime_dependency("uuid")
-  s.add_runtime_dependency("libxml-ruby")
   s.add_runtime_dependency("builder")
   s.add_runtime_dependency("zliby")
   s.add_runtime_dependency("archive-tar-minitar")
