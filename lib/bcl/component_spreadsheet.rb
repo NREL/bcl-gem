@@ -178,6 +178,13 @@ end # if $have_win32ole
             filename = values.delete_at(0)
             filetype = values.delete_at(0)
             filepath = values.delete_at(0)
+            #not all components(rows) have all files; skip if filename "" or nil
+            next if filename == "" or filename == nil
+            #skip the file if it doesn't exist at the specified location
+            if not File.exists?(filepath)
+              puts "[ComponentSpreadsheet] ERROR #{filepath} -> File does not exist, will not be included in component xml"
+              next #go to the next file
+            end
             component_xml.add_file(software_program, version, filepath, filename, filetype)
             
           else
@@ -270,7 +277,8 @@ end # if $have_win32ole
       component.uid = xlsx_worksheet.Range("B#{i}").value
       if component.uid.nil? or component.uid.empty?
         component.uid = UUID.new.generate
-        xlsx_worksheet.Range("B#{i}").value = component.uid      
+        xlsx_worksheet.Range("B#{i}").value = component.uid     
+        exit
       end
       
       # always write new version id
