@@ -57,7 +57,7 @@ module BCL
     end
 
     def default_yaml
-      settings = { :server => { :url => "bcl7.development.nrel.gov", :admin_user => { :username => "ENTER_BCL_USERNAME", :password => "ENTER_BCL_PASSWORD"} } }
+      settings = { :server => { :url => "http://bcl7.development.nrel.gov", :admin_user => { :username => "ENTER_BCL_USERNAME", :password => "ENTER_BCL_PASSWORD"} } }
 
       settings
     end
@@ -70,7 +70,7 @@ module BCL
       end
 
       data = {"username" => username, "password" => password}
-      res = RestClient.post "http://#{@config[:server][:url]}/api/user/login", data.to_json, :content_type => :json, :accept => :json
+      res = RestClient.post "#{@config[:server][:url]}/api/user/login", data.to_json, :content_type => :json, :accept => :json
 
       if res.code == 200
         #pull out the session key
@@ -113,7 +113,7 @@ module BCL
                      }
                 }
 
-      res = RestClient.post "http://#{@config[:server][:url]}/api/content", @data.to_json, :content_type => :json, :cookies => @session, :accept => :json
+      res = RestClient.post "#{@config[:server][:url]}/api/content", @data.to_json, :content_type => :json, :cookies => @session, :accept => :json
 	    
       if res.code == 200
         res_j = JSON.parse(res.body)
@@ -164,7 +164,7 @@ module BCL
 
     # Simple method to search bcl and return the result as an XML object
     def search(search_str)
-      full_url = "http://#{@config[:server][:url]}/api/search/#{search_str}&api_version=#{@api_version}"
+      full_url = "#{@config[:server][:url]}/api/search/#{search_str}&api_version=#{@api_version}"
       res = RestClient.get "#{full_url}"
       xml = LibXML::XML::Document.string(res.body)
 
