@@ -204,14 +204,14 @@ module BCL
       destination_path = "./_gather/#{chunk_cnt}"
       FileUtils.mkdir_p(destination_path)
       destination_file = "#{destination_path}/#{File.basename(targz.to_s)}"
-      puts "copying #{targz.to_s} to #{destination_file}"
+      #puts "copying #{targz.to_s} to #{destination_file}"
       FileUtils.cp(targz.to_s, destination_file)
     end
 
     #gather all the zip files into a single tar.gz
     (1..chunk_cnt).each do |cnt|
       currentdir = Dir.pwd
-
+      
       paths = []
       Pathname.glob("./_gather/#{cnt}/*.tar.gz").each do |pt|
         paths << File.basename(pt.to_s)
@@ -219,6 +219,7 @@ module BCL
 
       Dir.chdir("./_gather/#{cnt}")
       destination = "#{@dest_filename}_#{cnt}.#{@dest_file_ext}"
+      puts "tarring batch #{cnt} of #{chunk_cnt} to #{@dest_filename}_#{cnt}.#{@dest_file_ext}"
       BCL.tarball(destination, paths)
       Dir.chdir(currentdir)
 

@@ -42,7 +42,17 @@ module BCL
     attr_accessor :source_year
     attr_accessor :source_url
     attr_accessor :objects
-
+    attr_accessor :name  
+    attr_accessor :uid
+    attr_accessor :comp_version_id
+    attr_accessor :description
+    attr_accessor :fidelity_level
+    attr_accessor :source_manufacturer
+    attr_accessor :source_model
+    attr_accessor :source_serial_no
+    attr_accessor :source_year
+    attr_accessor :source_url
+    
     #the save path is where the component will be saved
     def initialize(save_path)
       super(save_path)

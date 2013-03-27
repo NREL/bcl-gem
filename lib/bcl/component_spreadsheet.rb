@@ -103,7 +103,7 @@ else # if $have_win32ole
   
 end # if $have_win32ole
 
-  def save(save_path)
+  def save(save_path, chunk_size = 1000, delete_old_gather = false)
   
     # load master taxonomy to validate components
     taxonomy = BCL::MasterTaxonomy.new
@@ -202,7 +202,7 @@ end # if $have_win32ole
       
     end
     
-    BCL.gather_components(save_path)
+    BCL.gather_components(save_path,chunk_size,delete_old_gather)
     
   end
   
@@ -278,7 +278,6 @@ end # if $have_win32ole
       if component.uid.nil? or component.uid.empty?
         component.uid = UUID.new.generate
         xlsx_worksheet.Range("B#{i}").value = component.uid     
-        exit
       end
       
       # always write new version id
