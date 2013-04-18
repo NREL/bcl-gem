@@ -28,6 +28,7 @@ require 'base64'
 require 'json/pure'
 require 'bcl/tar_ball'
 require 'rest-client'
+require 'libxml'
 
 module BCL
 
@@ -87,7 +88,7 @@ module BCL
     end
 
 
-    # pushes component to the bcl and sets to published (for now). Username and password and
+    # pushes component to the bcl and DOESN'T set to published (for now). Username and password and
     # set in ~/.bcl/config.yml file which determines the permissions and the group to which
     # the component will be uploaded
     def push_content(filename_and_path, write_receipt_file, content_type)
@@ -161,6 +162,86 @@ module BCL
 
       logs
     end
+	
+	# pushes updated component to the bcl and DOESN'T set to published (for now). Username and password and
+    # set in ~/.bcl/config.yml file which determines the permissions and the group to which
+    # the component will be uploaded
+    def update_content(filename_and_path, write_receipt_file, uuid)
+      raise "Please login before pushing components" if @session.nil?
+
+      valid = false
+      res_j = nil
+      filename = File.basename(filename_and_path)
+      filepath = File.dirname(filename_and_path) + "/"
+
+      file = File.open(filename_and_path, 'rb')
+      file_b64 = Base64.encode64(file.read)
+      @data = {"file" =>
+                   {
+                       "file" => "#{file_b64}",
+                       "filesize" => "#{File.size(filename_and_path)}",
+                       "filename" => filename
+                   },
+               "node" =>
+                     {
+                        "uuid" => "#{uuid}"#,
+                        #"status" => 1  #NOTE THIS ONLY WORKS IF YOU ARE ADMIN
+                     }
+                }
+
+      res = RestClient.post "#{@config[:server][:url]}/api/content", @data.to_json, :content_type => :json, :cookies => @session, :accept => :json
+	    
+      if res.code == 200
+        res_j = JSON.parse(res.body)
+
+        if res.code == 200
+          valid = true
+        elsif res.code == 500
+          raise "server exception"
+          valid = false
+        else
+          valid = false
+        end
+      else
+        res = nil
+      end
+
+      if valid
+        #write out a receipt file into the same directory of the component with the same file name as
+        #the component
+        if write_receipt_file
+          File.open(filepath + File.basename(filename, '.tar.gz') + ".receipt", 'w') do |file|
+            file << Time.now.to_s
+          end
+        end
+      end
+
+      [valid, res_j]
+    end
+	
+	def update_contents(array_of_components, skip_files_with_receipts)
+	  logs = []
+	  array_of_components.each do |comp|
+		receipt_file = File.dirname(comp) + "/" + File.basename(comp, '.tar.gz') + ".receipt"
+		log_message = ""
+		if skip_files_with_receipts && File.exists?(receipt_file)
+		  log_message = "skipping component because found receipt for #{comp}"
+		else
+		  #extract uuid
+		  xml_filename = File.dirname(comp) + "/component.xml"
+		  parser = LibXML::XML::Parser.file(xml_filename)
+		  xml_file = parser.parse
+		  uid_node = xml_file.find('uid').first
+		  uuid = uid_node.content
+
+		  log_message = "pushing component #{comp}: , uuid #{uuid}"
+		  valid, res = update_content(comp, true, uuid)
+		  log_message += " #{valid} #{res.inspect.chomp}"
+		end
+		logs << log_message
+	  end
+      logs		
+	end
 
     # Simple method to search bcl and return the result as an XML object
     def search(search_str)
