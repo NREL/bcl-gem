@@ -108,12 +108,12 @@ end # if $have_win32ole
     # load master taxonomy to validate components
     taxonomy = BCL::MasterTaxonomy.new
     
-    FileUtils.rm_rf(save_path) if File.exists?(save_path) and File.directory?(save_path)
+    #FileUtils.rm_rf(save_path) if File.exists?(save_path) and File.directory?(save_path)
   
     @worksheets.each do |worksheet|
       worksheet.components.each do |component|
         
-        component_xml = Component.new(save_path)
+        component_xml = Component.new("#{save_path}/components")
         component_xml.name = component.name
         component_xml.uid = component.uid
         component_xml.comp_version_id = component.version_id

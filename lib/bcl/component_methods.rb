@@ -268,7 +268,7 @@ module BCL
 
   # TODO make this extend the component_xml class (or create a super class around components)
 
-  def BCL.gather_components(component_dir, chunk_size = 0, delete_previous_gather = false)
+  def BCL.gather_components(component_dir, chunk_size = 0, delete_previousgather = false)
     @dest_filename = "components"
     @dest_file_ext = "tar.gz"
 
@@ -282,7 +282,7 @@ module BCL
     Dir.chdir(component_dir)
 
     # delete any old versions of the component chunks
-    FileUtils.rm_rf("./_gather") if delete_previous_gather
+    FileUtils.rm_rf("./gather") if delete_previousgather
 
     #gather all the components into array
     targzs = Pathname.glob("./**/*.tar.gz")
@@ -294,7 +294,7 @@ module BCL
       end
       tar_cnt += 1
 
-      destination_path = "./_gather/#{chunk_cnt}"
+      destination_path = "./gather/#{chunk_cnt}"
       FileUtils.mkdir_p(destination_path)
       destination_file = "#{destination_path}/#{File.basename(targz.to_s)}"
       #puts "copying #{targz.to_s} to #{destination_file}"
@@ -306,18 +306,18 @@ module BCL
       currentdir = Dir.pwd
       
       paths = []
-      Pathname.glob("./_gather/#{cnt}/*.tar.gz").each do |pt|
+      Pathname.glob("./gather/#{cnt}/*.tar.gz").each do |pt|
         paths << File.basename(pt.to_s)
       end
 
-      Dir.chdir("./_gather/#{cnt}")
+      Dir.chdir("./gather/#{cnt}")
       destination = "#{@dest_filename}_#{cnt}.#{@dest_file_ext}"
       puts "tarring batch #{cnt} of #{chunk_cnt} to #{@dest_filename}_#{cnt}.#{@dest_file_ext}"
       BCL.tarball(destination, paths)
       Dir.chdir(currentdir)
 
       #move the tarball back a directory
-      FileUtils.move("./_gather/#{cnt}/#{destination}", "./_gather/#{destination}")
+      FileUtils.move("./gather/#{cnt}/#{destination}", "./gather/#{destination}")
     end
 
     Dir.chdir(current_dir)
