@@ -110,8 +110,8 @@ module BCL
       #the directory
 
       Dir.chdir("#{resolve_path}")
-      destination = "#{@name.gsub(" ","_").gsub(".","").gsub("/","_").gsub("-","_").gsub("___","_").gsub("__","_").gsub("in.","in").gsub(",","").strip}.tar.gz"
-
+      destination = "#{@name.gsub(/\W/,'_').gsub(/___/,'_').gsub(/__/,'_').chomp('_').strip}.tar.gz"
+                    
       File.delete(destination) if File.exists?(destination)
 
       BCL.tarball(destination, paths)
@@ -160,21 +160,21 @@ module BCL
 
     def resolve_path
       FileUtils.mkdir_p(@path) unless File.directory?(@path)
-      new_path = "#{@path}/#{name.gsub(" ","_").gsub("/","_").gsub("-","_").gsub("___","_").gsub("__","_").gsub("in.","in").gsub(",","").strip}"
+      new_path = "#{@path}/#{name.gsub(/\W/,'_').gsub(/___/,'_').gsub(/__/,'_').chomp('_').strip}"
       FileUtils.mkdir_p(new_path) unless File.directory?(new_path)
       result = new_path
     end
 
     def osm_resolve_path
       FileUtils.mkdir_p(@path) unless File.directory?(@path)
-      new_path = "#{@path}/osm_#{name.gsub(" ","_").gsub("/","_").gsub("-","_").gsub("___","_").gsub("__","_").gsub("in.","in").gsub(",","").strip}"
+      new_path = "#{@path}/osm_#{name.gsub(/\W/,'_').gsub(/___/,'_').gsub(/__/,'_').chomp('_').strip}"
       FileUtils.mkdir_p(new_path) unless File.directory?(new_path)
       result = new_path
     end
 
     def osc_resolve_path
       FileUtils.mkdir_p(@path) unless File.directory?(@path)
-      new_path = "#{@path}/osc_#{name.gsub(" ","_").gsub("/","_").gsub("-","_").gsub("___","_").gsub("__","_").gsub("in.","in").gsub(",","").strip}"
+      new_path = "#{@path}/osc_#{name.gsub(/\W/,'_').gsub(/___/,'_').gsub(/__/,'_').chomp('_').strip}"
       FileUtils.mkdir_p(new_path) unless File.directory?(new_path)
       result = new_path
     end
@@ -190,7 +190,7 @@ module BCL
 
     def tmp_resolve_path
       FileUtils.mkdir_p(@path) unless File.directory?(@path)
-      new_path = "#{@path}/tmp_#{name.gsub(" ","_").gsub("/","_").gsub("-","_").gsub("___","_").gsub("__","_").gsub("in.","in").gsub(",","").strip}"
+      new_path = "#{@path}/tmp_#{name.gsub(/\W/,'_').gsub(/___/,'_').gsub(/__/,'_').chomp('_').strip}"
       FileUtils.mkdir_p(new_path) unless File.directory?(new_path)
       result = new_path
     end
