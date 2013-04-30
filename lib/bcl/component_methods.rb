@@ -88,7 +88,7 @@ module BCL
     end
 
 
-    # pushes component to the bcl and DOESN'T set to published (for now). Username and password and
+    # pushes component to the bcl and publishes them (if updated as admin user). Username and password and
     # set in ~/.bcl/config.yml file which determines the permissions and the group to which
     # the component will be uploaded
     def push_content(filename_and_path, write_receipt_file, content_type)
@@ -109,8 +109,8 @@ module BCL
                    },
                "node" =>
                      {
-                        "type" => "#{content_type}"#,
-                        #"status" => 1  #NOTE THIS ONLY WORKS IF YOU ARE ADMIN
+                        "type" => "#{content_type}",
+                        "publish" => 1  #NOTE THIS ONLY WORKS IF YOU ARE ADMIN
                      }
                 }
 
@@ -163,7 +163,7 @@ module BCL
       logs
     end
 	
-	# pushes updated component to the bcl and DOESN'T set to published (for now). Username and password and
+	# pushes updated component to the bcl and publishes them (if updated as admin user). Username and password and
     # set in ~/.bcl/config.yml file which determines the permissions and the group to which
     # the component will be uploaded
     def update_content(filename_and_path, write_receipt_file, uuid)
@@ -184,8 +184,8 @@ module BCL
                    },
                "node" =>
                      {
-                        "uuid" => "#{uuid}"#,
-                        #"status" => 1  #NOTE THIS ONLY WORKS IF YOU ARE ADMIN
+                        "uuid" => "#{uuid}",
+                        "publish" => 1  #NOTE THIS ONLY WORKS IF YOU ARE ADMIN
                      }
                 }
 
@@ -233,8 +233,8 @@ module BCL
 		  xml_file = parser.parse
 		  uid_node = xml_file.find('uid').first
 		  uuid = uid_node.content
-
-		  log_message = "pushing component #{comp}: , uuid #{uuid}"
+		  log_message = "pushing updated component #{uuid}: #{comp}"
+		  puts log_message
 		  valid, res = update_content(comp, true, uuid)
 		  log_message += " #{valid} #{res.inspect.chomp}"
 		end
@@ -251,6 +251,18 @@ module BCL
 
       xml
     end
+	
+	# Delete receipt files
+	def delete_receipts(array_of_components)
+	  array_of_components.each do |comp|
+		receipt_file = File.dirname(comp) + "/" + File.basename(comp, '.tar.gz') + ".receipt"
+		if File.exists?(receipt_file)
+		  FileUtils.remove_file(receipt_file)
+		
+		end
+	  end
+	end
+	
 
   end
 
