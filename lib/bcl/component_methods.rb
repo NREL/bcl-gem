@@ -228,8 +228,15 @@ module BCL
 		  log_message = "skipping component because found receipt for #{comp}"
 		else
 		  #extract uuid
-		  xml_filename = File.dirname(comp) + "/component.xml"
-		  parser = LibXML::XML::Parser.file(xml_filename)
+      if File.exists?(File.dirname(comp) + "/component.xml")
+        xml_filename = File.dirname(comp) + "/component.xml"
+      elsif File.exists?("#{Dir.pwd}/instances/#{File.basename(comp, '.tar.gz')}/measure.xml")
+        xml_filename = "#{Dir.pwd}/instances/#{File.basename(comp, '.tar.gz')}/measure.xml"		  
+      else
+        puts "could not find component.xml or measure.xml"
+        next
+      end
+      parser = LibXML::XML::Parser.file(xml_filename)
 		  xml_file = parser.parse
 		  uid_node = xml_file.find('uid').first
 		  uuid = uid_node.content
