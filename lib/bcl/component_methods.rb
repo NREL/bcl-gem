@@ -114,7 +114,7 @@ module BCL
                      }
                 }
 
-      res = RestClient.post "#{@config[:server][:url]}/api/content", @data.to_json, :content_type => :json, :cookies => @session, :accept => :json
+      res = RestClient.post "#{@config[:server][:url]}/api/content.json", @data.to_json, :content_type => :json, :cookies => @session
 	    
       if res.code == 200
         res_j = JSON.parse(res.body)
@@ -129,6 +129,7 @@ module BCL
         end
       else
         res = nil
+		puts "error code: #{res.code}"
       end
 
       if valid
@@ -189,8 +190,10 @@ module BCL
                      }
                 }
 
-      res = RestClient.post "#{@config[:server][:url]}/api/content", @data.to_json, :content_type => :json, :cookies => @session, :accept => :json
-	    
+	  thedata = @data.to_json
+	  				
+      res = RestClient.post "#{@config[:server][:url]}/api/content.json", thedata, :content_type => :json, :cookies => @session
+      	   
       if res.code == 200
         res_j = JSON.parse(res.body)
 
@@ -204,6 +207,7 @@ module BCL
         end
       else
         res = nil
+		puts "error code: #{res.code}"
       end
 
       if valid
@@ -240,10 +244,15 @@ module BCL
 		  xml_file = parser.parse
 		  uid_node = xml_file.find('uid').first
 		  uuid = uid_node.content
-		  log_message = "pushing updated component #{uuid}: #{comp}"
-		  puts log_message
-		  valid, res = update_content(comp, true, uuid)
-		  log_message += " #{valid} #{res.inspect.chomp}"
+		  if uuid == nil
+			log_message "ERROR: uuid not found for #{File.basename(comp)}"
+			puts log_message
+		  else
+			log_message = "pushing updated component #{uuid}: #{File.basename(comp)}"
+			puts log_message
+			valid, res = update_content(comp, true, uuid)
+			log_message += " #{valid} #{res.inspect.chomp}"
+		  end
 		end
 		logs << log_message
 	  end
