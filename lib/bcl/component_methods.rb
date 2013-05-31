@@ -27,7 +27,8 @@ require 'base64'
 # required gems
 require 'json/pure'
 require 'bcl/tar_ball'
-require 'rest-client'
+#require 'rest-client'
+require 'net/https'
 require 'libxml'
 
 module BCL
@@ -36,10 +37,12 @@ module BCL
 
     attr_accessor :config
     attr_accessor :session
+    attr_accessor :http
 
     def initialize()
       @config = nil
       @session = nil
+      @http = nil
       @api_version = 2.0
       config_path = File.expand_path('~') + '/.bcl'
       config_name = 'config.yml'
@@ -69,21 +72,101 @@ module BCL
         username = @config[:server][:admin_user][:username]
         password = @config[:server][:admin_user][:password]
       end
+	
+      #figure out what time to use
+		url = @config[:server][:url]
+		#look for http vs. https
+		if url.include? "https"
+		  port = 443
+		else
+		  port = 80
+		end
+		#strip out http(s)
+		url = url.gsub('http://', '')
+		url = url.gsub('https://', '')
+		
+		puts "Connecting to #{url} on port #{port}"
+      
+      @http = Net::HTTP.new(url, port)
+      @http.use_ssl = true
+      
+      data = %Q({"username":"#{username}","password":"#{password}"})
+      #data = {"username" => username, "password" => password}
+      
+      path = "/api/user/login.json?"
+      headers = {'Content-Type' => 'application/json'}
 
-      data = {"username" => username, "password" => password}
-      res = RestClient.post "#{@config[:server][:url]}/api/user/login", data.to_json, :content_type => :json, :accept => :json
-
-      if res.code == 200
+      res, data = @http.post(path, data, headers)
+      
+		#restClient wasn't working
+      #res = RestClient.post "#{@config[:server][:url]}/api/user/login", data.to_json, :content_type => :json, :accept => :json
+		  
+      if res.code == '200'
+      
+=begin
+		  #OLD RESTCLIENT CODE
         #pull out the session key
         res_j = JSON.parse(res.body)
-
         sessid = res_j["sessid"]
         session_name = res_j["session_name"]
 
-        @session = { session_name => sessid }
+			puts "**** RETURNED COOKIES: #{res.cookies.inspect}"
+			#pull out the BNES key and BNI key
+			bnes_name = ""
+			bnesid = ""
+			bni_name = ""
+			bni_id = ""
+			junkout = res.cookies
+			junkout.each do |key, val|
+			  if key.include?("BNES_SESS")
+				 bnes_name = key.to_s
+				 bnesid = val.to_s
+			  end
+			end
+			junkout.each do |key, val|
+			  if key.include?("BNI_bcl")
+				bni_name = key.to_s
+				bni_id = val.to_s
+			  end
+			end
+			#@session = { session_name => sessid, bnes_name => bnesid }
+			#@session = {session_name => URI.unescape(sessid), bnes_name => URI.unescape(bnesid)}
+			@session = {session_name => sessid,bnes_name => bnesid,bni_name => bni_id}
+		
+=end
+		
+			bnes = ""
+			bni = ""
+			junkout = res["set-cookie"].split(";")
+			junkout.each do |line|
+			  if line =~ /BNES_SESS/
+				 bnes = line.match(/(BNES_SESS.*)/)[0]
+			  end
+			end
 
+			junkout.each do |line|
+			  if line =~ /BNI/
+				 bni = line.match(/(BNI.*)/)[0]
+			  end
+			end
+
+			#puts "DATA: #{data}"
+			session_name = ""
+			sessid = ""
+			json = JSON.parse(data)
+			json.each do |key, val| 
+				if key == 'session_name'
+					session_name = val
+				elsif key == 'sessid'
+					sessid = val
+				end
+			end
+
+			@session = session_name + '=' + sessid + ';' + bni + ";" + bnes
+				
+			puts "SESSION COOKIE: #{@session}"
       end
-
+		
       res
     end
 
@@ -113,19 +196,26 @@ module BCL
                         "publish" => 1  #NOTE THIS ONLY WORKS IF YOU ARE ADMIN
                      }
                 }
+					 
+		#restclient not working
+      #res = RestClient.post "#{@config[:server][:url]}/api/content.json", @data.to_json, :content_type => :json, :cookies => @session
+	   
+		path = "/api/content.json"	 
+		headers = {'Content-Type' => 'application/json', 'Cookie' => @session}
 
-      res = RestClient.post "#{@config[:server][:url]}/api/content.json", @data.to_json, :content_type => :json, :cookies => @session
-	    
-      if res.code == 200
+		res, data = @http.post(path, @data.to_json, headers)		
+		 
+      if res.code == '200'
         res_j = JSON.parse(res.body)
 
-        if res.code == 200
+        if res.code == '200'
           valid = true
-        elsif res.code == 500
+        elsif res.code == '500'
           raise "server exception"
           valid = false
         else
           valid = false
+			 puts "error #{res.code}"
         end
       else
         res = nil
@@ -164,7 +254,7 @@ module BCL
       logs
     end
 	
-	# pushes updated component to the bcl and publishes them (if updated as admin user). Username and password and
+    # pushes updated component to the bcl and publishes them (if updated as admin user). Username and password and
     # set in ~/.bcl/config.yml file which determines the permissions and the group to which
     # the component will be uploaded
     def update_content(filename_and_path, write_receipt_file, uuid)
@@ -189,17 +279,21 @@ module BCL
                         "publish" => 1  #NOTE THIS ONLY WORKS IF YOU ARE ADMIN
                      }
                 }
+		
+		#restclient not working
+		#res = RestClient.post "#{@config[:server][:url]}/api/content", @data.to_json, :content_type => :json, :cookies => @session, :accept => :json   
 
-	  thedata = @data.to_json
-	  				
-      res = RestClient.post "#{@config[:server][:url]}/api/content.json", thedata, :content_type => :json, :cookies => @session
-      	   
-      if res.code == 200
+		path = "/api/content.json"	 
+		headers = {'Content-Type' => 'application/json', 'Cookie' => @session}
+
+		res, data = @http.post(path, @data.to_json, headers)
+				
+      if res.code == '200'
         res_j = JSON.parse(res.body)
 
-        if res.code == 200
+        if res.code == '200'
           valid = true
-        elsif res.code == 500
+        elsif res.code == '500'
           raise "server exception"
           valid = false
         else
