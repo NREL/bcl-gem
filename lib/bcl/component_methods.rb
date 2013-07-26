@@ -218,8 +218,8 @@ module BCL
 			 puts "error #{res.code}"
         end
       else
-        res = nil
-		puts "error code: #{res.code}"
+        puts "error code: #{res.code}"
+        res = nil	
       end
 
       if valid
@@ -300,8 +300,8 @@ module BCL
           valid = false
         end
       else
+        puts "error code: #{res.code}"
         res = nil
-		puts "error code: #{res.code}"
       end
 
       if valid
