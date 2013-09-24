@@ -165,9 +165,14 @@ module BCL
 			@session = session_name + '=' + sessid + ';' + bni + ";" + bnes
 				
 			puts "SESSION COOKIE: #{@session}"
-      end
-		
       res
+      else
+      
+        puts "error code: #{res.code}"
+        puts "error info: #{res.body}"
+		
+        res
+      end
     end
 
 
@@ -219,6 +224,7 @@ module BCL
         end
       else
         puts "error code: #{res.code}"
+        puts "error info: #{res.body}"
         res = nil	
       end
 
