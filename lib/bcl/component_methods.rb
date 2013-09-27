@@ -61,31 +61,32 @@ module BCL
     end
 
     def default_yaml
-      settings = { :server => { :url => "http://bcl7.development.nrel.gov", :admin_user => { :username => "ENTER_BCL_USERNAME", :password => "ENTER_BCL_PASSWORD"} } }
+      settings = { :server => { :url => "https://bcl.nrel.gov", :user => { :username => "ENTER_BCL_USERNAME", :password => "ENTER_BCL_PASSWORD"} } }
 
       settings
     end
-
+    
+    
     def login(username=nil, password=nil)
       if username.nil? || password.nil?
         # log in via cached creditials
-        username = @config[:server][:admin_user][:username]
-        password = @config[:server][:admin_user][:password]
+        username = @config[:server][:user][:username]
+        password = @config[:server][:user][:password]
       end
 	
       #figure out what time to use
-		url = @config[:server][:url]
-		#look for http vs. https
-		if url.include? "https"
-		  port = 443
-		else
-		  port = 80
-		end
-		#strip out http(s)
-		url = url.gsub('http://', '')
-		url = url.gsub('https://', '')
-		
-		puts "Connecting to #{url} on port #{port}"
+      url = @config[:server][:url]
+      #look for http vs. https
+      if url.include? "https"
+        port = 443
+      else
+        port = 80
+      end
+      #strip out http(s)
+      url = url.gsub('http://', '')
+      url = url.gsub('https://', '')
+      
+      puts "Connecting to #{url} on port #{port} as #{username}"
       
       @http = Net::HTTP.new(url, port)
       @http.use_ssl = true
@@ -98,11 +99,10 @@ module BCL
 
       res, data = @http.post(path, data, headers)
       
-		#restClient wasn't working
+      #restClient wasn't working
       #res = RestClient.post "#{@config[:server][:url]}/api/user/login", data.to_json, :content_type => :json, :accept => :json
-		  
       if res.code == '200'
-      
+        puts "Login Successful"
 =begin
 		  #OLD RESTCLIENT CODE
         #pull out the session key
@@ -135,37 +135,37 @@ module BCL
 		
 =end
 		
-			bnes = ""
-			bni = ""
-			junkout = res["set-cookie"].split(";")
-			junkout.each do |line|
-			  if line =~ /BNES_SESS/
-				 bnes = line.match(/(BNES_SESS.*)/)[0]
-			  end
-			end
+        bnes = ""
+        bni = ""
+        junkout = res["set-cookie"].split(";")
+        junkout.each do |line|
+          if line =~ /BNES_SESS/
+           bnes = line.match(/(BNES_SESS.*)/)[0]
+          end
+        end
 
-			junkout.each do |line|
-			  if line =~ /BNI/
-				 bni = line.match(/(BNI.*)/)[0]
-			  end
-			end
+        junkout.each do |line|
+          if line =~ /BNI/
+           bni = line.match(/(BNI.*)/)[0]
+          end
+        end
 
-			#puts "DATA: #{data}"
-			session_name = ""
-			sessid = ""
-			json = JSON.parse(data)
-			json.each do |key, val| 
-				if key == 'session_name'
-					session_name = val
-				elsif key == 'sessid'
-					sessid = val
-				end
-			end
+        #puts "DATA: #{data}"
+        session_name = ""
+        sessid = ""
+        json = JSON.parse(data)
+        json.each do |key, val| 
+          if key == 'session_name'
+            session_name = val
+          elsif key == 'sessid'
+            sessid = val
+          end
+        end
 
-			@session = session_name + '=' + sessid + ';' + bni + ";" + bnes
-				
-			puts "SESSION COOKIE: #{@session}"
-      res
+        @session = session_name + '=' + sessid + ';' + bni + ";" + bnes
+          
+        #puts "SESSION COOKIE: #{@session}"
+        res
       else
       
         puts "error code: #{res.code}"
@@ -175,57 +175,65 @@ module BCL
       end
     end
 
-
-    # pushes component to the bcl and publishes them (if updated as admin user). Username and password and
-    # set in ~/.bcl/config.yml file which determines the permissions and the group to which
-    # the component will be uploaded
-    def push_content(filename_and_path, write_receipt_file, content_type)
+    # pushes component to the bcl and publishes them (if logged-in as BCL Website Admin user).
+    # username and password set in ~/.bcl/config.yml file
+    def push_content(filename_and_path, write_receipt_file, content_type, bcl_group_id)
       raise "Please login before pushing components" if @session.nil?
-
       valid = false
       res_j = nil
       filename = File.basename(filename_and_path)
+      #TODO remove special characters in the filename; they create firewall errors
+      #filename = filename.gsub(/\W/,'_').gsub(/___/,'_').gsub(/__/,'_').chomp('_').strip
       filepath = File.dirname(filename_and_path) + "/"
-
       file = File.open(filename_and_path, 'rb')
       file_b64 = Base64.encode64(file.read)
-      @data = {"file" =>
-                   {
-                       "file" => "#{file_b64}",
-                       "filesize" => "#{File.size(filename_and_path)}",
-                       "filename" => filename
-                   },
-               "node" =>
-                     {
-                        "type" => "#{content_type}",
-                        "publish" => 1  #NOTE THIS ONLY WORKS IF YOU ARE ADMIN
-                     }
+      @data = {
+              "file" =>
+               {
+                 "file" => "#{file_b64}",
+                 "filesize" => "#{File.size(filename_and_path)}",
+                 "filename" => filename
+               },
+                "node" =>
+               {
+                "type" => "#{content_type}",
+                "og_group_ref" =>
+                  {
+                    "und" =>
+                      ["target_id" => bcl_group_id],
+                      "publish" => 1  #NOTE THIS ONLY WORKS IF YOU ARE A BCL SITE ADMIN
+                  }
                 }
-					 
-		#restclient not working
+              }    
+      #restclient not working
       #res = RestClient.post "#{@config[:server][:url]}/api/content.json", @data.to_json, :content_type => :json, :cookies => @session
 	   
-		path = "/api/content.json"	 
-		headers = {'Content-Type' => 'application/json', 'Cookie' => @session}
+      path = "/api/content.json"	 
+      headers = {'Content-Type' => 'application/json', 'Cookie' => @session}
 
-		res, data = @http.post(path, @data.to_json, headers)		
+      res, data = @http.post(path, @data.to_json, headers)		
 		 
+      res_j = "could not get json from http post response"
       if res.code == '200'
         res_j = JSON.parse(res.body)
-
-        if res.code == '200'
-          valid = true
-        elsif res.code == '500'
-          raise "server exception"
-          valid = false
-        else
-          valid = false
-			 puts "error #{res.code}"
-        end
+        puts "200 - Successful Upload"
+        valid = true
+      elsif res.code == '404'
+        puts "error code: #{res.code}"
+        puts "error info: #{res.body}"
+        puts "404 - check these common causes first:"
+        puts "  the filename contains periods (other than the ones before the file extension)"
+        puts "  you are not an 'administrator member' of the group you're trying to upload to"
+        valid = false   
+      elsif res.code == '500'
+        puts "error code: #{res.code}"
+        puts "error info: #{res.body}"
+        raise "server exception"
+        valid = false
       else
         puts "error code: #{res.code}"
         puts "error info: #{res.body}"
-        res = nil	
+        valid = false        
       end
 
       if valid
@@ -241,17 +249,18 @@ module BCL
       [valid, res_j]
     end
 
-    def push_contents(array_of_components, skip_files_with_receipts, content_type)
+    def push_contents(array_of_components, skip_files_with_receipts, content_type, bcl_group_id)
       logs = []
       array_of_components.each do |comp|
         receipt_file = File.dirname(comp) + "/" + File.basename(comp, '.tar.gz') + ".receipt"
         log_message = ""
         if skip_files_with_receipts && File.exists?(receipt_file)
-          log_message = "skipping component because found receipt for #{comp}"
-        else
-          log_message = "pushing component #{comp}: "
+          log_message = "skipping because found receipt #{comp}"
           puts log_message
-          valid, res = push_content(comp, true, content_type)
+        else
+          log_message = "pushing content #{File.basename(comp, '.tar.gz')}"
+          puts log_message
+          valid, res = push_content(comp, true, content_type, bcl_group_id)
           log_message += " #{valid} #{res.inspect.chomp}"
         end
         logs << log_message
@@ -260,32 +269,37 @@ module BCL
       logs
     end
 	
-    # pushes updated component to the bcl and publishes them (if updated as admin user). Username and password and
-    # set in ~/.bcl/config.yml file which determines the permissions and the group to which
-    # the component will be uploaded
-    def update_content(filename_and_path, write_receipt_file, uuid)
+    # pushes updated content to the bcl and publishes it (if logged-in as BCL Website Admin user).
+    # username and password set in ~/.bcl/config.yml file
+    def update_content(filename_and_path, write_receipt_file, uuid, bcl_group_id)
       raise "Please login before pushing components" if @session.nil?
-
       valid = false
       res_j = nil
       filename = File.basename(filename_and_path)
+      #TODO remove special characters in the filename; they create firewall errors
+      #filename = filename.gsub(/\W/,'_').gsub(/___/,'_').gsub(/__/,'_').chomp('_').strip
       filepath = File.dirname(filename_and_path) + "/"
-
       file = File.open(filename_and_path, 'rb')
       file_b64 = Base64.encode64(file.read)
-      @data = {"file" =>
-                   {
-                       "file" => "#{file_b64}",
-                       "filesize" => "#{File.size(filename_and_path)}",
-                       "filename" => filename
-                   },
+      @data = {
+              "file" =>
+               {
+                 "file" => "#{file_b64}",
+                 "filesize" => "#{File.size(filename_and_path)}",
+                 "filename" => filename
+               },
                "node" =>
-                     {
-                        "uuid" => "#{uuid}",
-                        "publish" => 1  #NOTE THIS ONLY WORKS IF YOU ARE ADMIN
-                     }
+               {
+                "uuid" => "#{uuid}",
+                "og_group_ref" =>
+                  {
+                    "und" =>
+                      ["target_id" => bcl_group_id],
+                      "publish" => 1  #NOTE THIS ONLY WORKS IF YOU ARE A BCL SITE ADMIN
+                  }
                 }
-		
+              }
+                
 		#restclient not working
 		#res = RestClient.post "#{@config[:server][:url]}/api/content", @data.to_json, :content_type => :json, :cookies => @session, :accept => :json   
 
@@ -294,21 +308,28 @@ module BCL
 
 		res, data = @http.post(path, @data.to_json, headers)
 				
+      res_j = "could not get json from http post response"
       if res.code == '200'
         res_j = JSON.parse(res.body)
-
-        if res.code == '200'
-          valid = true
-        elsif res.code == '500'
-          raise "server exception"
-          valid = false
-        else
-          valid = false
-        end
+        puts "200 - Successful Upload"
+        valid = true
+      elsif res.code == '404'
+        puts "error code: #{res.code}"
+        puts "error info: #{res.body}"
+        puts "404 - check these common causes first:"
+        puts "  the filename contains periods (other than the ones before the file extension)"
+        puts "  you are not an 'administrator member' of the group you're trying to upload to"
+        valid = false   
+      elsif res.code == '500'
+        puts "error code: #{res.code}"
+        puts "error info: #{res.body}"
+        raise "server exception"
+        valid = false
       else
         puts "error code: #{res.code}"
-        res = nil
-      end
+        puts "error info: #{res.body}"
+        valid = false        
+      end  
 
       if valid
         #write out a receipt file into the same directory of the component with the same file name as
@@ -323,64 +344,64 @@ module BCL
       [valid, res_j]
     end
 	
-	def update_contents(array_of_components, skip_files_with_receipts)
+	def update_contents(array_of_components, skip_files_with_receipts, bcl_group_id)
 	  logs = []
 	  array_of_components.each do |comp|
-		receipt_file = File.dirname(comp) + "/" + File.basename(comp, '.tar.gz') + ".receipt"
-		log_message = ""
-		if skip_files_with_receipts && File.exists?(receipt_file)
-		  log_message = "skipping component because found receipt for #{comp}"
-		else
-		  #extract uuid
-      if File.exists?(File.dirname(comp) + "/component.xml")
-        xml_filename = File.dirname(comp) + "/component.xml"
-      elsif File.exists?("#{Dir.pwd}/instances/#{File.basename(comp, '.tar.gz')}/measure.xml")
-        xml_filename = "#{Dir.pwd}/instances/#{File.basename(comp, '.tar.gz')}/measure.xml"		  
+      receipt_file = File.dirname(comp) + "/" + File.basename(comp, '.tar.gz') + ".receipt"
+      log_message = ""
+      if skip_files_with_receipts && File.exists?(receipt_file)
+        log_message = "skipping update because found receipt #{File.basename(comp)}"
+        puts log_message
       else
-        puts "could not find component.xml or measure.xml"
-        next
+        #extract uuid from the .tar.gz file
+        uuid = nil
+        tgz = Zlib::GzipReader.open(comp)
+        Archive::Tar::Minitar::Reader.open(tgz).each do |entry|
+          if entry.name == "component.xml" or entry.name == "measure.xml"
+            xml_file = LibXML::XML::Document.string(entry.read)
+            uid_node = xml_file.find('uid').first
+            uuid = uid_node.content
+            #vid_node = xml_file.find('version_id').first
+            #vid = vid_node.content
+            #puts "uuid = #{uuid}; vid = #{vid}"
+          end
+        end
+        if uuid == nil
+          log_message "ERROR: uuid not found for #{File.basename(comp)}"
+          puts log_message
+        else
+          log_message = "pushing updated content #{File.basename(comp)}"
+          puts log_message
+          valid, res = update_content(comp, true, uuid, bcl_group_id)
+          log_message += " #{valid} #{res.inspect.chomp}"
+        end
       end
-      parser = LibXML::XML::Parser.file(xml_filename)
-		  xml_file = parser.parse
-		  uid_node = xml_file.find('uid').first
-		  uuid = uid_node.content
-		  if uuid == nil
-			log_message "ERROR: uuid not found for #{File.basename(comp)}"
-			puts log_message
-		  else
-			log_message = "pushing updated component #{uuid}: #{File.basename(comp)}"
-			puts log_message
-			valid, res = update_content(comp, true, uuid)
-			log_message += " #{valid} #{res.inspect.chomp}"
-		  end
-		end
-		logs << log_message
+      logs << log_message
 	  end
-      logs		
+    logs		
 	end
 
-    # Simple method to search bcl and return the result as an XML object
-    def search(search_str)
-      full_url = "#{@config[:server][:url]}/api/search/#{search_str}&api_version=#{@api_version}"
-      res = RestClient.get "#{full_url}"
-      xml = LibXML::XML::Document.string(res.body)
+  # Simple method to search bcl and return the result as an XML object
+  def search(search_str)
+    full_url = "#{@config[:server][:url]}/api/search/#{search_str}&api_version=#{@api_version}"
+    res = RestClient.get "#{full_url}"
+    xml = LibXML::XML::Document.string(res.body)
 
-      xml
-    end
+    xml
+  end
 	
 	# Delete receipt files
 	def delete_receipts(array_of_components)
 	  array_of_components.each do |comp|
-		receipt_file = File.dirname(comp) + "/" + File.basename(comp, '.tar.gz') + ".receipt"
-		if File.exists?(receipt_file)
-		  FileUtils.remove_file(receipt_file)
-		
-		end
+      receipt_file = File.dirname(comp) + "/" + File.basename(comp, '.tar.gz') + ".receipt"
+      if File.exists?(receipt_file)
+        FileUtils.remove_file(receipt_file)
+      
+      end
 	  end
 	end
-	
-
-  end
+  
+  end #class ComponentMethods
 
   # TODO make this extend the component_xml class (or create a super class around components)
 
@@ -417,7 +438,7 @@ module BCL
       FileUtils.cp(targz.to_s, destination_file)
     end
 
-    #gather all the zip files into a single tar.gz
+    #gather all the .tar.gz files into a single tar.gz
     (1..chunk_cnt).each do |cnt|
       currentdir = Dir.pwd
       
@@ -439,7 +460,5 @@ module BCL
     Dir.chdir(current_dir)
 
   end
-
-
 
 end # module BCL
