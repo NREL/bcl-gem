@@ -77,8 +77,13 @@ if $have_win32ole
         end   
       end
 
-      xlsx.saved = true
-      xlsx.Save
+      #save spreadsheet if changes have been made
+      if xlsx.saved == true
+        #puts "[ComponentSpreadsheet] Spreadsheet unchanged; not saving"
+      else
+        xlsx.Save
+        puts "[ComponentSpreadsheet] Spreadsheet changes saved"
+      end
     
     ensure
     
@@ -277,12 +282,17 @@ end # if $have_win32ole
       component.uid = xlsx_worksheet.Range("B#{i}").value
       if component.uid.nil? or component.uid.empty?
         component.uid = UUID.new.generate
+        puts "#{component.name} uid missing; creating new one"
         xlsx_worksheet.Range("B#{i}").value = component.uid     
       end
       
-      # always write new version id
-      component.version_id = UUID.new.generate
-      xlsx_worksheet.Range("C#{i}").value = component.version_id
+      # get version_id, if empty set it
+      component.version_id = xlsx_worksheet.Range("C#{i}").value
+      if component.version_id.nil? or component.version_id.empty?
+        component.version_id = UUID.new.generate
+        puts "#{component.name} version id missing; creating new one"       
+        xlsx_worksheet.Range("C#{i}").value = component.version_id
+      end      
       
       component.headers = headers
       component.values = xlsx_worksheet.Range("A#{i}:#{max_col}#{i}").value

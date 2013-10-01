@@ -261,10 +261,21 @@ module BCL
 
     def save_component_xml(dir_path = resolve_path)
       FileUtils.mkpath(dir_path) if !File.exists?(dir_path)
-
-      generate_uuid() if @uuid.nil?
-      generate_vuid() if @vuid.nil?
-
+      
+      #make sure the uid and vid are pulled in from the Component
+      @uuid = @uid
+      @vuid = @comp_version_id
+      
+      if @uuid.nil?
+        puts "uid was missing; creating a new one"
+        generate_uuid()
+      end  
+        
+      if @vuid.nil?
+        puts "vid was missing; creating a new one"
+        generate_vuid()
+      end
+        
       xmlfile = File.new(dir_path + '/component.xml', 'w')
       comp_xml = Builder::XmlMarkup.new(:target => xmlfile, :indent=>2)
 
