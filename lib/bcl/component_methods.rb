@@ -216,23 +216,20 @@ module BCL
       res_j = "could not get json from http post response"
       if res.code == '200'
         res_j = JSON.parse(res.body)
-        puts "200 - Successful Upload"
+        puts "  200 - Successful Upload"
         valid = true
       elsif res.code == '404'
-        puts "error code: #{res.code}"
-        puts "error info: #{res.body}"
-        puts "404 - check these common causes first:"
-        puts "  the filename contains periods (other than the ones before the file extension)"
-        puts "  you are not an 'administrator member' of the group you're trying to upload to"
+        puts "  error code: #{res.code} - #{res.body}"
+        puts "  404 - check these common causes first:"
+        puts "    the filename contains periods (other than the ones before the file extension)"
+        puts "    you are not an 'administrator member' of the group you're trying to upload to"
         valid = false   
       elsif res.code == '500'
-        puts "error code: #{res.code}"
-        puts "error info: #{res.body}"
+        puts "  error code: #{res.code} - #{res.body}"
         raise "server exception"
         valid = false
       else
-        puts "error code: #{res.code}"
-        puts "error info: #{res.body}"
+        puts "  error code: #{res.code} - #{res.body}"
         valid = false        
       end
 
@@ -311,23 +308,20 @@ module BCL
       res_j = "could not get json from http post response"
       if res.code == '200'
         res_j = JSON.parse(res.body)
-        puts "200 - Successful Upload"
+        puts "  200 - Successful Upload"
         valid = true
       elsif res.code == '404'
-        puts "error code: #{res.code}"
-        puts "error info: #{res.body}"
-        puts "404 - check these common causes first:"
-        puts "  the filename contains periods (other than the ones before the file extension)"
-        puts "  you are not an 'administrator member' of the group you're trying to upload to"
+        puts "  error code: #{res.code} - #{res.body}"
+        puts "  404 - check these common causes first:"
+        puts "    the filename contains periods (other than the ones before the file extension)"
+        puts "    you are not an 'administrator member' of the group you're trying to upload to"
         valid = false   
       elsif res.code == '500'
-        puts "error code: #{res.code}"
-        puts "error info: #{res.body}"
+        puts "  error code: #{res.code} - #{res.body}"
         raise "server exception"
         valid = false
       else
-        puts "error code: #{res.code}"
-        puts "error info: #{res.body}"
+        puts "  error code: #{res.code} - #{res.body}"
         valid = false        
       end  
 

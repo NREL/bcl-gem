@@ -27,6 +27,14 @@ module BCL
 module_function
 
 def tarball(destination, paths)
+  
+  #check for filepath length limit
+  full_destination = File.expand_path(destination)
+  if full_destination.length > 259 #256 chars max; "C:\" doesn't count
+    puts "[TarBall] ERROR cannot generate #{destination} because path exceeds 256 char limit. shorten component name by at least by #{full_destination.length - 259} chars"
+    return
+  end
+  
   Zlib::GzipWriter.open(destination) do |gzip|
     out = Archive::Tar::Minitar::Output.new(gzip)
     
