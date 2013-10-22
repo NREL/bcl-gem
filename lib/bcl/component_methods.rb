@@ -42,6 +42,7 @@ module BCL
     def initialize()
       @config = nil
       @session = nil
+	  @access_token = nil
       @http = nil
       @api_version = 2.0
       config_path = File.expand_path('~') + '/.bcl'
@@ -135,6 +136,12 @@ module BCL
 		
 =end
 		
+		#get access token
+		res, access_token = @http.post("/services/session/token", nil, headers)
+		puts res
+		puts access_token
+		@access_token = access_token
+		
         bnes = ""
         bni = ""
         junkout = res["set-cookie"].split(";")
@@ -162,7 +169,7 @@ module BCL
           end
         end
 
-        @session = session_name + '=' + sessid + ';' + bni + ";" + bnes
+        @session = session_name + '=' + sessid + ';' + bni + ";" + bnes 
           
         #puts "SESSION COOKIE: #{@session}"
         res
@@ -209,7 +216,7 @@ module BCL
       #res = RestClient.post "#{@config[:server][:url]}/api/content.json", @data.to_json, :content_type => :json, :cookies => @session
 	   
       path = "/api/content.json"	 
-      headers = {'Content-Type' => 'application/json', 'Cookie' => @session}
+      headers = {'Content-Type' => 'application/json', 'Cookie' => @session, 'X-CSRF-Token' => @access_token}
 
       res, data = @http.post(path, @data.to_json, headers)		
 		 
@@ -301,7 +308,7 @@ module BCL
 		#res = RestClient.post "#{@config[:server][:url]}/api/content", @data.to_json, :content_type => :json, :cookies => @session, :accept => :json   
 
 		path = "/api/content.json"	 
-		headers = {'Content-Type' => 'application/json', 'Cookie' => @session}
+		headers = {'Content-Type' => 'application/json', 'Cookie' => @session, 'X-CSRF-Token' => access_token}
 
 		res, data = @http.post(path, @data.to_json, headers)
 				
