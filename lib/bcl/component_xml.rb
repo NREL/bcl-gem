@@ -289,6 +289,8 @@ module BCL
         comp_xml.description @description if @description != ""
         comp_xml.comment @comment if @comment != ""
 
+        comp_xml.fidelity_level @fidelity_level if @fidelity_level != ""
+        
         comp_xml.provenances {
           @provenances.each do |prov|
             comp_xml.provenance {

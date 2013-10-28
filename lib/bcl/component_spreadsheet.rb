@@ -23,6 +23,7 @@
 require 'rubygems'
 require 'pathname'
 require 'fileutils'
+require 'date'
 
 # required gems
 require 'uuid' # gem install uuid
@@ -55,7 +56,7 @@ class ComponentSpreadsheet
 if $have_win32ole
 
   #initialize with Excel spreadsheet to read
-  def initialize(xlsx_path,worksheet_names = "all")
+  def initialize(xlsx_path,worksheet_names =["all"])
     
     @xlsx_path = Pathname.new(xlsx_path).realpath.to_s
     @worksheets = []
@@ -67,7 +68,7 @@ if $have_win32ole
       xlsx = excel.Workbooks.Open(@xlsx_path)
       
       #by default, operate on all worksheets
-      if worksheet_names == "all"
+      if worksheet_names == ["all"]
         xlsx.Worksheets.each do |xlsx_worksheet|
           parse_xlsx_worksheet(xlsx_worksheet)
         end
@@ -144,6 +145,13 @@ end # if $have_win32ole
           
             author = values.delete_at(0)
             datetime = values.delete_at(0)
+            if datetime.nil?
+              puts "[ComponentSpreadsheet] WARNING missing the date in the datetime column in the spreadsheet - assuming today"
+              datetime = DateTime.new
+            else
+              datetime = DateTime.parse(datetime)
+            end
+            
             comment = values.delete_at(0)
             component_xml.add_provenance(author.to_s, datetime.to_s, comment.to_s)
             

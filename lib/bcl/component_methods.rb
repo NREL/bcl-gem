@@ -42,7 +42,7 @@ module BCL
     def initialize()
       @config = nil
       @session = nil
-	  @access_token = nil
+      @access_token = nil
       @http = nil
       @api_version = 2.0
       config_path = File.expand_path('~') + '/.bcl'
@@ -95,10 +95,10 @@ module BCL
       data = %Q({"username":"#{username}","password":"#{password}"})
       #data = {"username" => username, "password" => password}
       
-      path = "/api/user/login.json?"
+      login_path = "/api/user/login.json?"
       headers = {'Content-Type' => 'application/json'}
 
-      res, data = @http.post(path, data, headers)
+      res, data = @http.post(login_path, data, headers)
       
       #restClient wasn't working
       #res = RestClient.post "#{@config[:server][:url]}/api/user/login", data.to_json, :content_type => :json, :accept => :json
@@ -135,13 +135,7 @@ module BCL
 			@session = {session_name => sessid,bnes_name => bnesid,bni_name => bni_id}
 		
 =end
-		
-		#get access token
-		res, access_token = @http.post("/services/session/token", nil, headers)
-		puts res
-		puts access_token
-		@access_token = access_token
-		
+    
         bnes = ""
         bni = ""
         junkout = res["set-cookie"].split(";")
@@ -170,8 +164,23 @@ module BCL
         end
 
         @session = session_name + '=' + sessid + ';' + bni + ";" + bnes 
-          
-        #puts "SESSION COOKIE: #{@session}"
+         
+        #get access token
+        token_path = "/services/session/token"
+        token_headers = {'Content-Type' => 'application/json', 'Cookie' => @session}
+        #puts "token_headers = #{token_headers.inspect}"
+        access_token_res, access_token = @http.post(token_path,"",token_headers)
+        if access_token_res.code == '200'
+          @access_token = access_token
+        else
+          puts "Unable to get access token; uploads will not work"
+          puts "error code: #{access_token_res.code}"
+          puts "error info: #{access_token_res.body}"
+        end
+		
+        #puts "access_token = *#{@access_token}*" 
+        #puts "cookie = #{@session}"
+        
         res
       else
       
@@ -186,6 +195,7 @@ module BCL
     # username and password set in ~/.bcl/config.yml file
     def push_content(filename_and_path, write_receipt_file, content_type, bcl_group_id)
       raise "Please login before pushing components" if @session.nil?
+      raise "Do not have a valid access token; try again" if @access_token.nil?
       valid = false
       res_j = nil
       filename = File.basename(filename_and_path)
@@ -216,8 +226,8 @@ module BCL
       #res = RestClient.post "#{@config[:server][:url]}/api/content.json", @data.to_json, :content_type => :json, :cookies => @session
 	   
       path = "/api/content.json"	 
-      headers = {'Content-Type' => 'application/json', 'Cookie' => @session, 'X-CSRF-Token' => @access_token}
-
+      headers = {'Content-Type' => 'application/json','X-CSRF-Token' => @access_token, 'Cookie' => @session}
+      #puts headers.inspect
       res, data = @http.post(path, @data.to_json, headers)		
 		 
       res_j = "could not get json from http post response"
