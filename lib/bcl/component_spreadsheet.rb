@@ -278,6 +278,8 @@ end # if $have_win32ole
       headers[0].name = "description"
     end
     
+    puts "  Found #{num_rows - 2} components"
+    
     components = []
     for i in 3..num_rows do
       component = ComponentStruct.new
