@@ -214,6 +214,10 @@ module BCL
                 "node" =>
                {
                 "type" => "#{content_type}",
+                "field_component_tags" =>  #TODO remove this field_component_tags once BCL is fixed
+                  {
+                    "und" => "1289"
+                  },  
                 "og_group_ref" =>
                   {
                     "und" =>
@@ -305,6 +309,10 @@ module BCL
                "node" =>
                {
                 "uuid" => "#{uuid}",
+                "field_component_tags" =>  #TODO remove this field_component_tags once BCL is fixed
+                  {
+                    "und" => "1289"
+                  },                  
                 "og_group_ref" =>
                   {
                     "und" =>
