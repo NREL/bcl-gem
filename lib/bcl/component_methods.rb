@@ -326,7 +326,7 @@ module BCL
 		#res = RestClient.post "#{@config[:server][:url]}/api/content", @data.to_json, :content_type => :json, :cookies => @session, :accept => :json   
 
 		path = "/api/content.json"	 
-		headers = {'Content-Type' => 'application/json', 'Cookie' => @session, 'X-CSRF-Token' => access_token}
+		headers = {'Content-Type' => 'application/json', 'Cookie' => @session, 'X-CSRF-Token' => @access_token}
 
 		res, data = @http.post(path, @data.to_json, headers)
 				
