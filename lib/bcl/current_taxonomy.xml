@@ -106,7 +106,7 @@
               <enumeration>Non-Swinging</enumeration>
               <enumeration>Swinging</enumeration>
             </enumerations>
-            <row>527</row>
+            <row>530</row>
           </term>
           <term>
             <name>Film Coefficients</name>
@@ -115,7 +115,7 @@
               <enumeration>Yes</enumeration>
               <enumeration>No</enumeration>
             </enumerations>
-            <row>528</row>
+            <row>531</row>
           </term>
         </level_3>
         <level_3>
@@ -216,41 +216,41 @@
               <enumeration>Glass Skylight with Curb</enumeration>
               <enumeration>Plastic Skylight with Curb</enumeration>
             </enumerations>
-            <row>530</row>
+            <row>533</row>
           </term>
           <term>
             <name>Solar Heat Gain Coefficient</name>
             <abbr>SHGC</abbr>
             <data_type>double</data_type>
-            <row>531</row>
+            <row>534</row>
           </term>
           <term>
             <name>Visible Light Transmittance</name>
             <abbr>VLT</abbr>
             <data_type>double</data_type>
-            <row>532</row>
+            <row>535</row>
           </term>
           <term>
-            <name>Overall Conductivity</name>
+            <name>Overall U-factor</name>
             <abbr>Overall U-factor</abbr>
-            <description>Thermal conductivity of material layer at a mean temperature of 75&#176;F under dry conditions.</description>
+            <description>Overall center of glass heat transfer coefficient</description>
             <data_type>double</data_type>
-            <ip_written>British Thermal Units Inches per Hour Square Foot Degree Rankine</ip_written>
-            <ip_symbol>Btu*in/hr*ft^2*R</ip_symbol>
-            <si_written>Watts per Meter Degree Kelvin</si_written>
-            <si_symbol>W/m*K</si_symbol>
-            <row>533</row>
-            <unit_conversion>IP == 6.93347 * SI</unit_conversion>
+            <ip_written>British Thermal Units per Hour Square Foot Degree Rankine</ip_written>
+            <ip_symbol>Btu/hr*ft^2*R</ip_symbol>
+            <si_written>Watts per Meter Squared Degree Kelvin</si_written>
+            <si_symbol>W/m^2*K</si_symbol>
+            <row>536</row>
+            <unit_conversion>IP ==0.1761 * SI</unit_conversion>
           </term>
           <term>
             <name>Minimum Glazing Fraction</name>
             <data_type>double</data_type>
-            <row>534</row>
+            <row>537</row>
           </term>
           <term>
             <name>Maximum Glazing Fraction</name>
             <data_type>double</data_type>
-            <row>535</row>
+            <row>538</row>
           </term>
         </level_3>
         <level_3>
@@ -368,16 +368,16 @@
             <row>522</row>
           </term>
           <term>
-            <name>Overall Conductivity</name>
+            <name>Overall U-factor</name>
             <abbr>Overall U-factor</abbr>
-            <description>Thermal conductivity of material layer at a mean temperature of 75&#176;F under dry conditions.</description>
+            <description>Overall center of glass heat transfer coefficient</description>
             <data_type>double</data_type>
-            <ip_written>British Thermal Units Inches per Hour Square Foot Degree Rankine</ip_written>
-            <ip_symbol>Btu*in/hr*ft^2*R</ip_symbol>
-            <si_written>Watts per Meter Degree Kelvin</si_written>
-            <si_symbol>W/m*K</si_symbol>
+            <ip_written>British Thermal Units per Hour Square Foot Degree Rankine</ip_written>
+            <ip_symbol>Btu/hr*ft^2*R</ip_symbol>
+            <si_written>Watts per Meter Squared Degree Kelvin</si_written>
+            <si_symbol>W/m^2*K</si_symbol>
             <row>523</row>
-            <unit_conversion>IP == 6.93347 * SI</unit_conversion>
+            <unit_conversion>IP ==0.1761 * SI</unit_conversion>
           </term>
           <term>
             <name>Minimum Glazing Fraction</name>
@@ -388,6 +388,40 @@
             <name>Maximum Glazing Fraction</name>
             <data_type>double</data_type>
             <row>525</row>
+          </term>
+          <term>
+            <name>Number of Panes</name>
+            <data_type>enum</data_type>
+            <enumerations>
+              <enumeration>Single Pane</enumeration>
+              <enumeration>Double Pane</enumeration>
+              <enumeration>Triple Pane</enumeration>
+              <enumeration>Quadruple Pane</enumeration>
+            </enumerations>
+            <row>526</row>
+          </term>
+          <term>
+            <name>Gas Fill</name>
+            <data_type>enum</data_type>
+            <enumerations>
+              <enumeration>Air</enumeration>
+              <enumeration>Argon</enumeration>
+              <enumeration>Krypton</enumeration>
+            </enumerations>
+            <row>527</row>
+          </term>
+          <term>
+            <name>Tint</name>
+            <data_type>enum</data_type>
+            <enumerations>
+              <enumeration>Clear</enumeration>
+              <enumeration>Bronze</enumeration>
+              <enumeration>Grey</enumeration>
+              <enumeration>Green</enumeration>
+              <enumeration>Blue</enumeration>
+              <enumeration>Tinted</enumeration>
+            </enumerations>
+            <row>528</row>
           </term>
         </level_3>
       </level_2>
@@ -491,7 +525,7 @@
               <enumeration>Yes</enumeration>
               <enumeration>No</enumeration>
             </enumerations>
-            <row>545</row>
+            <row>548</row>
           </term>
           <term>
             <name>Resistance</name>
@@ -501,7 +535,7 @@
             <ip_symbol>hr*ft^2*R/Btu</ip_symbol>
             <si_written>Square Meters Degree Kelvin per Watt</si_written>
             <si_symbol>m^2*K/W</si_symbol>
-            <row>546</row>
+            <row>549</row>
             <unit_conversion>IP = 5.678263 * SI</unit_conversion>
           </term>
           <term>
@@ -510,14 +544,14 @@
             <enumerations>
               <enumeration>Attic Floor</enumeration>
             </enumerations>
-            <row>550</row>
+            <row>553</row>
           </term>
           <term>
             <name>Insulation Minimum R-Value (ft^2*F*hr/Btu)</name>
             <abbr>Insulation Minimum Thermal Resistance</abbr>
             <description>R-13 + R-7.5 ci or R-5.7 ci</description>
             <data_type>string</data_type>
-            <row>551</row>
+            <row>554</row>
           </term>
         </level_3>
         <level_3>
@@ -617,7 +651,7 @@
               <enumeration>Yes</enumeration>
               <enumeration>No</enumeration>
             </enumerations>
-            <row>545</row>
+            <row>548</row>
           </term>
           <term>
             <name>Resistance</name>
@@ -627,7 +661,7 @@
             <ip_symbol>hr*ft^2*R/Btu</ip_symbol>
             <si_written>Square Meters Degree Kelvin per Watt</si_written>
             <si_symbol>m^2*K/W</si_symbol>
-            <row>546</row>
+            <row>549</row>
             <unit_conversion>IP = 5.678263 * SI</unit_conversion>
           </term>
           <term>
@@ -636,14 +670,14 @@
             <enumerations>
               <enumeration>Mass</enumeration>
             </enumerations>
-            <row>553</row>
+            <row>556</row>
           </term>
           <term>
             <name>Insulation Minimum R-Value (ft^2*F*hr/Btu)</name>
             <abbr>Insulation Minimum Thermal Resistance</abbr>
             <description>R-13 + R-7.5 ci or R-5.7 ci</description>
             <data_type>string</data_type>
-            <row>554</row>
+            <row>557</row>
           </term>
         </level_3>
         <level_3>
@@ -743,7 +777,7 @@
               <enumeration>Yes</enumeration>
               <enumeration>No</enumeration>
             </enumerations>
-            <row>545</row>
+            <row>548</row>
           </term>
           <term>
             <name>Resistance</name>
@@ -753,7 +787,7 @@
             <ip_symbol>hr*ft^2*R/Btu</ip_symbol>
             <si_written>Square Meters Degree Kelvin per Watt</si_written>
             <si_symbol>m^2*K/W</si_symbol>
-            <row>546</row>
+            <row>549</row>
             <unit_conversion>IP = 5.678263 * SI</unit_conversion>
           </term>
           <term>
@@ -765,7 +799,7 @@
               <enumeration>Unheated - 8in Slab with Carpet</enumeration>
               <enumeration>Unheated - 8in Slab without Carpet</enumeration>
             </enumerations>
-            <row>548</row>
+            <row>551</row>
           </term>
         </level_3>
       </level_2>
@@ -869,7 +903,7 @@
               <enumeration>Yes</enumeration>
               <enumeration>No</enumeration>
             </enumerations>
-            <row>556</row>
+            <row>559</row>
           </term>
           <term>
             <name>Resistance</name>
@@ -879,7 +913,7 @@
             <ip_symbol>hr*ft^2*R/Btu</ip_symbol>
             <si_written>Square Meters Degree Kelvin per Watt</si_written>
             <si_symbol>m^2*K/W</si_symbol>
-            <row>557</row>
+            <row>560</row>
             <unit_conversion>IP = 5.678263 * SI</unit_conversion>
           </term>
           <term>
@@ -888,14 +922,14 @@
             <enumerations>
               <enumeration>Attic and Other</enumeration>
             </enumerations>
-            <row>562</row>
+            <row>565</row>
           </term>
           <term>
             <name>Insulation Minimum R-Value (ft^2*F*hr/Btu)</name>
             <abbr>Insulation Minimum Thermal Resistance</abbr>
             <description>R-13 + R-7.5 ci or R-5.7 ci</description>
             <data_type>string</data_type>
-            <row>563</row>
+            <row>566</row>
           </term>
         </level_3>
         <level_3>
@@ -995,7 +1029,7 @@
               <enumeration>Yes</enumeration>
               <enumeration>No</enumeration>
             </enumerations>
-            <row>556</row>
+            <row>559</row>
           </term>
           <term>
             <name>Resistance</name>
@@ -1005,7 +1039,7 @@
             <ip_symbol>hr*ft^2*R/Btu</ip_symbol>
             <si_written>Square Meters Degree Kelvin per Watt</si_written>
             <si_symbol>m^2*K/W</si_symbol>
-            <row>557</row>
+            <row>560</row>
             <unit_conversion>IP = 5.678263 * SI</unit_conversion>
           </term>
           <term>
@@ -1015,14 +1049,14 @@
               <enumeration>Metal Building</enumeration>
               <enumeration>Insulation Entirely Above Deck</enumeration>
             </enumerations>
-            <row>559</row>
+            <row>562</row>
           </term>
           <term>
             <name>Insulation Minimum R-Value (ft^2*F*hr/Btu)</name>
             <abbr>Insulation Minimum Thermal Resistance</abbr>
             <description>R-13 + R-7.5 ci or R-5.7 ci</description>
             <data_type>string</data_type>
-            <row>560</row>
+            <row>563</row>
           </term>
         </level_3>
       </level_2>
@@ -1126,7 +1160,7 @@
               <enumeration>Yes</enumeration>
               <enumeration>No</enumeration>
             </enumerations>
-            <row>537</row>
+            <row>540</row>
           </term>
           <term>
             <name>Resistance</name>
@@ -1136,7 +1170,7 @@
             <ip_symbol>hr*ft^2*R/Btu</ip_symbol>
             <si_written>Square Meters Degree Kelvin per Watt</si_written>
             <si_symbol>m^2*K/W</si_symbol>
-            <row>538</row>
+            <row>541</row>
             <unit_conversion>IP = 5.678263 * SI</unit_conversion>
           </term>
           <term>
@@ -1148,14 +1182,14 @@
               <enumeration>Wood-Framed and Other</enumeration>
               <enumeration>Steel-Framed</enumeration>
             </enumerations>
-            <row>540</row>
+            <row>543</row>
           </term>
           <term>
             <name>Insulation Minimum R-Value (ft^2*F*hr/Btu)</name>
             <abbr>Insulation Minimum Thermal Resistance</abbr>
             <description>R-13 + R-7.5 ci or R-5.7 ci</description>
             <data_type>string</data_type>
-            <row>541</row>
+            <row>544</row>
           </term>
         </level_3>
         <level_3>
@@ -1255,7 +1289,7 @@
               <enumeration>Yes</enumeration>
               <enumeration>No</enumeration>
             </enumerations>
-            <row>537</row>
+            <row>540</row>
           </term>
           <term>
             <name>Resistance</name>
@@ -1265,7 +1299,7 @@
             <ip_symbol>hr*ft^2*R/Btu</ip_symbol>
             <si_written>Square Meters Degree Kelvin per Watt</si_written>
             <si_symbol>m^2*K/W</si_symbol>
-            <row>538</row>
+            <row>541</row>
             <unit_conversion>IP = 5.678263 * SI</unit_conversion>
           </term>
           <term>
@@ -1274,7 +1308,7 @@
             <enumerations>
               <enumeration>Standard</enumeration>
             </enumerations>
-            <row>543</row>
+            <row>546</row>
           </term>
         </level_3>
       </level_2>
@@ -5068,7 +5102,7 @@ Example:  Product family X uses product numbers that contain eight alphanumeric 
               <enumeration>Tubeaxial</enumeration>
               <enumeration>Vaneaxial</enumeration>
             </enumerations>
-            <row>583</row>
+            <row>586</row>
           </term>
           <term>
             <name>Control Type</name>
@@ -5081,7 +5115,7 @@ Example:  Product family X uses product numbers that contain eight alphanumeric 
               <enumeration>Variable Speed Drive</enumeration>
               <enumeration>Variable Pitch Blades</enumeration>
             </enumerations>
-            <row>584</row>
+            <row>587</row>
           </term>
         </level_3>
         <level_3>
@@ -5218,7 +5252,7 @@ Example:  Product family X uses product numbers that contain eight alphanumeric 
               <enumeration>Forward Curved</enumeration>
               <enumeration>Plenum/Plug</enumeration>
             </enumerations>
-            <row>580</row>
+            <row>583</row>
           </term>
           <term>
             <name>Control Type</name>
@@ -5230,7 +5264,7 @@ Example:  Product family X uses product numbers that contain eight alphanumeric 
               <enumeration>Variable Sheaves</enumeration>
               <enumeration>Variable Speed Drive</enumeration>
             </enumerations>
-            <row>581</row>
+            <row>584</row>
           </term>
         </level_3>
         <level_3>
@@ -5366,7 +5400,7 @@ Example:  Product family X uses product numbers that contain eight alphanumeric 
               <enumeration>Variable Sheaves</enumeration>
               <enumeration>Variable Speed Drive</enumeration>
             </enumerations>
-            <row>588</row>
+            <row>591</row>
           </term>
         </level_3>
         <level_3>
@@ -5502,7 +5536,7 @@ Example:  Product family X uses product numbers that contain eight alphanumeric 
               <enumeration>Variable Sheaves</enumeration>
               <enumeration>Variable Speed Drive</enumeration>
             </enumerations>
-            <row>586</row>
+            <row>589</row>
           </term>
         </level_3>
         <level_3>
@@ -5635,7 +5669,7 @@ Example:  Product family X uses product numbers that contain eight alphanumeric 
               <enumeration>Axial</enumeration>
               <enumeration>Centrifugal</enumeration>
             </enumerations>
-            <row>592</row>
+            <row>595</row>
           </term>
         </level_3>
         <level_3>
@@ -5771,7 +5805,7 @@ Example:  Product family X uses product numbers that contain eight alphanumeric 
               <enumeration>Variable Sheaves</enumeration>
               <enumeration>Variable Speed Drive</enumeration>
             </enumerations>
-            <row>590</row>
+            <row>593</row>
           </term>
         </level_3>
       </level_2>
@@ -12502,7 +12536,7 @@ Example:  Product family X uses product numbers that contain eight alphanumeric 
             <ip_symbol>gal</ip_symbol>
             <si_written>Liters</si_written>
             <si_symbol>L/s</si_symbol>
-            <row>567</row>
+            <row>570</row>
             <unit_conversion>IP = 3.785 * SI</unit_conversion>
           </term>
           <term>
@@ -12513,7 +12547,7 @@ Example:  Product family X uses product numbers that contain eight alphanumeric 
             <ip_symbol>gpm</ip_symbol>
             <si_written>Liters per second</si_written>
             <si_symbol>L/s</si_symbol>
-            <row>568</row>
+            <row>571</row>
             <unit_conversion>IP = 15.8503 * SI</unit_conversion>
           </term>
           <term>
@@ -12524,7 +12558,7 @@ Example:  Product family X uses product numbers that contain eight alphanumeric 
             <ip_symbol>s</ip_symbol>
             <si_written>Seconds</si_written>
             <si_symbol>s</si_symbol>
-            <row>569</row>
+            <row>572</row>
             <unit_conversion>IP = 1 * SI</unit_conversion>
           </term>
           <term>
@@ -12535,7 +12569,7 @@ Example:  Product family X uses product numbers that contain eight alphanumeric 
               <enumeration>Standard</enumeration>
               <enumeration>Electronic</enumeration>
             </enumerations>
-            <row>570</row>
+            <row>573</row>
           </term>
           <term>
             <name>Power Supply</name>
@@ -12546,7 +12580,7 @@ Example:  Product family X uses product numbers that contain eight alphanumeric 
               <enumeration>DC Battery</enumeration>
               <enumeration>Solar Panel</enumeration>
             </enumerations>
-            <row>571</row>
+            <row>574</row>
           </term>
         </level_3>
         <level_3>
@@ -12565,7 +12599,7 @@ Example:  Product family X uses product numbers that contain eight alphanumeric 
             <ip_symbol>gpm</ip_symbol>
             <si_written>Liters per second</si_written>
             <si_symbol>L/s</si_symbol>
-            <row>573</row>
+            <row>576</row>
             <unit_conversion>IP = 15.8503 * SI</unit_conversion>
           </term>
         </level_3>
@@ -12585,7 +12619,7 @@ Example:  Product family X uses product numbers that contain eight alphanumeric 
             <ip_symbol>gal</ip_symbol>
             <si_written>Liters</si_written>
             <si_symbol>L/s</si_symbol>
-            <row>575</row>
+            <row>578</row>
             <unit_conversion>IP = 3.785 * SI</unit_conversion>
           </term>
           <term>
@@ -12596,7 +12630,7 @@ Example:  Product family X uses product numbers that contain eight alphanumeric 
               <enumeration>Single Flush</enumeration>
               <enumeration>Dual Flush</enumeration>
             </enumerations>
-            <row>576</row>
+            <row>579</row>
           </term>
         </level_3>
         <level_3>
@@ -12615,7 +12649,7 @@ Example:  Product family X uses product numbers that contain eight alphanumeric 
             <ip_symbol>gal</ip_symbol>
             <si_written>Liters</si_written>
             <si_symbol>L/s</si_symbol>
-            <row>578</row>
+            <row>581</row>
             <unit_conversion>IP = 3.785 * SI</unit_conversion>
           </term>
         </level_3>
