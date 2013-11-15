@@ -39,12 +39,14 @@ module BCL
     attr_accessor :session
     attr_accessor :http
 
-    def initialize()
+    def initialize(group_id = nil)
       @config = nil
       @session = nil
       @access_token = nil
       @http = nil
       @api_version = 2.0
+      #set group to NREL (32) if nil
+      @group_id = group_id.nil? ? 32 : group_id
       config_path = File.expand_path('~') + '/.bcl'
       config_name = 'config.yml'
       if File.exists?(config_path + "/" + config_name)
@@ -56,7 +58,7 @@ module BCL
         File.open(config_path + "/" + config_name, 'w') do |file|
           file << default_yaml.to_yaml
         end
-        raise "******** Please fill in user credentials in #{config_path}/#{config_name} file.  DO NOT COMMIT THIS FILE. **********"
+        puts "******** Please fill in user credentials in #{config_path}/#{config_name} file.  DO NOT COMMIT THIS FILE. **********"
       end
 
     end
@@ -68,15 +70,13 @@ module BCL
     end
     
     
-    def login(username=nil, password=nil)
-      if username.nil? || password.nil?
-        # log in via cached creditials
-        username = @config[:server][:user][:username]
-        password = @config[:server][:user][:password]
-      end
+    def login(username=nil, password=nil, url=nil)
+
 	
-      #figure out what time to use
-      url = @config[:server][:url]
+      #figure out what url to use
+      if url.nil?
+        url = @config[:server][:url]
+      end
       #look for http vs. https
       if url.include? "https"
         port = 443
@@ -86,20 +86,34 @@ module BCL
       #strip out http(s)
       url = url.gsub('http://', '')
       url = url.gsub('https://', '')
-      
-      puts "Connecting to #{url} on port #{port} as #{username}"
-      
+
+      if username.nil? || password.nil?
+        # log in via cached creditials
+        puts "logging in using credentials in .bcl/config.yml: Connecting to #{url} on port #{port} as #{username}"
+        username = @config[:server][:user][:username]
+        password = @config[:server][:user][:password]
+      else
+        puts "logging in using credentials in function arguments: Connecting to #{url} on port #{port} as #{username}"
+      end
+
       @http = Net::HTTP.new(url, port)
-      @http.use_ssl = true
-      
+      if port == 443
+        @http.use_ssl = true
+      end
+
       data = %Q({"username":"#{username}","password":"#{password}"})
       #data = {"username" => username, "password" => password}
       
-      login_path = "/api/user/login.json?"
+      login_path = "/api/user/login.json"
       headers = {'Content-Type' => 'application/json'}
 
-      res, data = @http.post(login_path, data, headers)
-      
+      res = @http.post(login_path, data, headers)
+
+      # for debugging:
+      #res.each do |key, value|
+      #  puts "#{key}: #{value}"
+      #end
+
       #restClient wasn't working
       #res = RestClient.post "#{@config[:server][:url]}/api/user/login", data.to_json, :content_type => :json, :accept => :json
       if res.code == '200'
@@ -154,7 +168,7 @@ module BCL
         #puts "DATA: #{data}"
         session_name = ""
         sessid = ""
-        json = JSON.parse(data)
+        json = JSON.parse(res.body)
         json.each do |key, val| 
           if key == 'session_name'
             session_name = val
@@ -169,13 +183,13 @@ module BCL
         token_path = "/services/session/token"
         token_headers = {'Content-Type' => 'application/json', 'Cookie' => @session}
         #puts "token_headers = #{token_headers.inspect}"
-        access_token_res, access_token = @http.post(token_path,"",token_headers)
-        if access_token_res.code == '200'
-          @access_token = access_token
+        access_token = @http.post(token_path,"",token_headers)
+        if access_token.code == '200'
+          @access_token = access_token.body
         else
           puts "Unable to get access token; uploads will not work"
-          puts "error code: #{access_token_res.code}"
-          puts "error info: #{access_token_res.body}"
+          puts "error code: #{access_token.code}"
+          puts "error info: #{access_token.body}"
         end
 		
         #puts "access_token = *#{@access_token}*" 
@@ -193,7 +207,7 @@ module BCL
 
     # pushes component to the bcl and publishes them (if logged-in as BCL Website Admin user).
     # username and password set in ~/.bcl/config.yml file
-    def push_content(filename_and_path, write_receipt_file, content_type, bcl_group_id)
+    def push_content(filename_and_path, write_receipt_file, content_type)
       raise "Please login before pushing components" if @session.nil?
       raise "Do not have a valid access token; try again" if @access_token.nil?
       valid = false
@@ -214,17 +228,19 @@ module BCL
                 "node" =>
                {
                 "type" => "#{content_type}",
-                "field_component_tags" =>  #TODO remove this field_component_tags once BCL is fixed
-                  {
-                    "und" => "1289"
-                  },  
+                #"field_component_tags" =>  #TODO remove this field_component_tags once BCL is fixed
+                #  {
+                #    "und" => "1289"
+                #  },
                 "og_group_ref" =>
                   {
                     "und" =>
-                      ["target_id" => bcl_group_id],
-                      "publish" => 1  #NOTE THIS ONLY WORKS IF YOU ARE A BCL SITE ADMIN
-                  }
+                      ["target_id" => @group_id],
+
+                  },
+                "publish" => 1  #NOTE THIS ONLY WORKS IF YOU ARE A BCL SITE ADMIN
                 }
+
               }    
       #restclient not working
       #res = RestClient.post "#{@config[:server][:url]}/api/content.json", @data.to_json, :content_type => :json, :cookies => @session
@@ -232,7 +248,7 @@ module BCL
       path = "/api/content.json"	 
       headers = {'Content-Type' => 'application/json','X-CSRF-Token' => @access_token, 'Cookie' => @session}
       #puts headers.inspect
-      res, data = @http.post(path, @data.to_json, headers)		
+      res = @http.post(path, @data.to_json, headers)
 		 
       res_j = "could not get json from http post response"
       if res.code == '200'
@@ -267,7 +283,7 @@ module BCL
       [valid, res_j]
     end
 
-    def push_contents(array_of_components, skip_files_with_receipts, content_type, bcl_group_id)
+    def push_contents(array_of_components, skip_files_with_receipts, content_type)
       logs = []
       array_of_components.each do |comp|
         receipt_file = File.dirname(comp) + "/" + File.basename(comp, '.tar.gz') + ".receipt"
@@ -278,7 +294,7 @@ module BCL
         else
           log_message = "pushing content #{File.basename(comp, '.tar.gz')}"
           puts log_message
-          valid, res = push_content(comp, true, content_type, bcl_group_id)
+          valid, res = push_content(comp, true, content_type)
           log_message += " #{valid} #{res.inspect.chomp}"
         end
         logs << log_message
@@ -289,7 +305,7 @@ module BCL
 	
     # pushes updated content to the bcl and publishes it (if logged-in as BCL Website Admin user).
     # username and password set in ~/.bcl/config.yml file
-    def update_content(filename_and_path, write_receipt_file, uuid, bcl_group_id)
+    def update_content(filename_and_path, write_receipt_file, uuid)
       raise "Please login before pushing components" if @session.nil?
       valid = false
       res_j = nil
@@ -309,16 +325,16 @@ module BCL
                "node" =>
                {
                 "uuid" => "#{uuid}",
-                "field_component_tags" =>  #TODO remove this field_component_tags once BCL is fixed
-                  {
-                    "und" => "1289"
-                  },                  
+                #"field_component_tags" =>  #TODO remove this field_component_tags once BCL is fixed
+                #  {
+                #    "und" => "1289"
+                #  },
                 "og_group_ref" =>
                   {
                     "und" =>
-                      ["target_id" => bcl_group_id],
-                      "publish" => 1  #NOTE THIS ONLY WORKS IF YOU ARE A BCL SITE ADMIN
-                  }
+                      ["target_id" => @group_id],
+                  },
+                "publish" => 1  #NOTE THIS ONLY WORKS IF YOU ARE A BCL SITE ADMIN
                 }
               }
                 
@@ -328,7 +344,7 @@ module BCL
 		path = "/api/content.json"	 
 		headers = {'Content-Type' => 'application/json', 'Cookie' => @session, 'X-CSRF-Token' => @access_token}
 
-		res, data = @http.post(path, @data.to_json, headers)
+		res = @http.post(path, @data.to_json, headers)
 				
       res_j = "could not get json from http post response"
       if res.code == '200'
@@ -363,7 +379,7 @@ module BCL
       [valid, res_j]
     end
 	
-	def update_contents(array_of_components, skip_files_with_receipts, bcl_group_id)
+	def update_contents(array_of_components, skip_files_with_receipts)
 	  logs = []
 	  array_of_components.each do |comp|
       receipt_file = File.dirname(comp) + "/" + File.basename(comp, '.tar.gz') + ".receipt"
@@ -386,12 +402,12 @@ module BCL
           end
         end
         if uuid == nil
-          log_message "ERROR: uuid not found for #{File.basename(comp)}"
+          log_message = "ERROR: uuid not found for #{File.basename(comp)}"
           puts log_message
         else
           log_message = "pushing updated content #{File.basename(comp)}"
           puts log_message
-          valid, res = update_content(comp, true, uuid, bcl_group_id)
+          valid, res = update_content(comp, true, uuid, @group_id)
           log_message += " #{valid} #{res.inspect.chomp}"
         end
       end
@@ -401,12 +417,24 @@ module BCL
 	end
 
   # Simple method to search bcl and return the result as an XML object
-  def search(search_str)
-    full_url = "#{@config[:server][:url]}/api/search/#{search_str}&api_version=#{@api_version}"
-    res = RestClient.get "#{full_url}"
-    xml = LibXML::XML::Document.string(res.body)
+  def search(search_str=nil, filter_str=nil)
+    full_url = "/api/search.json"
 
-    xml
+    #add search term
+    if !search_str.nil?
+      full_url = full_url +  "/" + search_str
+    end
+    #add api_version
+    full_url = full_url + "?api_version=#{@api_version}"
+    #add filters
+    if !filter_str.nil?
+      full_url = full_url + "&" + filter_str
+    end
+
+    res = @http.get(full_url)
+
+    #retrieve in json
+    res.body
   end
 	
 	# Delete receipt files
@@ -424,8 +452,12 @@ module BCL
 
   # TODO make this extend the component_xml class (or create a super class around components)
 
-  def BCL.gather_components(component_dir, chunk_size = 0, delete_previousgather = false)
-    @dest_filename = "components"
+  def BCL.gather_components(component_dir, chunk_size = 0, delete_previousgather = false, destination=nil)
+    if destination.nil?
+      @dest_filename = "components"
+    else
+      @dest_filename = destination
+    end
     @dest_file_ext = "tar.gz"
 
     #store the starting directory
