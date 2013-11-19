@@ -21,8 +21,11 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency("mongo")
   s.add_runtime_dependency("json_pure")
   s.add_runtime_dependency("rest-client")
+  s.add_runtime_dependency("libxml-ruby")
 
   s.files = Dir.glob("lib/**/*")
   s.require_path = "lib"
 
 end
+
+

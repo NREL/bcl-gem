@@ -19,40 +19,40 @@
 
 require 'rubygems'
 
-require 'zlib' #gem install zliby
+require 'zlib' #gem install zliby # need to convert this to another library (this is olllld)
 require 'archive/tar/minitar' #gem install archive-tar-minitar
 
 module BCL
 
-module_function
+  module_function
 
-def tarball(destination, paths)
-  
-  #check for filepath length limit
-  full_destination = File.expand_path(destination)
-  if full_destination.length > 259 #256 chars max; "C:\" doesn't count
-    puts "[TarBall] ERROR cannot generate #{destination} because path exceeds 256 char limit. shorten component name by at least by #{full_destination.length - 259} chars"
-    return
-  end
-  
-  Zlib::GzipWriter.open(destination) do |gzip|
-    out = Archive::Tar::Minitar::Output.new(gzip)
-    
-    paths.each do |fi|
-      if File.exists?(fi) 
-        Archive::Tar::Minitar.pack_file(fi, out)
-      else
-        puts "[TarBall] ERROR Could not file file: #{fi}"
-      end
+  def tarball(destination, paths)
+
+    #check for filepath length limit
+    full_destination = File.expand_path(destination)
+    if full_destination.length > 259 #256 chars max; "C:\" doesn't count
+      puts "[TarBall] ERROR cannot generate #{destination} because path exceeds 256 char limit. shorten component name by at least by #{full_destination.length - 259} chars"
+      return
     end
-    out.close
-  end
-end
 
-def extract_tarball(filename, destination)
-  Zlib::GzipReader.open(filename) {|gz|
+    Zlib::GzipWriter.open(destination) do |gzip|
+      out = Archive::Tar::Minitar::Output.new(gzip)
+
+      paths.each do |fi|
+        if File.exists?(fi)
+          Archive::Tar::Minitar.pack_file(fi, out)
+        else
+          puts "[TarBall] ERROR Could not file file: #{fi}"
+        end
+      end
+      out.close
+    end
+  end
+
+  def extract_tarball(filename, destination)
+    Zlib::GzipReader.open(filename) { |gz|
       Archive::Tar::Minitar.unpack(gz, destination)
-  }
-end
+    }
+  end
 
 end # module BCL

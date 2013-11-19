@@ -1,5 +1,5 @@
-#require "bundler"    #don't use bundler right now because it runs these rake tasks differently
-#Bundler.setup
+require "bundler"    #don't use bundler right now because it runs these rake tasks differently
+Bundler.setup
 
 require "rake"
 require "rspec/core/rake_task"
@@ -37,21 +37,12 @@ task :install => :build do
   system "gem install bcl-#{BCL::VERSION}.gem --no-ri --no-rdoc"
 end
 
-desc "build and install gem locally for testing"
-task :install_local => :build do
-  puts "install local gem: bcl-#{BCL::VERSION}.gem from #{Dir.pwd}"
-  system "gem install bcl-#{BCL::VERSION}.gem --no-ri --no-rdoc"
-end
-
 desc "uninstall all gems"
 task :uninstall do
   system "gem uninstall bcl -a"
 end
 
 task :reinstall => [:uninstall, :install]
-
-task :reinstall_local => [:uninstall, :install_local]
-
 
 RSpec::Core::RakeTask.new("spec") do |spec|
   puts "running tests..."
