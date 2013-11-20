@@ -375,7 +375,7 @@ module BCL
           else
             log_message = "pushing updated content #{File.basename(comp)}"
             puts log_message
-            valid, res = update_content(comp, true, uuid, @group_id)
+            valid, res = update_content(comp, true, uuid)
             log_message += " #{valid} #{res.inspect.chomp}"
           end
         end

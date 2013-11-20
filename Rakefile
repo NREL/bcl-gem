@@ -32,7 +32,7 @@ task :import_taxonomy do
   taxonomy.write_xml(dirname + 'lib/bcl/current_taxonomy.xml')
 end
 
-desc "install gem from rubygems.org"
+desc "install gem from local build"
 task :install => :build do
   system "gem install bcl-#{BCL::VERSION}.gem --no-ri --no-rdoc"
 end
