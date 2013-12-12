@@ -14,7 +14,7 @@ describe BCL::Component do
     context "bad login" do
       it "should not authenticate" do
         res = @cm.login(@username, "BAD_PASSWORD")
-        res.code.should eq(401)
+        res.code.should eq('401')
       end
     end
 
@@ -30,7 +30,7 @@ describe BCL::Component do
       end
 
       it "should return 200" do
-        @res.code.should eq(200)
+        @res.code.should eq('200')
       end
 
       it "should have a valid session" do
@@ -81,8 +81,8 @@ describe BCL::Component do
           data = "uids=#{@uids.first}"
 
           res = RestClient.get "http://#{@cm.config[:server][:url]}/api/component/download?#{data}"
-          res.code.should eq(200)
-          res.code.should eq(200)
+          res.code.should eq('200')
+          res.code.should eq('200')
         end
 
         it "should be able to use post to download a component that is valid" do
@@ -90,7 +90,7 @@ describe BCL::Component do
           data = "uids=#{@uids.first}"
 
           res = RestClient.post "http://#{@cm.config[:server][:url]}/api/component/download?#{data}", data
-          res.code.should eq(200)
+          res.code.should eq('200')
         end
 
 
