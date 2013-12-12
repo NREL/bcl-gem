@@ -18,7 +18,6 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency("builder")
   s.add_runtime_dependency("zliby")
   s.add_runtime_dependency("archive-tar-minitar")
-  s.add_runtime_dependency("mongo")
   s.add_runtime_dependency("json_pure")
   s.add_runtime_dependency("rest-client")
   s.add_runtime_dependency("libxml-ruby")
