@@ -1,0 +1,10 @@
+.DS_Store
+.bundle
+.idea
+.ruby-version
+.Rhistory
+*.swp
+*.gem
+tmp/*
+Gemfile.lock
+/spec/bcl/output
