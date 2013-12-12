@@ -7,8 +7,8 @@ describe BCL::Component do
   context "BCL component" do
     before :all do
       @cm = BCL::ComponentMethods.new
-      @username = @cm.config[:server][:admin_user][:username]
-      @password = @cm.config[:server][:admin_user][:password]
+      @username = @cm.config[:server][:user][:username]
+      @password = @cm.config[:server][:user][:password]
     end
 
     context "bad login" do
