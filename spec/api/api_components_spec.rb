@@ -3,28 +3,28 @@ require 'rest_client'
 require 'json/pure'
 require 'libxml'
 
-describe BCL::Component do
-  context "BCL component" do
+describe "BCL API" do
+  context "::Component" do
     before :all do
       @cm = BCL::ComponentMethods.new
       @username = @cm.config[:server][:user][:username]
       @password = @cm.config[:server][:user][:password]
     end
 
-    context "bad login" do
+    context "when bad login" do
       it "should not authenticate" do
         res = @cm.login(@username, "BAD_PASSWORD")
         res.code.should eq('401')
       end
     end
 
-    context "pushing components before logging in" do
+    context "when pushing components before logging in" do
       it "should raise exception" do
         @cm.push_content("/dev/null", false, "nrel_component").should raise_exception
       end
     end
 
-    context "logged in" do
+    context "when logged in" do
       before :all do
         @res = @cm.login
       end
@@ -54,7 +54,7 @@ describe BCL::Component do
         end
       end
 
-      context "download component v2.0" do
+      context "and download component v2.0" do
         before :all do
           query = "sunpower.xml?show_rows=3"
           @xml_doc = @cm.search(query)

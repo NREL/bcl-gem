@@ -3,15 +3,15 @@ require 'rest_client'
 require 'json/pure'
 require 'libxml'
 
-describe BCL::Measure do
-  context "BCL Measure" do
+describe "BCL API" do
+  context "::Measure" do
     before :all do
       @cm = BCL::ComponentMethods.new
       @username = @cm.config[:server][:admin_user][:username]
       @password = @cm.config[:server][:admin_user][:password]
     end
 
-    context "logged in" do
+    context "when logged in" do
       before :all do
         @res = @cm.login
       end
