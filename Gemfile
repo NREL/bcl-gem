@@ -18,4 +18,5 @@ gem "nokogiri", "~> 1.5.10"
 
 group :test do
   gem "rspec", "~> 2.12"
+  gem "ci_reporter", "~> 1.9.0"
 end
