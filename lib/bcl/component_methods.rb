@@ -196,10 +196,10 @@ module BCL
           "node" =>
               {
                   "type" => "#{content_type}",
-                  #"field_component_tags" =>  #TODO remove this field_component_tags once BCL is fixed
-                  #  {
-                  #    "und" => "1289"
-                  #  },
+                  "field_component_tags" =>  #TODO remove this field_component_tags once BCL is fixed
+                    {
+                      "und" => "1289"
+                    },
                   "og_group_ref" =>
                       {
                           "und" =>
@@ -293,10 +293,10 @@ module BCL
           "node" =>
               {
                   "uuid" => "#{uuid}",
-                  #"field_component_tags" =>  #TODO remove this field_component_tags once BCL is fixed
-                  #  {
-                  #    "und" => "1289"
-                  #  },
+                  "field_component_tags" =>  #TODO remove this field_component_tags once BCL is fixed
+                    {
+                      "und" => "1289"
+                    },
                   "og_group_ref" =>
                       {
                           "und" =>
@@ -384,21 +384,27 @@ module BCL
       logs
     end
 
-    # Simple method to search bcl and return the result as an XML object
+    # Simple method to search bcl and return the result as a json (default) object
     def search(search_str=nil, filter_str=nil)
-      full_url = "/api/search.json"
+      full_url = "/api/search"
 
       #add search term
       if !search_str.nil?
         full_url = full_url + "/" + search_str
+        unless search_str.include? ".xml" or search_str.include? ".json"
+          full_url = full_url + ".json"
+        end
+      else
+        full_url = full_url + ".json"
       end
+
       #add api_version
       full_url = full_url + "?api_version=#{@api_version}"
       #add filters
       if !filter_str.nil?
         full_url = full_url + "&" + filter_str
       end
-
+      puts "search url: #{full_url}"
       res = @http.get(full_url)
 
       #retrieve in json

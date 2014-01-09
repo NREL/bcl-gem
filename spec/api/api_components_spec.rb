@@ -2,6 +2,7 @@ require 'spec_helper'
 require 'rest_client'
 require 'json/pure'
 require 'libxml'
+require 'xml'
 
 describe "BCL API" do
   context "::Component" do
@@ -20,7 +21,7 @@ describe "BCL API" do
 
     context "when pushing components before logging in" do
       it "should raise exception" do
-        @cm.push_content("/dev/null", false, "nrel_component").should raise_exception
+        expect {@cm.push_content("/dev/null", false, "nrel_component")}.to raise_exception
       end
     end
 
@@ -39,27 +40,36 @@ describe "BCL API" do
 
       context "and search component information v2.0" do
         before :all do
-          query = "sunpower.xml?show_rows=3"
-          @xml_doc = @cm.search(query)
+          query = "ashrae.xml"
+          filter = "show_rows=3"
+          @xml_doc = @cm.search(query, filter)
         end
 
         it "should return a valid search" do
-          elements = @xml_doc.find("/results/result")
+          source = XML::Parser.string(@xml_doc)
+          content = source.parse
+          elements = content.find("/results/result")
           elements.length.should be == 3
         end
 
         it "should return three results" do
-          elements = @xml_doc.find("/results/result")
+          source = XML::Parser.string(@xml_doc)
+          content = source.parse
+          elements = content.find("/results/result")
           elements.size.should eq(3)
         end
       end
 
       context "and download component v2.0" do
         before :all do
-          query = "sunpower.xml?show_rows=3"
-          @xml_doc = @cm.search(query)
+          query = "ashrae.xml"
+          filter = "show_rows=3"
+
+          @xml_doc = @cm.search(query, filter)
           @uids = []
-          @xml_doc.find('/results/result/component/uuid').each do |ele|
+          source = XML::Parser.string(@xml_doc)
+          content = source.parse
+          content.find('/results/result/component/uuid').each do |ele|
             @uids << ele.content
           end
         end
@@ -72,7 +82,7 @@ describe "BCL API" do
           # need to look like uuids=abc,def
           data = "uids=#{@uids.join(",")}"
 
-          res = RestClient.get "http://#{@cm.config[:server][:url]}/api/component/download?#{data}"
+          res = RestClient.get "#{@cm.config[:server][:url]}/api/component/download?#{data}"
           res.code.should eq(200)
           res.body.should_not be_nil
         end
@@ -80,17 +90,17 @@ describe "BCL API" do
         it "should be able to download many components using get" do
           data = "uids=#{@uids.first}"
 
-          res = RestClient.get "http://#{@cm.config[:server][:url]}/api/component/download?#{data}"
-          res.code.should eq('200')
-          res.code.should eq('200')
+          res = RestClient.get "#{@cm.config[:server][:url]}/api/component/download?#{data}"
+          res.code.should eq(200)
+          #res.code.should eq('200')
         end
 
         it "should be able to use post to download a component that is valid" do
           # need to look like uuids=abc,def
           data = "uids=#{@uids.first}"
 
-          res = RestClient.post "http://#{@cm.config[:server][:url]}/api/component/download?#{data}", data
-          res.code.should eq('200')
+          res = RestClient.post "#{@cm.config[:server][:url]}/api/component/download?#{data}", data
+          res.code.should eq(200)
         end
 
 
@@ -100,10 +110,10 @@ describe "BCL API" do
         it "should be able to post new component with no ids set" do
           filename = "#{File.dirname(__FILE__)}/resources/component_example_no_ids.tar.gz"
           valid, res = @cm.push_content(filename, true, "nrel_component")
-
           valid.should be_true
           res["nid"].to_i.should be > 0
           res["uuid"].should_not be_nil
+
         end
 
         it "should fail when posting a component with a non-unique uuid" do
