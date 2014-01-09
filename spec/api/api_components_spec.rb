@@ -144,11 +144,11 @@ describe "BCL API" do
           files = Pathname.glob("#{File.dirname(__FILE__)}/resources/*.tar.gz")
           log = @cm.push_contents(files, true, "nrel_component")
 
-          log.size.should eq(3)
+          log.size.should eq(4)
 
           test = true
           log.each do |comp|
-            test = false if !comp.include?("skipping")
+            test = false if !comp.include?("skipping") and !comp.include?("false")
           end
           test.should be_true
         end

@@ -7,8 +7,8 @@ describe "BCL API" do
   context "::Measure" do
     before :all do
       @cm = BCL::ComponentMethods.new
-      @username = @cm.config[:server][:admin_user][:username]
-      @password = @cm.config[:server][:admin_user][:password]
+      @username = @cm.config[:server][:user][:username]
+      @password = @cm.config[:server][:user][:password]
     end
 
     context "when logged in" do
@@ -17,7 +17,7 @@ describe "BCL API" do
       end
 
       it "should return 200" do
-        @res.code.should eq(200)
+        @res.code.should eq("200")
       end
 
       it "should have a valid session" do
