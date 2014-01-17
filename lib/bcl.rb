@@ -1,3 +1,6 @@
+require 'builder'
+require 'zlib'
+
 require 'bcl/component_spreadsheet'
 require 'bcl/component_xml'
 require 'bcl/component_methods'
@@ -5,5 +8,4 @@ require 'bcl/measure_xml'
 require 'bcl/bcl_xml'
 require 'bcl/tar_ball'
 require 'bcl/master_taxonomy'
-require 'bcl/mongo_to_component'
 require 'bcl/version'

@@ -8,3 +8,4 @@
 tmp/*
 Gemfile.lock
 /spec/bcl/output
+/spec/reports

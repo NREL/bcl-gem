@@ -45,29 +45,13 @@ module BCL
       @access_token = nil
       @http = nil
       @api_version = 2.0
-      #set group to NREL (32) if nil
-      @group_id = group_id.nil? ? 32 : group_id
-      config_path = File.expand_path('~') + '/.bcl'
-      config_name = 'config.yml'
-      if File.exists?(config_path + "/" + config_name)
-        puts "loading config settings from #{config_path + "/" + config_name}"
-        @config = YAML.load_file(config_path + "/" + config_name)
-      else
-        #location of template file
-        FileUtils.mkdir_p(config_path)
-        File.open(config_path + "/" + config_name, 'w') do |file|
-          file << default_yaml.to_yaml
-        end
-        puts "******** Please fill in user credentials in #{config_path}/#{config_name} file.  DO NOT COMMIT THIS FILE. **********"
-      end
+      @group_id = group_id.nil? ? 32 : group_id #set group to NREL (32) if nil
 
+      
+      load_config
     end
 
-    def default_yaml
-      settings = {:server => {:url => "https://bcl.nrel.gov", :user => {:username => "ENTER_BCL_USERNAME", :password => "ENTER_BCL_PASSWORD"}}}
-
-      settings
-    end
+    
 
 
     def login(username=nil, password=nil, url=nil)
@@ -196,10 +180,10 @@ module BCL
           "node" =>
               {
                   "type" => "#{content_type}",
-                  "field_component_tags" =>  #TODO remove this field_component_tags once BCL is fixed
-                    {
-                      "und" => "1289"
-                    },
+                  "field_component_tags" => #TODO remove this field_component_tags once BCL is fixed
+                      {
+                          "und" => "1289"
+                      },
                   "og_group_ref" =>
                       {
                           "und" =>
@@ -293,10 +277,10 @@ module BCL
           "node" =>
               {
                   "uuid" => "#{uuid}",
-                  "field_component_tags" =>  #TODO remove this field_component_tags once BCL is fixed
-                    {
-                      "und" => "1289"
-                    },
+                  "field_component_tags" => #TODO remove this field_component_tags once BCL is fixed
+                      {
+                          "und" => "1289"
+                      },
                   "og_group_ref" =>
                       {
                           "und" =>
@@ -424,20 +408,41 @@ module BCL
 
     def list_all_measures()
       json = JSON.parse(search(nil, "f[0]=bundle%3Anrel_measure&show_rows=100"), :symbolize_names => true)
-      
+
       json
     end
-    
+
     def download_component(uid)
       result = @http.get("/api/component/download?uids=#{uid}")
-      
+
       #https://bcl.nrel.gov/api/component/download?uids=a667a52f-aa04-4997-9292-c81671d75f84
       result.body ? result.body : nil
     end
 
+    private
+
+    def load_config()
+      config_filename = File.expand_path("~/.bcl/config.yml")
+
+      if File.exists?(config_filename)
+        puts "loading config settings from #{config_filename}"
+        @config = YAML.load_file(config_filename)
+      else
+        #location of template file
+        FileUtils.mkdir_p(File.dirname(config_filename))
+        File.open(config_filename, 'w') { |f| f << default_yaml.to_yaml }
+        File.chmod(0600, config_filename)
+        puts "******** Please fill in user credentials in #{config_filename} file if you need to upload data **********"
+      end
+    end
+    
+    def default_yaml
+      settings = {:server => {:url => "https://bcl.nrel.gov", :user => {:username => "ENTER_BCL_USERNAME", :password => "ENTER_BCL_PASSWORD"}}}
+
+      settings
+    end
   end #class ComponentMethods
 
-  
 
   # TODO make this extend the component_xml class (or create a super class around components)
 
@@ -500,5 +505,6 @@ module BCL
     Dir.chdir(current_dir)
 
   end
+
 
 end # module BCL

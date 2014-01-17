@@ -19,7 +19,6 @@
 
 require 'rubygems'
 
-require 'zlib' #gem install zliby # need to convert this to another library (this is olllld)
 require 'archive/tar/minitar' #gem install archive-tar-minitar
 
 module BCL
