@@ -1,4 +1,4 @@
-######################################################################
+  ######################################################################
 #  Copyright (c) 2008-2013, Alliance for Sustainable Energy.
 #  All rights reserved.
 #  
@@ -21,6 +21,7 @@ require 'rubygems'
 
 require 'zlib' #gem install zliby # need to convert this to another library (this is olllld)
 require 'archive/tar/minitar' #gem install archive-tar-minitar
+require 'zip/zip' #gem install rubyzip -v 0.9.9
 
 module BCL
 
@@ -53,6 +54,35 @@ module BCL
     Zlib::GzipReader.open(filename) { |gz|
       Archive::Tar::Minitar.unpack(gz, destination)
     }
+  end
+
+  def create_zip(destination, paths)
+
+    Zip::ZipFile.open(zipfile_name, Zip::File::CREATE) do |zipfile|
+      paths.each do |fi|
+        # Two arguments:
+        # - The name of the file as it will appear in the archive
+        # - The original file, including the path to find it
+        zipfile.add(fi.basename, fi)
+      end
+    end
+
+  end
+
+  def extract_zip(filename, destination, delete_zip = false)
+    Zip::ZipFile.open(filename) { |zip_file|
+      zip_file.each { |f|
+        f_path=File.join(destination, f.name)
+        FileUtils.mkdir_p(File.dirname(f_path))
+        zip_file.extract(f, f_path) unless File.exist?(f_path)
+      }
+    }
+
+    if delete_zip
+      fileList = Array.new
+      fileList << filename
+      FileUtils.rm(fileList)
+    end
   end
 
 end # module BCL

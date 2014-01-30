@@ -38,13 +38,15 @@ module BCL
     attr_accessor :config
     attr_accessor :session
     attr_accessor :http
+    attr_accessor :parsed_measures_path
 
     def initialize(group_id = nil)
+      @parsed_measures_path = './measures/parsed/'
       @config = nil
       @session = nil
       @access_token = nil
       @http = nil
-      @api_version = 2.0
+      @api_version = 2.0  #keep this at 2.0 to use search method
       #set group to NREL (32) if nil
       @group_id = group_id.nil? ? 32 : group_id
       config_path = File.expand_path('~') + '/.bcl'
@@ -159,8 +161,8 @@ module BCL
           puts "error info: #{access_token.body}"
         end
 
-        #puts "access_token = *#{@access_token}*" 
-        #puts "cookie = #{@session}"
+        #puts "access_token = *#{@access_token}*"
+        # puts "cookie = #{@session}"
 
         res
       else
@@ -173,6 +175,163 @@ module BCL
       end
     end
 
+    #retrieve, parse, and save metadata for BCL measures
+    def measure_metadata(search_term = nil, filter_term=nil, return_all_pages = false)
+
+      #setup results directory
+      if !Dir.exists?(@parsed_measures_path)
+        FileUtils.mkdir_p(@parsed_measures_path)
+      end
+      puts "...storing parsed metadata in #{@parsed_measures_path}"
+
+      #retrieve measures
+      puts "retrieving measures that match search_term: #{search_term.nil? ? "nil":search_term} and filters: #{filter_term.nil? ? "nil":filter_term}"
+      retrieve_measures(search_term, filter_term, return_all_pages) do |measure|
+        #parse and save
+        parse_measure_metadata(measure)
+
+      end
+
+      return true
+
+    end
+
+    #expects a JSON measure object
+    def parse_measure_metadata(measure)
+
+      #check for valid measure
+      if measure[:measure][:name] && measure[:measure][:uuid]
+
+        file_data = download_component(measure[:measure][:uuid])
+
+        if file_data
+          save_file = File.expand_path("@{parsed_measures_path}#{measure[:measure][:name].downcase.gsub(" ", "_")}.zip")
+          File.open(save_file, 'wb') { |f| f << file_data }
+
+          #unzip file and delete zip.
+          #TODO check that something was downloaded here before extracting zip
+          if File.exists?(save_file)
+            BCL.extract_zip(save_file, @parsed_measures_path, true)
+
+            # catch a weird case where there is an extra space in an unzip file structure but not in the measure.name
+            if measure[:measure][:name] == "Add Daylight Sensor at Center of Spaces with a Specified Space Type Assigned"
+              if !File.exists? "#{@parsed_measures_path}#{measure[:measure][:name]}"
+                temp_dir_name = "#{@parsed_measures_path}Add Daylight Sensor at Center of  Spaces with a Specified Space Type Assigned"
+                FileUtils.move(temp_dir_name, "#{@parsed_measures_path}#{measure[:measure][:name]}")
+              end
+            end
+
+            temp_dir_name = "#{@parsed_measures_path}#{measure[:measure][:name]}"
+
+            # Read the measure.rb file
+            #puts "save dir name #{temp_dir_name}"
+            measure_filename = "#{temp_dir_name}/measure.rb"
+            if File.exists?(measure_filename)
+              measure_hash = {}
+              # read in the measure file and extract some information
+              measure_string = File.read(measure_filename)
+
+              measure_hash[:classname] = measure_string.match(/class (.*) </)[1]
+              measure_hash[:path] = "#{@parsed_measures_path}#{measure_hash[:classname]}"
+              measure_hash[:name] = measure[:measure][:name]
+              if measure_string =~ /OpenStudio::Ruleset::WorkspaceUserScript/
+                measure_hash[:measure_type] = "EnergyPlusMeasure"
+              elsif measure_string =~ /OpenStudio::Ruleset::ModelUserScript/
+                measure_hash[:measure_type] = "RubyMeasure"
+              elsif measure_string =~ /OpenStudio::Ruleset::ReportingUserScript/
+                measure_hash[:measure_type] = "ReportingMeasure"
+              else
+                raise "measure type is unknown with an inherited class in #{measure_filename}: #{measure_hash.inspect}"
+              end
+
+              # move the directory to the class name
+              FileUtils.rm_rf(measure_hash[:path]) if Dir.exists?(measure_hash[:path]) && temp_dir_name != measure_hash[:path]
+              FileUtils.move(temp_dir_name, measure_hash[:path]) unless temp_dir_name == measure_hash[:path]
+
+              measure_hash[:arguments] = []
+
+              args = measure_string.scan(/(.*).*=.*OpenStudio::Ruleset::OSArgument::make(.*)Argument\((.*).*\)/)
+              #puts "found #{args.size} arguments for measure '#{measure[:measure][:name]}'"
+              args.each do |arg|
+                new_arg = {}
+                new_arg[:local_variable] = arg[0].strip
+                new_arg[:variable_type] = arg[1]
+                arg_params = arg[2].split(",")
+                new_arg[:name] = arg_params[0].gsub(/"|'/, "")
+                choice_vector = arg_params[1]
+
+                # local variable name to get other attributes
+                new_arg[:display_name] = measure_string.match(/#{new_arg[:local_variable]}.setDisplayName\((.*)\)/)[1]
+                new_arg[:display_name].gsub!(/"|'/, "") if new_arg[:display_name]
+
+                if measure_string =~ /#{new_arg[:local_variable]}.setDefaultValue/
+                  new_arg[:default_value] = measure_string.match(/#{new_arg[:local_variable]}.setDefaultValue\((.*)\)/)[1]
+                  case new_arg[:variable_type]
+                    when "Choice"
+                      # Choices to appear to only be strings?
+                      new_arg[:default_value].gsub!(/"|'/, "")
+
+                      # parse the choices from the measure
+                      choices = measure_string.scan(/#{choice_vector}.*<<.*("|')(.*)("|')/)
+
+                      new_arg[:choices] = choices.map { |c| c[1] }
+                      # if the choices are inherited from the model, then need to just display the default value which
+                      # somehow magically works because that is the display name
+                      new_arg[:choices] << new_arg[:default_value] unless new_arg[:choices].include?(new_arg[:default_value])
+                    when "String"
+                      new_arg[:default_value].gsub!(/"|'/, "")
+                    when "Bool"
+                      new_arg[:default_value] = new_arg[:default_value].downcase == "true" ? true : false
+                    when "Integer"
+                      new_arg[:default_value] = new_arg[:default_value].to_i
+                    when "Double"
+                      new_arg[:default_value] = new_arg[:default_value].to_f
+                    else
+                      raise "unknown variable type of #{new_arg[:variable_type]}"
+                  end
+                end
+
+                measure_hash[:arguments] << new_arg
+              end
+
+              # create a new measure.json file for parsing later if need be
+              File.open("#{measure_hash[:path]}/measure.json", 'w') { |f| f << JSON.pretty_generate(measure_hash) }
+
+            end
+          else
+            puts "Problems downloading #{measure[:measure][:name]}...moving on"
+          end
+        end
+      end
+    end
+
+    # retrieve measures for parsing metadata.
+    # specify a search term to narrow down search or leave nil to retrieve all
+    # set all_pages to true to iterate over all pages of results
+    # can't specify filters other than the hard-coded bundle and show_rows
+    def retrieve_measures(search_term = nil, filter_term=nil, return_all_pages = false, &block)
+      #raise "Please login before performing this action" if @session.nil?
+
+      #make sure filter_term includes bundle
+      if filter_term.nil?
+        filter_term = "fq[]=bundle%3Anrel_measure"
+      elsif !filter_term.include? "bundle"
+        filter_term = filter_term + "&fq[]=bundle%3Anrel_measure"
+      end
+
+
+      # use provided search term or nil.
+      # if return_all_pages is true, iterate over pages of API results. Otherwise only return first 100
+      results = search(search_term, filter_term, return_all_pages)
+      puts "#{results[:result].count} results returned"
+
+      results[:result].each do |result|
+        puts "retrieving measure: #{result[:measure][:name]}"
+        yield result
+      end
+
+    end
+
     # pushes component to the bcl and publishes them (if logged-in as BCL Website Admin user).
     # username and password set in ~/.bcl/config.yml file
     def push_content(filename_and_path, write_receipt_file, content_type)
@@ -181,6 +340,7 @@ module BCL
       valid = false
       res_j = nil
       filename = File.basename(filename_and_path)
+
       #TODO remove special characters in the filename; they create firewall errors
       #filename = filename.gsub(/\W/,'_').gsub(/___/,'_').gsub(/__/,'_').chomp('_').strip
       filepath = File.dirname(filename_and_path) + "/"
@@ -215,14 +375,17 @@ module BCL
 
       path = "/api/content.json"
       headers = {'Content-Type' => 'application/json', 'X-CSRF-Token' => @access_token, 'Cookie' => @session}
-      #puts headers.inspect
+
+
       res = @http.post(path, @data.to_json, headers)
 
       res_j = "could not get json from http post response"
       if res.code == '200'
+        puts "200"
         res_j = JSON.parse(res.body)
         puts "  200 - Successful Upload"
         valid = true
+
       elsif res.code == '404'
         puts "  error code: #{res.code} - #{res.body}"
         puts "  404 - check these common causes first:"
@@ -249,6 +412,7 @@ module BCL
       end
 
       [valid, res_j]
+
     end
 
     def push_contents(array_of_components, skip_files_with_receipts, content_type)
@@ -384,34 +548,84 @@ module BCL
       logs
     end
 
-    # Simple method to search bcl and return the result as a json (default) object
-    def search(search_str=nil, filter_str=nil)
-      full_url = "/api/search"
+    # Simple method to search bcl and return the result as hash with symbols
+    # If all = true, iterate over pages of results and return all
+    # JSON ONLY
+    def search(search_str=nil, filter_str=nil, all=false)
+      full_url = "/api/search/"
 
       #add search term
-      if !search_str.nil?
-        full_url = full_url + "/" + search_str
-        unless search_str.include? ".xml" or search_str.include? ".json"
+      if !search_str.nil? and search_str != ""
+        full_url = full_url + search_str
+        #strip out xml in case it's included. make sure .json is included
+        full_url = full_url.gsub('.xml', '')
+        unless search_str.include? ".json"
           full_url = full_url + ".json"
         end
       else
-        full_url = full_url + ".json"
+        full_url = full_url + "*.json"
       end
 
       #add api_version
+      if @api_version < 2.0
+        puts "WARNING:  attempting to use search with api_version #{@api_version}. Use API v2.0 for this functionality."
+      end
       full_url = full_url + "?api_version=#{@api_version}"
+
       #add filters
       if !filter_str.nil?
+        #strip out api_version from filters, if included
+        if filter_str.include? "api_version="
+          filter_str = filter_str.gsub(/api_version=\d{1,}/, '')
+          filter_str = filter_str.gsub(/&api_version=\d{1,}/, '')
+        end
         full_url = full_url + "&" + filter_str
       end
-      puts "search url: #{full_url}"
-      res = @http.get(full_url)
 
-      #retrieve in json
-      res.body
+      #simple search vs. all results
+      if !all
+        puts "search url: #{full_url}"
+        res = @http.get(full_url)
+        #return unparsed
+        JSON.parse(res.body, :symbolize_names => true)
+      else
+        #iterate over result pages
+        #modify filter_str for show_rows=200 for maximum returns
+        if filter_str.include? "show_rows="
+          full_url = full_url.gsub(/show_rows=\d{1,}/, "show_rows=200")
+        else
+          full_url = full_url + "&show_rows=200"
+        end
+        #make sure filter_str doesn't already have a page=x
+        full_url.gsub(/page=\d{1,}/, '')
+
+        pagecnt = 0
+        continue = 1
+        results = Array.new
+        while continue == 1
+          #retrieve current page
+          full_url_all = full_url + "&page=#{pagecnt}"
+          puts "search url: #{full_url_all}"
+          response = @http.get(full_url_all)
+          #parse here so you can build results array
+          res = JSON.parse(response.body)
+
+          if res["result"].count > 0
+            pagecnt += 1
+            res["result"].each do |r|
+              results << r
+            end
+          else
+            continue = 0
+          end
+        end
+        #return unparsed b/c that is what is expected
+        formatted_results = {"result" => results}
+        results_to_return = JSON.parse(formatted_results.to_json, :symbolize_names => true)
+      end
     end
 
-    # Delete receipt files
+     # Delete receipt files
     def delete_receipts(array_of_components)
       array_of_components.each do |comp|
         receipt_file = File.dirname(comp) + "/" + File.basename(comp, '.tar.gz') + ".receipt"
@@ -423,16 +637,33 @@ module BCL
     end
 
     def list_all_measures()
-      json = JSON.parse(search(nil, "f[0]=bundle%3Anrel_measure&show_rows=100"), :symbolize_names => true)
+      json = search(nil, "fq[]=bundle%3Anrel_measure&show_rows=100")
       
       json
     end
     
     def download_component(uid)
-      result = @http.get("/api/component/download?uids=#{uid}")
-      
-      #https://bcl.nrel.gov/api/component/download?uids=a667a52f-aa04-4997-9292-c81671d75f84
-      result.body ? result.body : nil
+
+      begin
+        result = @http.get("/api/component/download?uids=#{uid}")
+        puts "DOWNLOADING: /api/component/download?uids=#{uid}"
+        #puts "RESULTS: #{result.inspect}"
+        #puts "RESULTS BODY: #{result.body}"
+
+        #look at response code
+        if result.code == '200'
+          puts "Download Successful"
+          result.body ? result.body : nil
+        else
+          puts "Download fail. Error code #{result.code}"
+          nil
+        end
+
+      rescue
+        puts "Couldn't download uid(s): #{uid}...skipping"
+        nil
+      end
+
     end
 
   end #class ComponentMethods

@@ -49,6 +49,40 @@ task :uninstall do
   system "gem uninstall bcl -a"
 end
 
+desc "retrieve measures, parse, and create json metadata file"
+task :measure_metadata do
+  require 'bcl'
+  bcl =  BCL::ComponentMethods.new
+  bcl.login()   #do this to set BCL URL
+  #only retrieve "NREL" measures
+  bcl.measure_metadata('NREL')
+end
+
+desc "test search all functionality"
+task :search_all do
+  #search with all=true
+  #ensure that a) results are returned (> 0) and b) [:measure][:name] is a string
+  #search with all=false
+  #ensure the same a) and b) as above
+  require 'bcl'
+  bcl = BCL::ComponentMethods.new
+  bcl.login()
+  results = bcl.search('Add', "show_rows=10", false)
+  puts "there are #{results[:result].count} results"
+  results[:result].each do |res|
+    puts "#{res[:measure][:name]}"
+  end
+end
+
+desc "test measure upload"
+task :measure_upload do
+  require 'bcl'
+  bcl = BCL::ComponentMethods.new
+  bcl.login()
+  filename = "#{File.dirname(__FILE__)}/spec/api/resources/measure_example.tar.gz"
+  valid, res = bcl.push_content(filename, true, "nrel_measure")
+end
+
 task :reinstall => [:uninstall, :install]
 
 RSpec::Core::RakeTask.new("spec") do |spec|

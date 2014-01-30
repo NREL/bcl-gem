@@ -38,41 +38,66 @@ describe "BCL API" do
         @cm.session.should_not be_nil
       end
 
-      context "and search component information v2.0" do
+      context "and search component information (simple search, returns JSON-parsed hash with symbols only, API v2.0 only)" do
         before :all do
-          query = "ashrae.xml"
-          filter = "show_rows=3"
-          @xml_doc = @cm.search(query, filter)
+          query = "ashrae.json"
+          filter = "fq[]=bundle:nrel_component&show_rows=3"
+          @results = @cm.search(query, filter)
         end
 
         it "should return a valid search" do
-          source = XML::Parser.string(@xml_doc)
-          content = source.parse
-          elements = content.find("/results/result")
-          elements.length.should be == 3
+          @results[:result].count.should be > 0
+          test = true
+          test = false if !@results[:result][0][:component][:name].is_a? String
+          test.should be_true
         end
 
         it "should return three results" do
-          source = XML::Parser.string(@xml_doc)
-          content = source.parse
-          elements = content.find("/results/result")
-          elements.size.should eq(3)
+          @results[:result].count.should eq(3)
+        end
+
+        it "should return results in hash with symbols (even when querying in xml)" do
+          query = "ashrae.xml"
+          filter = "fq[]=bundle:nrel_component&show_rows=3"
+          @results[:result].count.should be > 0
+          test = true
+          test = false if !@results[:result][0][:component][:name].is_a? String
+          test.should be_true
+        end
+      end
+
+      #search and iterate through all pages of API
+      context "and search component information (all results search, returns JSON-parsed hash with symbols only, API v2.0 only)"  do
+        before :all do
+          query = "ashrae.json"
+          filter = "fq[]=sm_vid_Component_Tags:Material&fq[]=bundle:nrel_component"
+          all_pages_flag = true
+          @results = @cm.search(query, filter, all_pages_flag)
+        end
+
+        it "should return a valid search" do
+          @results[:result].count.should be > 0
+          test = true
+          test = false if !@results[:result][0][:component][:name].is_a? String
+          test.should be_true
+        end
+
+        it "should return over 200 results (to demonstrate iteration over pages)" do
+          @results[:result].count.should be > 200
         end
       end
 
       context "and download component v2.0" do
         before :all do
-          query = "ashrae.xml"
-          filter = "show_rows=3"
+          query = "ashrae"
+          filter = "fq[]=bundle:nrel_component&show_rows=3"
 
-          @xml_doc = @cm.search(query, filter)
+          @results = @cm.search(query, filter)
           @uids = []
-          source = XML::Parser.string(@xml_doc)
-          content = source.parse
-          content.find('/results/result/component/uuid').each do |ele|
-            @uids << ele.content
+          @results[:result].each do |result|
+            @uids << result[:component][:uuid]
           end
-        end
+         end
 
         it "should have uuid to download" do
           @uids.length.should be > 0
@@ -102,8 +127,6 @@ describe "BCL API" do
           res = RestClient.post "#{@cm.config[:server][:url]}/api/component/download?#{data}", data
           res.code.should eq(200)
         end
-
-
       end
 
       context "post component" do
@@ -141,10 +164,11 @@ describe "BCL API" do
         end
 
         it "should post 0 components when checking receipt files" do
-          files = Pathname.glob("#{File.dirname(__FILE__)}/resources/*.tar.gz")
+          files = Pathname.glob("#{File.dirname(__FILE__)}/resources/component*.tar.gz")
+          puts "FILES: #{files.inspect}"
           log = @cm.push_contents(files, true, "nrel_component")
 
-          log.size.should eq(4)
+          log.size.should eq(3)
 
           test = true
           log.each do |comp|
