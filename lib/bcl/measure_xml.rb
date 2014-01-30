@@ -27,12 +27,10 @@ require 'fileutils'
 require 'csv'
 
 # required gems
-require 'builder'  #gem install builder (creates xml files)
 require 'bcl/tar_ball'
 require 'bcl/bcl_xml'
 
 module BCL
-
   class Measure
     def initialize(save_path)
       super(save_path)
@@ -43,8 +41,6 @@ module BCL
       xmlfile = File.open(filepath, 'r').read
 
       @xml = LibXML::XML::Document.string(xmlfile)
-
-
     end
 
 
