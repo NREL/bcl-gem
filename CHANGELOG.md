@@ -9,6 +9,8 @@ List of changes to the bcl gem
 
 * Removed obsolete tests
 
+* Removed RestClient in favor of Faraday (used for testing)
+
 ## Version 0.4.1
 
 * Several fixes to previous gem

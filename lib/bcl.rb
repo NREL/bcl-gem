@@ -1,14 +1,16 @@
-require 'builder'
-require 'zlib'
-require 'zip'
-require 'archive/tar/minitar'
 require 'pathname'
-require 'enumerator'
-require 'yaml'
 require 'base64'
-require 'csv'
+
+# file formatters
+require 'yaml'
 require 'multi_json'
 require 'libxml'
+require 'builder'
+
+# todo: can we condense these into one?
+require 'archive/tar/minitar'
+require 'zlib'
+require 'zip'
 
 require 'bcl/bcl_xml'
 require 'bcl/component_spreadsheet'
