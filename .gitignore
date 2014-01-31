@@ -9,3 +9,5 @@ tmp/*
 Gemfile.lock
 /spec/bcl/output
 /spec/reports
+/spec/api/resources/*.receipt
+measures/

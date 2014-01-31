@@ -1,6 +1,17 @@
 # Overview
-
 List of changes to the bcl gem
+
+## Version 0.4.1
+
+* Several fixes to previous gem
+
+* Put required gems into the gemspec
+
+### New Features 
+
+* Able to specify the group_id when you create the component methods
+
+* Added parsing of BCL measures for extracting arguments
 
 ## Version 0.3.7
 

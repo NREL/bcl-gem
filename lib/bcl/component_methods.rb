@@ -40,23 +40,20 @@ module BCL
     attr_accessor :http
     attr_accessor :parsed_measures_path
 
-    def initialize(group_id = nil)
+    def initialize()
       @parsed_measures_path = './measures/parsed/'
       @config = nil
       @session = nil
       @access_token = nil
       @http = nil
       @api_version = 2.0
-      @group_id = group_id.nil? ? 32 : group_id #set group to NREL (32) if nil
+      @group_id = nil 
 
-      
       load_config
     end
 
-    
 
-
-    def login(username=nil, password=nil, url=nil)
+    def login(username=nil, password=nil, url=nil, group_id = nil)
       #figure out what url to use
       if url.nil?
         url = @config[:server][:url]
@@ -76,10 +73,15 @@ module BCL
         puts "logging in using credentials in .bcl/config.yml: Connecting to #{url} on port #{port} as #{username}"
         username = @config[:server][:user][:username]
         password = @config[:server][:user][:password]
+        @group_id = group_id || @config[:server][:user][:group]
       else
         puts "logging in using credentials in function arguments: Connecting to #{url} on port #{port} as #{username}"
       end
 
+      if @group_id.nil?
+        puts "[WARNING] You did not set a group ID in your config.yml file. You can retrieve your group ID from the node number of your group page (e.g., https://bcl.nrel.gov/node/32). Will continue, but you will not be able to upload content."
+      end
+      
       @http = Net::HTTP.new(url, port)
       if port == 443
         @http.use_ssl = true
@@ -163,13 +165,13 @@ module BCL
     def measure_metadata(search_term = nil, filter_term=nil, return_all_pages = false)
 
       #setup results directory
-      if !Dir.exists?(@parsed_measures_path)
+      if !File.exists?(@parsed_measures_path)
         FileUtils.mkdir_p(@parsed_measures_path)
       end
       puts "...storing parsed metadata in #{@parsed_measures_path}"
 
       #retrieve measures
-      puts "retrieving measures that match search_term: #{search_term.nil? ? "nil":search_term} and filters: #{filter_term.nil? ? "nil":filter_term}"
+      puts "retrieving measures that match search_term: #{search_term.nil? ? "nil" :search_term} and filters: #{filter_term.nil? ? "nil" :filter_term}"
       retrieve_measures(search_term, filter_term, return_all_pages) do |measure|
         #parse and save
         parse_measure_metadata(measure)
@@ -229,7 +231,7 @@ module BCL
               end
 
               # move the directory to the class name
-              FileUtils.rm_rf(measure_hash[:path]) if Dir.exists?(measure_hash[:path]) && temp_dir_name != measure_hash[:path]
+              FileUtils.rm_rf(measure_hash[:path]) if File.exists?(measure_hash[:path]) && temp_dir_name != measure_hash[:path]
               FileUtils.move(temp_dir_name, measure_hash[:path]) unless temp_dir_name == measure_hash[:path]
 
               measure_hash[:arguments] = []
@@ -339,10 +341,10 @@ module BCL
           "node" =>
               {
                   "type" => "#{content_type}",
-                  "field_component_tags" =>  #TODO remove this field_component_tags once BCL is fixed
-                    {
-                      "und" => "1289"
-                    },
+                  "field_component_tags" => #TODO remove this field_component_tags once BCL is fixed
+                      {
+                          "und" => "1289"
+                      },
                   "og_group_ref" =>
                       {
                           "und" =>
@@ -608,7 +610,7 @@ module BCL
       end
     end
 
-     # Delete receipt files
+    # Delete receipt files
     def delete_receipts(array_of_components)
       array_of_components.each do |comp|
         receipt_file = File.dirname(comp) + "/" + File.basename(comp, '.tar.gz') + ".receipt"
@@ -621,7 +623,7 @@ module BCL
 
     def list_all_measures()
       json = search(nil, "fq[]=bundle%3Anrel_measure&show_rows=100")
-      
+
       json
     end
 
@@ -665,9 +667,18 @@ module BCL
         puts "******** Please fill in user credentials in #{config_filename} file if you need to upload data **********"
       end
     end
-    
+
     def default_yaml
-      settings = {:server => {:url => "https://bcl.nrel.gov", :user => {:username => "ENTER_BCL_USERNAME", :password => "ENTER_BCL_PASSWORD"}}}
+      settings = {
+          :server => {
+              :url => "https://bcl.nrel.gov",
+              :user => {
+                  :username => "ENTER_BCL_USERNAME",
+                  :password => "ENTER_BCL_PASSWORD",
+                  :group => "ENTER_GROUP_ID"
+              }
+          }
+      }
 
       settings
     end

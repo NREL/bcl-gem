@@ -72,8 +72,8 @@ describe "BCL API" do
 
       it "created parsed measure directory and directory isn't empty" do
         test = true
-        test = false if !Dir.exists?(@cm.parsed_measures_path) or Dir["#{@cm.parsed_measures_path}*/"].empty?
-        test.should be_true
+        test = false if !File.exists?(@cm.parsed_measures_path) or Dir["#{@cm.parsed_measures_path}*/"].empty?
+        expect(test).to be_true
       end
 
       it "created measure.json metadata files" do

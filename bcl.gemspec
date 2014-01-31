@@ -19,9 +19,20 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency("zliby")
   s.add_runtime_dependency("archive-tar-minitar")
   s.add_runtime_dependency("json_pure")
-  s.add_runtime_dependency("rest-client")
+  s.add_runtime_dependency("rest-client") #todo: remove this in favor of faraday
   s.add_runtime_dependency("libxml-ruby")
+  s.add_runtime_dependency("yamler")
+  s.add_runtime_dependency("faraday")
 
+  # Support for Ruby 1.8.7 if using OpenStudio Ruby Bindings
+  # we can remove these version constraint when we move over to Ruby 2.0)
+  s.add_runtime_dependency("rubyzip", "~> 0.9.9")
+  s.add_runtime_dependency("mime-types", "~> 1.25.1")
+  s.add_runtime_dependency("roo", "~> 1.10.3")
+  s.add_runtime_dependency("nokogiri", "~> 1.5.10")
+
+
+  
   s.files = Dir.glob("lib/**/*")
   s.require_path = "lib"
 
