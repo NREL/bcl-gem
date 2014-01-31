@@ -17,16 +17,9 @@
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ######################################################################
 
-require 'rubygems'
-require 'pathname'
-require 'fileutils'
-require 'rbconfig'
-
-#require gems
-require 'builder'  #gem install builder (creates xml files)
 $have_win32ole = false
 
-if RbConfig::CONFIG['host_os'] =~ /mswin|mingw|cygwin/
+if RUBY_PLATFORM =~ /mswin|mingw|cygwin/
   begin
     # apparently this is not a gem
     require 'win32ole'

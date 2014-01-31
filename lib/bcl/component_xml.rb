@@ -21,18 +21,6 @@
 # generating the component information that will be uploaded to 
 # the Building Component Library.
 
-require 'rubygems'
-require 'pathname'
-require 'fileutils'
-require 'csv'
-
-# required gems
-require 'builder'  #gem install builder (creates xml files)
-
-require 'bcl/tar_ball'
-require 'bcl/bcl_xml'
-
-
 module BCL
   class Component < BaseXml
     attr_accessor :comment

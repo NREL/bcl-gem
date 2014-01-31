@@ -1,8 +1,4 @@
 require 'spec_helper'
-require 'rest_client'
-require 'json/pure'
-require 'libxml'
-require 'xml'
 
 describe "BCL API" do
   context "::Component" do
@@ -46,10 +42,9 @@ describe "BCL API" do
         end
 
         it "should return a valid search" do
-          @results[:result].count.should be > 0
-          test = true
-          test = false if !@results[:result][0][:component][:name].is_a? String
-          test.should be_true
+          puts "Search results #{@results[:result]}"
+          expect(@results[:result].count).to be > 0
+          expect(@results[:result][0][:component][:name]).to be_a String
         end
 
         it "should return three results" do

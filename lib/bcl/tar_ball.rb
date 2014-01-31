@@ -17,11 +17,6 @@
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ######################################################################
 
-require 'rubygems'
-
-require 'archive/tar/minitar' #gem install archive-tar-minitar
-require 'zip/zip' #gem install rubyzip -v 0.9.9
-
 module BCL
 
   module_function
@@ -57,7 +52,7 @@ module BCL
 
   def create_zip(destination, paths)
 
-    Zip::ZipFile.open(zipfile_name, Zip::File::CREATE) do |zipfile|
+    Zip::File.open(zipfile_name, Zip::File::CREATE) do |zipfile|
       paths.each do |fi|
         # Two arguments:
         # - The name of the file as it will appear in the archive
@@ -69,7 +64,7 @@ module BCL
   end
 
   def extract_zip(filename, destination, delete_zip = false)
-    Zip::ZipFile.open(filename) { |zip_file|
+    Zip::File.open(filename) { |zip_file|
       zip_file.each { |f|
         f_path=File.join(destination, f.name)
         FileUtils.mkdir_p(File.dirname(f_path))

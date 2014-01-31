@@ -1,7 +1,4 @@
 require 'spec_helper'
-require 'rest_client'
-require 'json/pure'
-require 'libxml'
 
 describe "BCL API" do
   context "::Measure" do

@@ -17,19 +17,9 @@
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ######################################################################
 
-require 'rubygems'
-require 'pathname'
-require 'fileutils'
-require 'enumerator'
-require 'yaml'
-require 'base64'
 
 # required gems
-require 'json/pure'
-require 'bcl/tar_ball'
-#require 'rest-client'
 require 'net/https'
-require 'libxml'
 
 module BCL
 
@@ -47,7 +37,7 @@ module BCL
       @access_token = nil
       @http = nil
       @api_version = 2.0
-      @group_id = nil 
+      @group_id = nil
 
       load_config
     end
@@ -81,7 +71,7 @@ module BCL
       if @group_id.nil?
         puts "[WARNING] You did not set a group ID in your config.yml file. You can retrieve your group ID from the node number of your group page (e.g., https://bcl.nrel.gov/node/32). Will continue, but you will not be able to upload content."
       end
-      
+
       @http = Net::HTTP.new(url, port)
       if port == 443
         @http.use_ssl = true
@@ -123,7 +113,7 @@ module BCL
         #puts "DATA: #{data}"
         session_name = ""
         sessid = ""
-        json = JSON.parse(res.body)
+        json = MultiJson.load(res.body)
         json.each do |key, val|
           if key == 'session_name'
             session_name = val
@@ -367,7 +357,7 @@ module BCL
       res_j = "could not get json from http post response"
       if res.code == '200'
         puts "200"
-        res_j = JSON.parse(res.body)
+        res_j = MultiJson.load(res.body)
         puts "  200 - Successful Upload"
         valid = true
 
@@ -465,7 +455,7 @@ module BCL
 
       res_j = "could not get json from http post response"
       if res.code == '200'
-        res_j = JSON.parse(res.body)
+        res_j = MultiJson.load(res.body)
         puts "  200 - Successful Upload"
         valid = true
       elsif res.code == '404'
@@ -572,7 +562,7 @@ module BCL
         puts "search url: #{full_url}"
         res = @http.get(full_url)
         #return unparsed
-        JSON.parse(res.body, :symbolize_names => true)
+        MultiJson.load(res.body, :symbolize_keys => true)
       else
         #iterate over result pages
         #modify filter_str for show_rows=200 for maximum returns
@@ -586,14 +576,14 @@ module BCL
 
         pagecnt = 0
         continue = 1
-        results = Array.new
+        results = []
         while continue == 1
           #retrieve current page
           full_url_all = full_url + "&page=#{pagecnt}"
           puts "search url: #{full_url_all}"
           response = @http.get(full_url_all)
           #parse here so you can build results array
-          res = JSON.parse(response.body)
+          res = MultiJson.load(response.body)
 
           if res["result"].count > 0
             pagecnt += 1
@@ -606,7 +596,7 @@ module BCL
         end
         #return unparsed b/c that is what is expected
         formatted_results = {"result" => results}
-        results_to_return = JSON.parse(formatted_results.to_json, :symbolize_names => true)
+        results_to_return = MultiJson.load(formatted_results.to_json, :symbolize_keys => true)
       end
     end
 

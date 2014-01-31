@@ -1,6 +1,14 @@
 # Overview
 List of changes to the bcl gem
 
+## Version 0.5.0
+
+* Remove support for Ruby 1.8.7.  Only supporting > 1.9.2
+
+* Remove JSON gem. Using multi_json
+
+* Removed obsolete tests
+
 ## Version 0.4.1
 
 * Several fixes to previous gem

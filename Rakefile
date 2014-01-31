@@ -5,6 +5,7 @@ require "rake"
 require "rspec/core/rake_task"
 
 $LOAD_PATH.unshift File.expand_path("../lib", __FILE__)
+require "bcl"
 require "bcl/version"
 
 task :gem => :build
@@ -28,8 +29,6 @@ end
 
 desc "import a new build of the taxonomy"
 task :import_taxonomy do
-  require 'rubygems'
-  require 'bcl'
   require 'pathname'
 
   dirname = Pathname.new(File.dirname(__FILE__))
@@ -51,7 +50,6 @@ end
 
 desc "retrieve measures, parse, and create json metadata file"
 task :measure_metadata do
-  require 'bcl'
   bcl =  BCL::ComponentMethods.new
   bcl.login()   #do this to set BCL URL
   #only retrieve "NREL" measures
@@ -64,7 +62,6 @@ task :search_all do
   #ensure that a) results are returned (> 0) and b) [:measure][:name] is a string
   #search with all=false
   #ensure the same a) and b) as above
-  require 'bcl'
   bcl = BCL::ComponentMethods.new
   bcl.login()
   results = bcl.search('Add', "show_rows=10", false)
@@ -76,7 +73,6 @@ end
 
 desc "test measure upload"
 task :measure_upload do
-  require 'bcl'
   bcl = BCL::ComponentMethods.new
   bcl.login()
   filename = "#{File.dirname(__FILE__)}/spec/api/resources/measure_example.tar.gz"
