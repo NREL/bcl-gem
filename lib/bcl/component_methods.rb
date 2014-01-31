@@ -31,7 +31,7 @@ module BCL
     attr_accessor :parsed_measures_path
 
     def initialize()
-      @parsed_measures_path = './measures/parsed/'
+      @parsed_measures_path = './measures/parsed'
       @config = nil
       @session = nil
       @access_token = nil
@@ -163,14 +163,15 @@ module BCL
       retrieve_measures(search_term, filter_term, return_all_pages) do |measure|
         #parse and save
         parse_measure_metadata(measure)
-
       end
 
       return true
-
     end
 
-    #expects a JSON measure object
+
+    # Read the measure's information to pull out the metadata and to move into a more
+    # friendly directory name.
+    #   option measure is a JSON
     def parse_measure_metadata(measure)
 
       #check for valid measure
@@ -179,7 +180,7 @@ module BCL
         file_data = download_component(measure[:measure][:uuid])
 
         if file_data
-          save_file = File.expand_path("@{parsed_measures_path}#{measure[:measure][:name].downcase.gsub(" ", "_")}.zip")
+          save_file = File.expand_path("#{@parsed_measures_path}/#{measure[:measure][:name].downcase.gsub(" ", "_")}.zip")
           File.open(save_file, 'wb') { |f| f << file_data }
 
           #unzip file and delete zip.
@@ -189,13 +190,13 @@ module BCL
 
             # catch a weird case where there is an extra space in an unzip file structure but not in the measure.name
             if measure[:measure][:name] == "Add Daylight Sensor at Center of Spaces with a Specified Space Type Assigned"
-              if !File.exists? "#{@parsed_measures_path}#{measure[:measure][:name]}"
-                temp_dir_name = "#{@parsed_measures_path}Add Daylight Sensor at Center of  Spaces with a Specified Space Type Assigned"
-                FileUtils.move(temp_dir_name, "#{@parsed_measures_path}#{measure[:measure][:name]}")
+              if !File.exists? "#{@parsed_measures_path}/#{measure[:measure][:name]}"
+                temp_dir_name = "#{@parsed_measures_path}/Add Daylight Sensor at Center of  Spaces with a Specified Space Type Assigned"
+                FileUtils.move(temp_dir_name, "#{@parsed_measures_path}/#{measure[:measure][:name]}")
               end
             end
 
-            temp_dir_name = "#{@parsed_measures_path}#{measure[:measure][:name]}"
+            temp_dir_name = "#{@parsed_measures_path}/#{measure[:measure][:name]}"
 
             # Read the measure.rb file
             #puts "save dir name #{temp_dir_name}"
@@ -206,7 +207,7 @@ module BCL
               measure_string = File.read(measure_filename)
 
               measure_hash[:classname] = measure_string.match(/class (.*) </)[1]
-              measure_hash[:path] = "#{@parsed_measures_path}#{measure_hash[:classname]}"
+              measure_hash[:path] = "#{@parsed_measures_path}/#{measure_hash[:classname]}"
               measure_hash[:name] = measure[:measure][:name]
               if measure_string =~ /OpenStudio::Ruleset::WorkspaceUserScript/
                 measure_hash[:measure_type] = "EnergyPlusMeasure"
@@ -232,7 +233,8 @@ module BCL
                 new_arg[:variable_type] = arg[1]
                 arg_params = arg[2].split(",")
                 new_arg[:name] = arg_params[0].gsub(/"|'/, "")
-                choice_vector = arg_params[1]
+                choice_vector = arg_params[1].strip
+                
 
                 # local variable name to get other attributes
                 new_arg[:display_name] = measure_string.match(/#{new_arg[:local_variable]}.setDisplayName\((.*)\)/)[1]
@@ -240,29 +242,35 @@ module BCL
 
                 if measure_string =~ /#{new_arg[:local_variable]}.setDefaultValue/
                   new_arg[:default_value] = measure_string.match(/#{new_arg[:local_variable]}.setDefaultValue\((.*)\)/)[1]
-                  case new_arg[:variable_type]
-                    when "Choice"
-                      # Choices to appear to only be strings?
-                      new_arg[:default_value].gsub!(/"|'/, "")
+                else
+                  puts "[WARNING] #{measure_hash[:name]}:#{new_arg[:name]} has no default value... will try to continue"
+                end
 
-                      # parse the choices from the measure
-                      choices = measure_string.scan(/#{choice_vector}.*<<.*("|')(.*)("|')/)
 
-                      new_arg[:choices] = choices.map { |c| c[1] }
-                      # if the choices are inherited from the model, then need to just display the default value which
-                      # somehow magically works because that is the display name
-                      new_arg[:choices] << new_arg[:default_value] unless new_arg[:choices].include?(new_arg[:default_value])
-                    when "String"
-                      new_arg[:default_value].gsub!(/"|'/, "")
-                    when "Bool"
-                      new_arg[:default_value] = new_arg[:default_value].downcase == "true" ? true : false
-                    when "Integer"
-                      new_arg[:default_value] = new_arg[:default_value].to_i
-                    when "Double"
-                      new_arg[:default_value] = new_arg[:default_value].to_f
-                    else
-                      raise "unknown variable type of #{new_arg[:variable_type]}"
-                  end
+                case new_arg[:variable_type]
+                  when "Choice"
+                    # Choices to appear to only be strings?
+                    puts "Choice vector appears to be #{choice_vector}"
+                    new_arg[:default_value].gsub!(/"|'/, "") if new_arg[:default_value]
+
+                    # parse the choices from the measure
+                    possible_choices = measure_string.scan(/#{choice_vector}.*<<.*("|')(.*)("|')/)
+                    puts "Possible choices are #{possible_choices}"
+
+                    new_arg[:choices] = possible_choices.map { |c| c[1] }
+                    # if the choices are inherited from the model, then need to just display the default value which
+                    # somehow magically works because that is the display name
+                    new_arg[:choices] << new_arg[:default_value] unless new_arg[:choices].include?(new_arg[:default_value])
+                  when "String"
+                    new_arg[:default_value].gsub!(/"|'/, "") if new_arg[:default_value]
+                  when "Bool"
+                    new_arg[:default_value] = new_arg[:default_value].downcase == "true" ? true : false
+                  when "Integer"
+                    new_arg[:default_value] = new_arg[:default_value].to_i if new_arg[:default_value]
+                  when "Double"
+                    new_arg[:default_value] = new_arg[:default_value].to_f if new_arg[:default_value]
+                  else
+                    raise "unknown variable type of #{new_arg[:variable_type]}"
                 end
 
                 measure_hash[:arguments] << new_arg
@@ -273,7 +281,7 @@ module BCL
 
             end
           else
-            puts "Problems downloading #{measure[:measure][:name]}...moving on"
+            puts "Problems downloading #{measure[:measure][:name]}... moving on"
           end
         end
       end
@@ -343,7 +351,7 @@ module BCL
               }
 
       }
-      
+
       path = "/api/content.json"
       headers = {'Content-Type' => 'application/json', 'X-CSRF-Token' => @access_token, 'Cookie' => @session}
 
