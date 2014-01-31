@@ -234,7 +234,6 @@ module BCL
                 arg_params = arg[2].split(",")
                 new_arg[:name] = arg_params[0].gsub(/"|'/, "")
                 choice_vector = arg_params[1].strip
-                
 
                 # local variable name to get other attributes
                 new_arg[:display_name] = measure_string.match(/#{new_arg[:local_variable]}.setDisplayName\((.*)\)/)[1]
@@ -246,7 +245,6 @@ module BCL
                   puts "[WARNING] #{measure_hash[:name]}:#{new_arg[:name]} has no default value... will try to continue"
                 end
 
-
                 case new_arg[:variable_type]
                   when "Choice"
                     # Choices to appear to only be strings?
@@ -257,10 +255,17 @@ module BCL
                     possible_choices = measure_string.scan(/#{choice_vector}.*<<.*("|')(.*)("|')/)
                     puts "Possible choices are #{possible_choices}"
 
-                    new_arg[:choices] = possible_choices.map { |c| c[1] }
+                    if possible_choices.empty?
+                      new_arg[:choices] = []
+                    else
+                      new_arg[:choices] = possible_choices.map { |c| c[1] }
+                    end
+
                     # if the choices are inherited from the model, then need to just display the default value which
                     # somehow magically works because that is the display name
-                    new_arg[:choices] << new_arg[:default_value] unless new_arg[:choices].include?(new_arg[:default_value])
+                    if new_arg[:default_value]
+                      new_arg[:choices] << new_arg[:default_value] unless new_arg[:choices].include?(new_arg[:default_value])
+                    end
                   when "String"
                     new_arg[:default_value].gsub!(/"|'/, "") if new_arg[:default_value]
                   when "Bool"
