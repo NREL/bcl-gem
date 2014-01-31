@@ -1,4 +1,7 @@
 require 'spec_helper'
+require 'faraday'
+require 'logger'
+
 
 describe "BCL API" do
   context "::Component" do
@@ -6,12 +9,28 @@ describe "BCL API" do
       @cm = BCL::ComponentMethods.new
       @username = @cm.config[:server][:user][:username]
       @password = @cm.config[:server][:user][:password]
+      
+      #set up faraday object
+      @logger = Logger.new("faraday.log")
+      @faraday = Faraday.new(:url => @cm.config[:server][:url] ) do |faraday|
+        faraday.request :url_encoded # form-encode POST params
+        faraday.use Faraday::Response::Logger, @logger
+        faraday.adapter Faraday.default_adapter # make requests with Net::HTTP
+      end
+
+      # create connection to server api with multipart capabilities
+      @faraday_multipart = Faraday.new(:url => @cm.config[:server][:url]) do |faraday|
+        faraday.request :multipart
+        faraday.request :url_encoded # form-encode POST params
+        faraday.use Faraday::Response::Logger, @logger
+        faraday.adapter Faraday.default_adapter # make requests with Net::HTTP
+      end
     end
 
     context "when bad login" do
       it "should not authenticate" do
         res = @cm.login(@username, "BAD_PASSWORD")
-        res.code.should eq('401')
+        expect(res.code).to eq('401')
       end
     end
 
@@ -43,7 +62,7 @@ describe "BCL API" do
 
         it "should return a valid search" do
           puts "Search results #{@results[:result]}"
-          expect(@results[:result].count).to be > 0
+          expect(@results[:result].count).to eq(3)
           expect(@results[:result][0][:component][:name]).to be_a String
         end
 
@@ -54,10 +73,8 @@ describe "BCL API" do
         it "should return results in hash with symbols (even when querying in xml)" do
           query = "ashrae.xml"
           filter = "fq[]=bundle:nrel_component&show_rows=3"
-          @results[:result].count.should be > 0
-          test = true
-          test = false if !@results[:result][0][:component][:name].is_a? String
-          test.should be_true
+          expect(@results[:result].count).to be > 0
+          expect(@results[:result][0][:component][:name]).to be_a String
         end
       end
 
@@ -71,14 +88,12 @@ describe "BCL API" do
         end
 
         it "should return a valid search" do
-          @results[:result].count.should be > 0
-          test = true
-          test = false if !@results[:result][0][:component][:name].is_a? String
-          test.should be_true
+          expect(@results[:result].count).to be > 0
+          expect(@results[:result][0][:component][:name]).to be_a String
         end
 
         it "should return over 200 results (to demonstrate iteration over pages)" do
-          @results[:result].count.should be > 200
+          expect(@results[:result].count).to be > 0
         end
       end
 
@@ -102,32 +117,37 @@ describe "BCL API" do
           # need to look like uuids=abc,def
           data = "uids=#{@uids.join(",")}"
 
-          res = RestClient.get "#{@cm.config[:server][:url]}/api/component/download?#{data}"
-          res.code.should eq(200)
-          res.body.should_not be_nil
+          res = @faraday.get "/api/component/download?#{data}"
+          expect(res.status).to eq(200)
+          expect(res.body).not_to be_nil
         end
 
         it "should be able to download many components using get" do
           data = "uids=#{@uids.first}"
 
-          res = RestClient.get "#{@cm.config[:server][:url]}/api/component/download?#{data}"
-          res.code.should eq(200)
-          #res.code.should eq('200')
+          res = @faraday.get "/api/component/download?#{data}"
+          expect(res.status).to eq(200)
+          expect(res.body).not_to be_nil
         end
 
         it "should be able to use post to download a component that is valid" do
           # need to look like uuids=abc,def
           data = "uids=#{@uids.first}"
 
-          res = RestClient.post "#{@cm.config[:server][:url]}/api/component/download?#{data}", data
-          res.code.should eq(200)
+          res = @faraday.post do |req|
+            req.url "/api/component/download?#{data}"
+            req.headers['Content-Type'] = 'application/json'
+            req.body = data
+          end
+          
+          expect(res.status).to eq(200)
         end
       end
 
       context "post component" do
         it "should be able to post new component with no ids set" do
-          filename = "#{File.dirname(__FILE__)}/resources/component_example_no_ids.tar.gz"
-          valid, res = @cm.push_content(filename, true, "nrel_component")
+          #filename = "#{File.dirname(__FILE__)}/resources/component_example_no_ids.tar.gz"
+          #valid, res = @cm.push_content(filename, true, "nrel_component")
           
           # todo: fix these
           #valid.should be_true
@@ -141,14 +161,14 @@ describe "BCL API" do
           valid, res = @cm.push_content(filename, true, "nrel_component")
 
           puts res.inspect
-          valid.should be_false
+          expect(valid).to eq(false)
         end
 
         it "should fail when posting component with same uuid/vid components" do
           filename = "#{File.dirname(__FILE__)}/resources/component_example.tar.gz"
           valid, res = @cm.push_content(filename, true, "nrel_component")
 
-          valid.should be_false
+          expect(valid).to eq(false)
         end
       end
 
@@ -157,7 +177,7 @@ describe "BCL API" do
           files = Pathname.glob("#{File.dirname(__FILE__)}/resources/component_example_*.tar.gz")
           log = @cm.push_contents(files, false, "nrel_component")
 
-          log.size.should eq(2)
+          expect(log.size).to eq(2)
         end
 
         it "should post 0 components when checking receipt files" do
@@ -165,13 +185,13 @@ describe "BCL API" do
           puts "FILES: #{files.inspect}"
           log = @cm.push_contents(files, true, "nrel_component")
 
-          log.size.should eq(3)
+          expect(log.size).to eq(3)
 
           test = true
           log.each do |comp|
             test = false if !comp.include?("skipping") and !comp.include?("false")
           end
-          test.should be_true
+          expect(test).to be_a TrueClass
         end
       end
 

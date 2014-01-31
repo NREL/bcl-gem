@@ -90,8 +90,6 @@ module BCL
       #  puts "#{key}: #{value}"
       #end
 
-      #restClient wasn't working
-      #res = RestClient.post "#{@config[:server][:url]}/api/user/login", data.to_json, :content_type => :json, :accept => :json
       if res.code == '200'
         puts "Login Successful"
 
@@ -271,7 +269,7 @@ module BCL
               end
 
               # create a new measure.json file for parsing later if need be
-              File.open("#{measure_hash[:path]}/measure.json", 'w') { |f| f << JSON.pretty_generate(measure_hash) }
+              File.open("#{measure_hash[:path]}/measure.json", 'w') { |f| f << MultiJson.dump(measure_hash, :pretty => true) }
 
             end
           else
@@ -345,14 +343,12 @@ module BCL
               }
 
       }
-      #restclient not working
-      #res = RestClient.post "#{@config[:server][:url]}/api/content.json", @data.to_json, :content_type => :json, :cookies => @session
-
+      
       path = "/api/content.json"
       headers = {'Content-Type' => 'application/json', 'X-CSRF-Token' => @access_token, 'Cookie' => @session}
 
 
-      res = @http.post(path, @data.to_json, headers)
+      res = @http.post(path, MultiJson.dump(@data), headers)
 
       res_j = "could not get json from http post response"
       if res.code == '200'
@@ -444,9 +440,6 @@ module BCL
                   "publish" => 1 #NOTE THIS ONLY WORKS IF YOU ARE A BCL SITE ADMIN
               }
       }
-
-      #restclient not working
-      #res = RestClient.post "#{@config[:server][:url]}/api/content", @data.to_json, :content_type => :json, :cookies => @session, :accept => :json   
 
       path = "/api/content.json"
       headers = {'Content-Type' => 'application/json', 'Cookie' => @session, 'X-CSRF-Token' => @access_token}
@@ -596,7 +589,7 @@ module BCL
         end
         #return unparsed b/c that is what is expected
         formatted_results = {"result" => results}
-        results_to_return = MultiJson.load(formatted_results.to_json, :symbolize_keys => true)
+        results_to_return = MultiJson.load(MultiJson.dump(formatted_results), :symbolize_keys => true)
       end
     end
 

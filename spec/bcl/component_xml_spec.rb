@@ -17,7 +17,7 @@ describe BCL::Component do
       FileUtils.rm("#{@savepath}/component.xml") if File.exists?("#{@savepath}/component.xml")
       @comp.save_component_xml()
 
-      File.exists?("#{@savepath}/component.xml").should be_true
+      expect(File.exists?("#{@savepath}/component.xml")).to eq(true)
     end
   end
 

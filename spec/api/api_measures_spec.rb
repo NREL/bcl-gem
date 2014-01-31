@@ -40,11 +40,9 @@ describe "BCL API" do
       end
 
       it "should return a valid search" do
-
-        @results[:result].count.should be > 0
-        test = true
-        test = false if !@results[:result][0][:measure][:name].is_a? String
-        test.should be_true
+        puts "Measure search result was #{@results.inspect}"
+        expect(@results[:result].count).to be > 0
+        expect(@results[:result][0][:measure][:name]).to be_a String
       end
 
       it "should return three results" do
@@ -64,13 +62,13 @@ describe "BCL API" do
       end
 
       it "should complete without errors"  do
-        @retval.should be_true
+        expect(@retval).to eq(true)
       end
 
       it "created parsed measure directory and directory isn't empty" do
         test = true
         test = false if !File.exists?(@cm.parsed_measures_path) or Dir["#{@cm.parsed_measures_path}*/"].empty?
-        expect(test).to be_true
+        expect(test).to eq(true)
       end
 
       it "created measure.json metadata files" do
