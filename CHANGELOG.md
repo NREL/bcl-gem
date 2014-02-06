@@ -1,6 +1,10 @@
 # Overview
 List of changes to the bcl gem
 
+## Version 0.5.1
+
+* Fix bug when parsing BCL measures and nil arguments
+
 ## Version 0.5.0
 
 * Remove support for Ruby 1.8.7.  Only supporting > 1.9.2

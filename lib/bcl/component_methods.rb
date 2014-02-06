@@ -228,12 +228,15 @@ module BCL
               args = measure_string.scan(/(.*).*=.*OpenStudio::Ruleset::OSArgument::make(.*)Argument\((.*).*\)/)
               #puts "found #{args.size} arguments for measure '#{measure[:measure][:name]}'"
               args.each do |arg|
+
+
                 new_arg = {}
                 new_arg[:local_variable] = arg[0].strip
                 new_arg[:variable_type] = arg[1]
                 arg_params = arg[2].split(",")
                 new_arg[:name] = arg_params[0].gsub(/"|'/, "")
-                choice_vector = arg_params[1].strip
+                next if new_arg[:name] == 'info_widget'
+                choice_vector = arg_params[1] ? arg_params[1].strip : nil
 
                 # local variable name to get other attributes
                 new_arg[:display_name] = measure_string.match(/#{new_arg[:local_variable]}.setDisplayName\((.*)\)/)[1]
