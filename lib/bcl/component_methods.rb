@@ -60,10 +60,10 @@ module BCL
 
       if username.nil? || password.nil?
         # log in via cached creditials
-        puts "logging in using credentials in .bcl/config.yml: Connecting to #{url} on port #{port} as #{username}"
         username = @config[:server][:user][:username]
         password = @config[:server][:user][:password]
         @group_id = group_id || @config[:server][:user][:group]
+        puts "logging in using credentials in .bcl/config.yml: Connecting to #{url} on port #{port} as #{username}"
       else
         puts "logging in using credentials in function arguments: Connecting to #{url} on port #{port} as #{username}"
       end
@@ -73,6 +73,7 @@ module BCL
       end
 
       @http = Net::HTTP.new(url, port)
+      @http.verify_mode = OpenSSL::SSL::VERIFY_NONE
       if port == 443
         @http.use_ssl = true
       end

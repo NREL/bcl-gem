@@ -34,6 +34,7 @@ task :import_taxonomy do
   dirname = Pathname.new(File.dirname(__FILE__))
   puts dirname
   path_to_taxonomy = File.join(dirname,"../Utilities/Taxonomy")
+  path_to_taxonomy = "C:/Projects/Utilities/Taxonomy"
  
   puts dirname
   taxonomy = BCL::MasterTaxonomy.new("#{path_to_taxonomy}/unified taxonomy.xlsm")

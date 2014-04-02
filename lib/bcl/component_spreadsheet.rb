@@ -135,7 +135,7 @@ module BCL
               author = values.delete_at(0)
               datetime = values.delete_at(0)
               if datetime.nil?
-                puts "[ComponentSpreadsheet] WARNING missing the date in the datetime column in the spreadsheet - assuming today"
+                #puts "[ComponentSpreadsheet] WARNING missing the date in the datetime column in the spreadsheet - assuming today"
                 datetime = DateTime.new
               else
                 datetime = DateTime.parse(datetime)
