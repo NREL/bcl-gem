@@ -1,6 +1,14 @@
 require 'pathname'
 require 'base64'
 
+begin
+  require 'openstudio'
+  $openstudio_gem = true
+rescue LoadError => e
+  $openstudio_gem = false
+  puts 'OpenStudio did not load, but most functionality is still available. Will continue...'
+end
+
 # file formatters
 require 'yaml'
 require 'multi_json'
