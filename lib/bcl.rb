@@ -20,8 +20,11 @@ require 'archive/tar/minitar'
 require 'zlib'
 require 'zip'
 
+require 'rubyXL'
+
 require 'bcl/bcl_xml'
 require 'bcl/component_spreadsheet'
+require 'bcl/component_from_spreadsheet'
 require 'bcl/component_xml'
 require 'bcl/component_methods'
 require 'bcl/measure_xml'

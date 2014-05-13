@@ -34,6 +34,7 @@ module BCL
     attr_accessor :uid
     attr_accessor :comp_version_id
     attr_accessor :description
+    attr_accessor :modeler_description
     attr_accessor :fidelity_level
     attr_accessor :source_manufacturer
     attr_accessor :source_model
@@ -275,9 +276,10 @@ module BCL
         comp_xml.uid @uuid
         comp_xml.version_id @vuid
         comp_xml.description @description if @description != ""
+        comp_xml.modeler_description @modeler_description if @modeler_description != ""
         comp_xml.comment @comment if @comment != ""
 
-        comp_xml.fidelity_level @fidelity_level if @fidelity_level != ""
+        #comp_xml.fidelity_level @fidelity_level if @fidelity_level != ""
         
         comp_xml.provenances {
           @provenances.each do |prov|

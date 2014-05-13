@@ -150,19 +150,19 @@ module BCL
       end
     end
 
-    #retrieve, parse, and save metadata for BCL measures
+    # retrieve, parse, and save metadata for BCL measures
     def measure_metadata(search_term = nil, filter_term=nil, return_all_pages = false)
 
-      #setup results directory
+      # setup results directory
       if !File.exists?(@parsed_measures_path)
         FileUtils.mkdir_p(@parsed_measures_path)
       end
       puts "...storing parsed metadata in #{@parsed_measures_path}"
 
-      #retrieve measures
+      # retrieve measures
       puts "retrieving measures that match search_term: #{search_term.nil? ? "nil" :search_term} and filters: #{filter_term.nil? ? "nil" :filter_term}"
       retrieve_measures(search_term, filter_term, return_all_pages) do |measure|
-        #parse and save
+        # parse and save
         parse_measure_metadata(measure)
       end
 
@@ -172,10 +172,10 @@ module BCL
 
     # Read the measure's information to pull out the metadata and to move into a more
     # friendly directory name.
-    #   option measure is a JSON
+    # option measure is a JSON
     def parse_measure_metadata(measure)
 
-      #check for valid measure
+      # check for valid measure
       if measure[:measure][:name] && measure[:measure][:uuid]
 
         file_data = download_component(measure[:measure][:uuid])
@@ -184,8 +184,8 @@ module BCL
           save_file = File.expand_path("#{@parsed_measures_path}/#{measure[:measure][:name].downcase.gsub(" ", "_")}.zip")
           File.open(save_file, 'wb') { |f| f << file_data }
 
-          #unzip file and delete zip.
-          #TODO check that something was downloaded here before extracting zip
+          # unzip file and delete zip.
+          # TODO check that something was downloaded here before extracting zip
           if File.exists?(save_file)
             BCL.extract_zip(save_file, @parsed_measures_path, true)
 

@@ -14,6 +14,7 @@ module BCL
   class BaseXml
     attr_accessor :name
     attr_accessor :description
+    attr_accessor :modeler_description
     attr_accessor :uuid
     attr_accessor :vuid
 
@@ -26,6 +27,7 @@ module BCL
     def initialize(save_path)
       @name = ""  #this is also a unique identifier to the component...
       @description = ""
+      @modeler_description = ""
 
       @provenances = []
       @tags = []
