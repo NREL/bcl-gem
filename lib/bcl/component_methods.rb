@@ -209,7 +209,8 @@ module BCL
 
               measure_hash[:classname] = measure_string.match(/class (.*) </)[1]
               measure_hash[:path] = "#{@parsed_measures_path}/#{measure_hash[:classname]}"
-              measure_hash[:name] = measure[:measure][:name]
+              measure_hash[:display_name] = clean(measure[:measure][:name])
+              measure_hash[:name] = measure_hash[:display_name].downcase.gsub(' ', '_')
               if measure_string =~ /OpenStudio::Ruleset::WorkspaceUserScript/
                 measure_hash[:measure_type] = "EnergyPlusMeasure"
               elsif measure_string =~ /OpenStudio::Ruleset::ModelUserScript/
@@ -242,6 +243,7 @@ module BCL
                 # local variable name to get other attributes
                 new_arg[:display_name] = measure_string.match(/#{new_arg[:local_variable]}.setDisplayName\((.*)\)/)[1]
                 new_arg[:display_name].gsub!(/"|'/, "") if new_arg[:display_name]
+                new_arg[:display_name] = clean(new_arg[:display_name])
 
                 if measure_string =~ /#{new_arg[:local_variable]}.setDefaultValue/
                   new_arg[:default_value] = measure_string.match(/#{new_arg[:local_variable]}.setDefaultValue\((.*)\)/)[1]
@@ -294,6 +296,42 @@ module BCL
           end
         end
       end
+    end
+
+    # clean name
+    def clean(name)
+      # TODO: save/display errors
+      errors = ""
+      m = nil
+
+      clean_name = name
+      # remove everything btw parentheses
+      m = clean_name.match(/\((.+?)\)/)
+      unless m.nil?
+        errors = errors + " removing parentheses,"
+        clean_name = clean_name.gsub(/\((.+?)\)/, "")
+      end
+
+      # remove everything btw brackets
+      m = nil
+      m = clean_name.match(/\[(.+?)\]/)
+      unless m.nil?
+        errors = errors + " removing brackets,"
+        clean_name = clean_name.gsub(/\[(.+?)\]/, "")
+      end
+
+      # remove characters
+      m = nil
+      m = clean_name.match(/(\?|\.|\#).+?/)
+      unless m.nil?
+        errors = errors + " removing any of following: ?.#"
+        clean_name = clean_name.gsub(/(\?|\.|\#).+?/, "")
+      end
+      clean_name = clean_name.gsub(".", "")
+      clean_name = clean_name.gsub("?", "")
+
+      return clean_name
+
     end
 
     # retrieve measures for parsing metadata.
