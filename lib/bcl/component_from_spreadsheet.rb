@@ -190,6 +190,17 @@ module BCL
 
       num_rows = xlsx_data.size
       #puts "Number of Rows: #{xlsx_data.size}"
+      num_rows = 2
+      while true do
+        test = xlsx_data[num_rows][0]
+        if test.nil? or test.empty?
+          #num_rows -= 1
+          break
+        end
+        num_rows += 1
+      end
+
+
 
       # scan number of columns
       headers = []
@@ -247,7 +258,6 @@ module BCL
         if component.uid.nil? or component.uid.empty?
           component.uid = UUID.new.generate
           puts "#{component.name} uid missing; creating new one"
-          puts "#{xlsx_worksheet[i][0].value}"
           xlsx_worksheet.add_cell(i, 1, component.uid)
           @@changed = true
 

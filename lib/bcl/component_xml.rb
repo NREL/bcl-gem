@@ -99,7 +99,13 @@ module BCL
       #the directory
 
       Dir.chdir("#{resolve_path}")
-      destination = "#{@name.gsub(/\W/,'_').gsub(/___/,'_').gsub(/__/,'_').chomp('_').strip}.tar.gz"
+      destination = "#{@name.gsub(/\W/,'_').gsub(/___/,'_').gsub(/__/,'_').chomp('_').strip}"
+      # truncate filenames for paths that are longer than 256 characters (with .tar.gz appended)
+      unless (@path + destination + destination).size < 249
+        destination = "#{@uid}"
+        puts "truncating filename...using uid instead of name"
+      end
+      destination = destination + ".tar.gz"
                     
       File.delete(destination) if File.exists?(destination)
 
@@ -149,7 +155,15 @@ module BCL
 
     def resolve_path
       FileUtils.mkdir_p(@path) unless File.directory?(@path)
-      new_path = "#{@path}/#{name.gsub(/\W/,'_').gsub(/___/,'_').gsub(/__/,'_').chomp('_').strip}"
+
+      # TODO: should probably save all components with uid instead of name to avoid path length limitation issues
+      # for now, switch to uid instead of name if larger than arbitrary number of characters
+      if @name.size < 75
+        new_path = "#{@path}/#{name.gsub(/\W/,'_').gsub(/___/,'_').gsub(/__/,'_').chomp('_').strip}"
+      else
+        new_path = "#{@path}/#{@uid}"
+      end
+
       FileUtils.mkdir_p(new_path) unless File.directory?(new_path)
       result = new_path
     end

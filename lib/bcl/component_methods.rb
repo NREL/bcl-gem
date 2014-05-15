@@ -499,7 +499,7 @@ module BCL
       path = "/api/content.json"
       headers = {'Content-Type' => 'application/json', 'Cookie' => @session, 'X-CSRF-Token' => @access_token}
 
-      res = @http.post(path, @data.to_json, headers)
+      res = @http.post(path, MultiJson.dump(@data), headers)
 
       res_j = "could not get json from http post response"
       if res.code == '200'
