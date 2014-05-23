@@ -65,11 +65,12 @@ module BCL
         @group_id = group_id || @config[:server][:user][:group]
         puts "logging in using credentials in .bcl/config.yml: Connecting to #{url} on port #{port} as #{username}"
       else
-        puts "logging in using credentials in function arguments: Connecting to #{url} on port #{port} as #{username}"
+        @group_id = group_id
+        puts "logging in using credentials in function arguments: Connecting to #{url} on port #{port} as #{username} with group #{@group_id}"
       end
 
       if @group_id.nil?
-        puts "[WARNING] You did not set a group ID in your config.yml file. You can retrieve your group ID from the node number of your group page (e.g., https://bcl.nrel.gov/node/32). Will continue, but you will not be able to upload content."
+        puts "[WARNING] You did not set a group ID in your config.yml file or pass in a group ID. You can retrieve your group ID from the node number of your group page (e.g., https://bcl.nrel.gov/node/32). Will continue, but you will not be able to upload content."
       end
 
       @http = Net::HTTP.new(url, port)
