@@ -25,7 +25,7 @@ module BCL
     attr_accessor :provenances
 
     def initialize(save_path)
-      @name = ""  #this is also a unique identifier to the component...
+      @name = "" #this is also a unique identifier to the component...
       @description = ""
       @modeler_description = ""
 
@@ -92,7 +92,7 @@ module BCL
 
     #return the title case of the string
     def tc(input)
-      val = input.gsub(/\b\w/){$&.upcase}
+      val = input.gsub(/\b\w/) { $&.upcase }
       if val.downcase == "energyplus"
         val = "EnergyPlus"
       end

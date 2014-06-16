@@ -153,7 +153,6 @@ module BCL
 
     # retrieve, parse, and save metadata for BCL measures
     def measure_metadata(search_term = nil, filter_term=nil, return_all_pages = false)
-
       # setup results directory
       if !File.exists?(@parsed_measures_path)
         FileUtils.mkdir_p(@parsed_measures_path)
@@ -161,18 +160,103 @@ module BCL
       puts "...storing parsed metadata in #{@parsed_measures_path}"
 
       # retrieve measures
-      puts "retrieving measures that match search_term: #{search_term.nil? ? "nil" :search_term} and filters: #{filter_term.nil? ? "nil" :filter_term}"
+      puts "retrieving measures that match search_term: #{search_term.nil? ? "nil" : search_term} and filters: #{filter_term.nil? ? "nil" : filter_term}"
       retrieve_measures(search_term, filter_term, return_all_pages) do |measure|
         # parse and save
         parse_measure_metadata(measure)
       end
 
-      return true
+      true
     end
 
+    # Read in an exisitng measure.rb file and extract the arguments.  Note that the measure_name (display name)
+    # does not exist in the .rb file, so you have to pass this in.
+    def parse_measure_file(measure_name, measure_filename)
+      measure_hash = {}
+      if File.exists? measure_filename
+        # read in the measure file and extract some information
+        measure_string = File.read(measure_filename)
 
-    # Read the measure's information to pull out the metadata and to move into a more
-    # friendly directory name.
+        measure_hash[:classname] = measure_string.match(/class (.*) </)[1]
+        measure_hash[:path] = "#{@parsed_measures_path}/#{measure_hash[:classname]}"
+        measure_hash[:display_name] = clean(measure_name)
+        measure_hash[:name] = measure_hash[:display_name].downcase.gsub(' ', '_')
+        if measure_string =~ /OpenStudio::Ruleset::WorkspaceUserScript/
+          measure_hash[:measure_type] = "EnergyPlusMeasure"
+        elsif measure_string =~ /OpenStudio::Ruleset::ModelUserScript/
+          measure_hash[:measure_type] = "RubyMeasure"
+        elsif measure_string =~ /OpenStudio::Ruleset::ReportingUserScript/
+          measure_hash[:measure_type] = "ReportingMeasure"
+        else
+          raise "measure type is unknown with an inherited class in #{measure_filename}: #{measure_hash.inspect}"
+        end
+
+
+
+        measure_hash[:arguments] = []
+
+        args = measure_string.scan(/(.*).*=.*OpenStudio::Ruleset::OSArgument.*make(.*)Argument\((.*).*\)/)
+        args.each do |arg|
+          new_arg = {}
+          new_arg[:local_variable] = arg[0].strip
+          new_arg[:variable_type] = arg[1]
+          arg_params = arg[2].split(",")
+          new_arg[:name] = arg_params[0].gsub(/"|'/, "")
+          next if new_arg[:name] == 'info_widget'
+          choice_vector = arg_params[1] ? arg_params[1].strip : nil
+
+          # local variable name to get other attributes
+          new_arg[:display_name] = measure_string.match(/#{new_arg[:local_variable]}.setDisplayName\((.*)\)/)[1]
+          new_arg[:display_name].gsub!(/"|'/, "") if new_arg[:display_name]
+          new_arg[:display_name] = clean(new_arg[:display_name])
+
+          if measure_string =~ /#{new_arg[:local_variable]}.setDefaultValue/
+            new_arg[:default_value] = measure_string.match(/#{new_arg[:local_variable]}.setDefaultValue\((.*)\)/)[1]
+          else
+            puts "[WARNING] #{measure_hash[:name]}:#{new_arg[:name]} has no default value... will try to continue"
+          end
+
+          case new_arg[:variable_type]
+            when "Choice"
+              # Choices to appear to only be strings?
+              puts "Choice vector appears to be #{choice_vector}"
+              new_arg[:default_value].gsub!(/"|'/, "") if new_arg[:default_value]
+
+              # parse the choices from the measure
+              possible_choices = measure_string.scan(/#{choice_vector}.*<<.*("|')(.*)("|')/)
+              puts "Possible choices are #{possible_choices}"
+
+              if possible_choices.empty?
+                new_arg[:choices] = []
+              else
+                new_arg[:choices] = possible_choices.map { |c| c[1] }
+              end
+
+              # if the choices are inherited from the model, then need to just display the default value which
+              # somehow magically works because that is the display name
+              if new_arg[:default_value]
+                new_arg[:choices] << new_arg[:default_value] unless new_arg[:choices].include?(new_arg[:default_value])
+              end
+            when "String"
+              new_arg[:default_value].gsub!(/"|'/, "") if new_arg[:default_value]
+            when "Bool"
+              new_arg[:default_value] = new_arg[:default_value].downcase == "true" ? true : false
+            when "Integer"
+              new_arg[:default_value] = new_arg[:default_value].to_i if new_arg[:default_value]
+            when "Double"
+              new_arg[:default_value] = new_arg[:default_value].to_f if new_arg[:default_value]
+            else
+              raise "unknown variable type of #{new_arg[:variable_type]}"
+          end
+
+          measure_hash[:arguments] << new_arg
+        end
+      end
+
+      measure_hash
+    end
+
+    # Read the measure's information to pull out the metadata and to move into a more friendly directory name.
     # option measure is a JSON
     def parse_measure_metadata(measure)
 
@@ -187,12 +271,12 @@ module BCL
 
           # unzip file and delete zip.
           # TODO check that something was downloaded here before extracting zip
-          if File.exists?(save_file)
+          if File.exist? save_file
             BCL.extract_zip(save_file, @parsed_measures_path, true)
 
             # catch a weird case where there is an extra space in an unzip file structure but not in the measure.name
             if measure[:measure][:name] == "Add Daylight Sensor at Center of Spaces with a Specified Space Type Assigned"
-              if !File.exists? "#{@parsed_measures_path}/#{measure[:measure][:name]}"
+              unless File.exists? "#{@parsed_measures_path}/#{measure[:measure][:name]}"
                 temp_dir_name = "#{@parsed_measures_path}/Add Daylight Sensor at Center of  Spaces with a Specified Space Type Assigned"
                 FileUtils.move(temp_dir_name, "#{@parsed_measures_path}/#{measure[:measure][:name]}")
               end
@@ -203,94 +287,15 @@ module BCL
             # Read the measure.rb file
             #puts "save dir name #{temp_dir_name}"
             measure_filename = "#{temp_dir_name}/measure.rb"
-            if File.exists?(measure_filename)
-              measure_hash = {}
-              # read in the measure file and extract some information
-              measure_string = File.read(measure_filename)
+            measure_hash = parse_measure_file(measure[:measure][:name], measure_filename)
 
-              measure_hash[:classname] = measure_string.match(/class (.*) </)[1]
-              measure_hash[:path] = "#{@parsed_measures_path}/#{measure_hash[:classname]}"
-              measure_hash[:display_name] = clean(measure[:measure][:name])
-              measure_hash[:name] = measure_hash[:display_name].downcase.gsub(' ', '_')
-              if measure_string =~ /OpenStudio::Ruleset::WorkspaceUserScript/
-                measure_hash[:measure_type] = "EnergyPlusMeasure"
-              elsif measure_string =~ /OpenStudio::Ruleset::ModelUserScript/
-                measure_hash[:measure_type] = "RubyMeasure"
-              elsif measure_string =~ /OpenStudio::Ruleset::ReportingUserScript/
-                measure_hash[:measure_type] = "ReportingMeasure"
-              else
-                raise "measure type is unknown with an inherited class in #{measure_filename}: #{measure_hash.inspect}"
-              end
-
+            unless measure_hash.empty?
               # move the directory to the class name
               FileUtils.rm_rf(measure_hash[:path]) if File.exists?(measure_hash[:path]) && temp_dir_name != measure_hash[:path]
               FileUtils.move(temp_dir_name, measure_hash[:path]) unless temp_dir_name == measure_hash[:path]
-
-              measure_hash[:arguments] = []
-
-              args = measure_string.scan(/(.*).*=.*OpenStudio::Ruleset::OSArgument::make(.*)Argument\((.*).*\)/)
-              #puts "found #{args.size} arguments for measure '#{measure[:measure][:name]}'"
-              args.each do |arg|
-
-
-                new_arg = {}
-                new_arg[:local_variable] = arg[0].strip
-                new_arg[:variable_type] = arg[1]
-                arg_params = arg[2].split(",")
-                new_arg[:name] = arg_params[0].gsub(/"|'/, "")
-                next if new_arg[:name] == 'info_widget'
-                choice_vector = arg_params[1] ? arg_params[1].strip : nil
-
-                # local variable name to get other attributes
-                new_arg[:display_name] = measure_string.match(/#{new_arg[:local_variable]}.setDisplayName\((.*)\)/)[1]
-                new_arg[:display_name].gsub!(/"|'/, "") if new_arg[:display_name]
-                new_arg[:display_name] = clean(new_arg[:display_name])
-
-                if measure_string =~ /#{new_arg[:local_variable]}.setDefaultValue/
-                  new_arg[:default_value] = measure_string.match(/#{new_arg[:local_variable]}.setDefaultValue\((.*)\)/)[1]
-                else
-                  puts "[WARNING] #{measure_hash[:name]}:#{new_arg[:name]} has no default value... will try to continue"
-                end
-
-                case new_arg[:variable_type]
-                  when "Choice"
-                    # Choices to appear to only be strings?
-                    puts "Choice vector appears to be #{choice_vector}"
-                    new_arg[:default_value].gsub!(/"|'/, "") if new_arg[:default_value]
-
-                    # parse the choices from the measure
-                    possible_choices = measure_string.scan(/#{choice_vector}.*<<.*("|')(.*)("|')/)
-                    puts "Possible choices are #{possible_choices}"
-
-                    if possible_choices.empty?
-                      new_arg[:choices] = []
-                    else
-                      new_arg[:choices] = possible_choices.map { |c| c[1] }
-                    end
-
-                    # if the choices are inherited from the model, then need to just display the default value which
-                    # somehow magically works because that is the display name
-                    if new_arg[:default_value]
-                      new_arg[:choices] << new_arg[:default_value] unless new_arg[:choices].include?(new_arg[:default_value])
-                    end
-                  when "String"
-                    new_arg[:default_value].gsub!(/"|'/, "") if new_arg[:default_value]
-                  when "Bool"
-                    new_arg[:default_value] = new_arg[:default_value].downcase == "true" ? true : false
-                  when "Integer"
-                    new_arg[:default_value] = new_arg[:default_value].to_i if new_arg[:default_value]
-                  when "Double"
-                    new_arg[:default_value] = new_arg[:default_value].to_f if new_arg[:default_value]
-                  else
-                    raise "unknown variable type of #{new_arg[:variable_type]}"
-                end
-
-                measure_hash[:arguments] << new_arg
-              end
-
+              
               # create a new measure.json file for parsing later if need be
               File.open("#{measure_hash[:path]}/measure.json", 'w') { |f| f << MultiJson.dump(measure_hash, :pretty => true) }
-
             end
           else
             puts "Problems downloading #{measure[:measure][:name]}... moving on"
@@ -331,8 +336,7 @@ module BCL
       clean_name = clean_name.gsub(".", "")
       clean_name = clean_name.gsub("?", "")
 
-      return clean_name
-
+      clean_name
     end
 
     # retrieve measures for parsing metadata.
