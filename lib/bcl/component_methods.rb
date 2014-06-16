@@ -293,7 +293,7 @@ module BCL
               # move the directory to the class name
               FileUtils.rm_rf(measure_hash[:path]) if File.exists?(measure_hash[:path]) && temp_dir_name != measure_hash[:path]
               FileUtils.move(temp_dir_name, measure_hash[:path]) unless temp_dir_name == measure_hash[:path]
-              
+
               # create a new measure.json file for parsing later if need be
               File.open("#{measure_hash[:path]}/measure.json", 'w') { |f| f << MultiJson.dump(measure_hash, :pretty => true) }
             end
