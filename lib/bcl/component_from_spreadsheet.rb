@@ -32,7 +32,7 @@ module BCL
 
     @@changed = false
 
-  	public
+    public
 
     #initialize with Excel spreadsheet to read
     def initialize(xlsx_path, worksheet_names =["all"])
@@ -41,7 +41,6 @@ module BCL
       @worksheets = []
 
       begin
-
         xlsx= RubyXL::Parser.parse(@xlsx_path)
 
         #by default, operate on all worksheets
@@ -60,25 +59,17 @@ module BCL
           xlsx.write(@xlsx_path)
           puts "[ComponentFromSpreadsheet] Spreadsheet changes saved"
         end
-
       ensure
-       
         xlsx=nil
-
       end
-
     end
 
-
     def save(save_path, chunk_size = 1000, delete_old_gather = false)
-
-
       #FileUtils.rm_rf(save_path) if File.exists?(save_path) and File.directory?(save_path)
       # TODO: validate against taxonomy
 
       @worksheets.each do |worksheet|
         worksheet.components.each do |component|
-
           component_xml = Component.new("#{save_path}/components")
           component_xml.name = component.name
           component_xml.uid = component.uid
@@ -90,18 +81,13 @@ module BCL
           values = component.values
 
           component.headers.each do |header|
-
             if /description/i.match(header.name)
-
-              # name, uid already processed
-              name = values.delete_at(0)
+              name = values.delete_at(0) # name, uid already processed
               uid = values.delete_at(0)
               description = values.delete_at(0)
               component_xml.modeler_description = values.delete_at(0)
               component_xml.description = description
-
             elsif /provenance/i.match(header.name)
-
               author = values.delete_at(0)
               datetime = values.delete_at(0)
               if datetime.nil?
@@ -111,14 +97,10 @@ module BCL
 
               comment = values.delete_at(0)
               component_xml.add_provenance(author.to_s, datetime.strftime("%Y-%m-%d"), comment.to_s)
-
             elsif /tag/i.match(header.name)
-
               value = values.delete_at(0)
               component_xml.add_tag(value)
-
             elsif /attribute/i.match(header.name)
-
               value = values.delete_at(0)
               name = header.children[0]
               units = ""
@@ -127,9 +109,7 @@ module BCL
                 units = match_data[2].strip
               end
               component_xml.add_attribute(name, value, units)
-
             elsif /source/i.match(header.name)
-
               manufacturer = values.delete_at(0)
               model = values.delete_at(0)
               serial_no = values.delete_at(0)
@@ -140,9 +120,7 @@ module BCL
               component_xml.source_serial_no = serial_no
               component_xml.source_year = year
               component_xml.source_url = url
-
             elsif /file/i.match(header.name)
-
               software_program = values.delete_at(0)
               version = values.delete_at(0)
               filename = values.delete_at(0)
@@ -156,28 +134,21 @@ module BCL
                 next #go to the next file
               end
               component_xml.add_file(software_program, version, filepath, filename, filetype)
-
             else
-              raise "Unknown section #{header.name}"
-
+              fail "Unknown section #{header.name}"
             end
-
           end
 
           component_xml.save_tar_gz(false)
-
         end
-
       end
 
       BCL.gather_components(save_path, chunk_size, delete_old_gather)
-
     end
 
     private
 
     def parse_xlsx_worksheet(xlsx_worksheet)
-
       worksheet = WorksheetStruct.new
       worksheet.name = xlsx_worksheet[0][0].value #get A1, order is: row, col
       worksheet.components = []
@@ -200,15 +171,12 @@ module BCL
         num_rows += 1
       end
 
-
-
       # scan number of columns
       headers = []
       header = nil
       max_col = nil
 
       xlsx_data[0].each_with_index do |col, index|
-
         value1 = xlsx_data[0][index]
         value2 = xlsx_data[1][index]
 
@@ -232,7 +200,6 @@ module BCL
         end
 
         max_col = index
-
       end
 
       if not header.nil?
@@ -271,9 +238,6 @@ module BCL
       @worksheets << worksheet
 
       puts "[ComponentFromSpreadsheet] Finished parsing components of type #{worksheet.name}"
-
     end
-
   end
-
 end

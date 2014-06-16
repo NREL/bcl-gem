@@ -1,4 +1,4 @@
-  ######################################################################
+######################################################################
 #  Copyright (c) 2008-2013, Alliance for Sustainable Energy.
 #  All rights reserved.
 #  
@@ -21,8 +21,8 @@ module BCL
 
   module_function
 
+  # tarball multiple paths recursively to destination
   def tarball(destination, paths)
-
     #check for filepath length limit
     full_destination = File.expand_path(destination)
     if full_destination.length > 259 #256 chars max; "C:\" doesn't count
@@ -45,13 +45,12 @@ module BCL
   end
 
   def extract_tarball(filename, destination)
-    Zlib::GzipReader.open(filename) { |gz|
+    Zlib::GzipReader.open(filename) do |gz|
       Archive::Tar::Minitar.unpack(gz, destination)
-    }
+    end
   end
 
   def create_zip(destination, paths)
-
     Zip::File.open(zipfile_name, Zip::File::CREATE) do |zipfile|
       paths.each do |fi|
         # Two arguments:
@@ -60,17 +59,16 @@ module BCL
         zipfile.add(fi.basename, fi)
       end
     end
-
   end
 
   def extract_zip(filename, destination, delete_zip = false)
-    Zip::File.open(filename) { |zip_file|
-      zip_file.each { |f|
+    Zip::File.open(filename) do |zip_file|
+      zip_file.each do |f|
         f_path=File.join(destination, f.name)
         FileUtils.mkdir_p(File.dirname(f_path))
-        zip_file.extract(f, f_path) unless File.exist?(f_path)
-      }
-    }
+        zip_file.extract(f, f_path) unless File.exist? f_path
+      end
+    end
 
     if delete_zip
       fileList = Array.new
@@ -79,4 +77,4 @@ module BCL
     end
   end
 
-end # module BCL
+end
