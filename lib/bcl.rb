@@ -22,6 +22,7 @@ require 'zip'
 
 require 'rubyXL'
 
+require 'bcl/core_ext'
 require 'bcl/base_xml'
 require 'bcl/component_spreadsheet'
 require 'bcl/component_from_spreadsheet'

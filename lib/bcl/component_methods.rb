@@ -176,14 +176,17 @@ module BCL
 
         measure_hash[:classname] = measure_string.match(/class (.*) </)[1]
         measure_hash[:path] = "#{@parsed_measures_path}/#{measure_hash[:classname]}"
-        measure_hash[:display_name] = clean(measure_name)
-        measure_hash[:name] = measure_hash[:display_name].downcase.gsub(' ', '_')
+        #measure_hash[:display_name] = clean(measure_name)
+        measure_hash[:name] = measure_hash[:classname].to_underscore
+        measure_hash[:display_name] = clean(measure_hash[:name].titleize)
         if measure_string =~ /OpenStudio::Ruleset::WorkspaceUserScript/
           measure_hash[:measure_type] = "EnergyPlusMeasure"
         elsif measure_string =~ /OpenStudio::Ruleset::ModelUserScript/
           measure_hash[:measure_type] = "RubyMeasure"
         elsif measure_string =~ /OpenStudio::Ruleset::ReportingUserScript/
           measure_hash[:measure_type] = "ReportingMeasure"
+        elsif measure_string =~ /OpenStudio::Ruleset::UtilityUserScript/
+          measure_hash[:measure_type] = "UtilityUserScript"
         else
           raise "measure type is unknown with an inherited class in #{measure_filename}: #{measure_hash.inspect}"
         end
@@ -214,12 +217,12 @@ module BCL
           case new_arg[:variable_type]
             when "Choice"
               # Choices to appear to only be strings?
-              puts "Choice vector appears to be #{choice_vector}"
+              #puts "Choice vector appears to be #{choice_vector}"
               new_arg[:default_value].gsub!(/"|'/, "") if new_arg[:default_value]
 
               # parse the choices from the measure
               possible_choices = measure_string.scan(/#{choice_vector}.*<<.*("|')(.*)("|')/)
-              puts "Possible choices are #{possible_choices}"
+              #puts "Possible choices are #{possible_choices}"
 
               if possible_choices.empty?
                 new_arg[:choices] = []
@@ -232,10 +235,12 @@ module BCL
               if new_arg[:default_value]
                 new_arg[:choices] << new_arg[:default_value] unless new_arg[:choices].include?(new_arg[:default_value])
               end
-            when "String"
+            when "String", 'Path'
               new_arg[:default_value].gsub!(/"|'/, "") if new_arg[:default_value]
             when "Bool"
-              new_arg[:default_value] = new_arg[:default_value].downcase == "true" ? true : false
+              if new_arg[:default_value]
+                new_arg[:default_value] = new_arg[:default_value].downcase == "true" ? true : false
+              end
             when "Integer"
               new_arg[:default_value] = new_arg[:default_value].to_i if new_arg[:default_value]
             when "Double"
@@ -331,7 +336,7 @@ module BCL
       clean_name = clean_name.gsub(".", "")
       clean_name = clean_name.gsub("?", "")
 
-      clean_name
+      clean_name.strip
     end
 
     # retrieve measures for parsing metadata.
