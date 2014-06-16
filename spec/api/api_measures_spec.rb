@@ -73,10 +73,10 @@ describe "BCL API" do
 
       it "created measure.json metadata files" do
         #count only measures with a measure.rb file (needed for creating the json)
-        numMeasures = Dir.glob("#{@cm.parsed_measures_path}*/measure.rb")
-        puts "downloaded #{numMeasures.size} measures"
-        numJson = Dir.glob(@cm.parsed_measures_path + "*/measure.json")
-        numJson.count.should eq(numMeasures.count)
+        num_measures = Dir.glob("#{@cm.parsed_measures_path}*/measure.rb")
+        puts "downloaded #{num_measures.size} measures"
+        num_json = Dir.glob(@cm.parsed_measures_path + "*/measure.json")
+        num_json.count.should eq(num_measures.count)
       end
     end
 

@@ -18,7 +18,6 @@ describe BCL::Component do
 
     it "should have datatype of floats" do
       @comp.get_attribute('elev').datatype.should eql("float")
-
     end
 
     it "should have datatype of float if passed as float" do

@@ -44,7 +44,7 @@ describe BCL::Component do
 
     it "should resolve paths" do
       @comp.resolve_path.should eq("#{@savepath}/#{@component_name}")
-      @comp.save_component_xml()
+      @comp.save_component_xml
       #FileUtils.rm_rf(component_dir) if File.exists?(component_dir) and File.directory?(component_dir)
       #assert((not File.exists?(component_dir)))
       #component.save_tar_gz

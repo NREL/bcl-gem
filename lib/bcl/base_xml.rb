@@ -45,7 +45,6 @@ module BCL
       @vuid = UUID.new.generate
     end
 
-
     def add_provenance(author, datetime, comment)
       prov = ProvStruct.new
       prov.author = author
@@ -96,7 +95,8 @@ module BCL
       if val.downcase == "energyplus"
         val = "EnergyPlus"
       end
-      return val
+
+      val
     end
 
     def get_attribute(attribute_name)

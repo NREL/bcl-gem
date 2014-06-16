@@ -40,7 +40,6 @@ module BCL
       load_config
     end
 
-
     def login(username=nil, password=nil, url=nil, group_id = nil)
       #figure out what url to use
       if url.nil?
@@ -188,8 +187,6 @@ module BCL
         else
           raise "measure type is unknown with an inherited class in #{measure_filename}: #{measure_hash.inspect}"
         end
-
-
 
         measure_hash[:arguments] = []
 
