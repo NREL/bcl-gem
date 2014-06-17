@@ -172,7 +172,6 @@ module BCL
         measure_string = File.read(measure_filename)
 
         measure_hash[:classname] = measure_string.match(/class (.*) </)[1]
-        measure_hash[:path] = "#{@parsed_measures_path}/#{measure_hash[:classname]}"
         measure_hash[:name] = measure_hash[:classname].to_underscore
         measure_hash[:display_name] = measure_hash[:name].titleize
         if measure_string =~ /OpenStudio::Ruleset::WorkspaceUserScript/
@@ -220,7 +219,8 @@ module BCL
               new_arg[:default_value].gsub!(/"|'/, "") if new_arg[:default_value]
 
               # parse the choices from the measure
-              possible_choices = measure_string.scan(/#{choice_vector}.*<<.*("|')(.*)("|')/)
+              possible_choices = measure_string.scan(/#{choice_vector}.*<<.*(')(.*)(')/)
+              possible_choices += measure_string.scan(/#{choice_vector}.*<<.*(")(.*)(")/)
               #puts "Possible choices are #{possible_choices}"
 
               if possible_choices.empty?
