@@ -14,12 +14,16 @@ require 'yaml'
 require 'multi_json'
 require 'libxml'
 require 'builder'
+require 'uuid'
+require 'net/https'
+
 
 # todo: can we condense these into one?
 require 'archive/tar/minitar'
 require 'zlib'
 require 'zip'
 
+# TODO: why do we need this compared to other parsers?
 require 'rubyXL'
 
 require 'bcl/core_ext'
