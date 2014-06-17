@@ -173,9 +173,8 @@ module BCL
 
         measure_hash[:classname] = measure_string.match(/class (.*) </)[1]
         measure_hash[:path] = "#{@parsed_measures_path}/#{measure_hash[:classname]}"
-        #measure_hash[:display_name] = clean(measure_name)
         measure_hash[:name] = measure_hash[:classname].to_underscore
-        measure_hash[:display_name] = clean(measure_hash[:name].titleize)
+        measure_hash[:display_name] = measure_hash[:name].titleize
         if measure_string =~ /OpenStudio::Ruleset::WorkspaceUserScript/
           measure_hash[:measure_type] = "EnergyPlusMeasure"
         elsif measure_string =~ /OpenStudio::Ruleset::ModelUserScript/
@@ -203,7 +202,10 @@ module BCL
           # local variable name to get other attributes
           new_arg[:display_name] = measure_string.match(/#{new_arg[:local_variable]}.setDisplayName\((.*)\)/)[1]
           new_arg[:display_name].gsub!(/"|'/, "") if new_arg[:display_name]
-          new_arg[:display_name] = clean(new_arg[:display_name])
+          p = parse_measure_name(new_arg[:display_name])
+          new_arg[:display_name] = p[0]
+          new_arg[:units] = p[1]
+          new_arg[:description] = p[2]
 
           if measure_string =~ /#{new_arg[:local_variable]}.setDefaultValue/
             new_arg[:default_value] = measure_string.match(/#{new_arg[:local_variable]}.setDefaultValue\((.*)\)/)[1]
@@ -301,17 +303,21 @@ module BCL
       end
     end
 
-    # clean name
-    def clean(name)
+    # parse measure name
+    def parse_measure_name(name)
       # TODO: save/display errors
       errors = ""
       m = nil
 
       clean_name = name
+      units = nil
+      description = nil
+
       # remove everything btw parentheses
       m = clean_name.match(/\((.+?)\)/)
       unless m.nil?
         errors = errors + " removing parentheses,"
+        units = m[1]
         clean_name = clean_name.gsub(/\((.+?)\)/, "")
       end
 
@@ -333,7 +339,7 @@ module BCL
       clean_name = clean_name.gsub(".", "")
       clean_name = clean_name.gsub("?", "")
 
-      clean_name.strip
+      [clean_name.strip, units, description]
     end
 
     # retrieve measures for parsing metadata.
