@@ -215,15 +215,22 @@ module BCL
           case new_arg[:variable_type]
             when "Choice"
               # Choices to appear to only be strings?
-              #puts "Choice vector appears to be #{choice_vector}"
-              new_arg[:default_value].gsub!(/"|'/, "") if new_arg[:default_value]
+              puts "Choice vector appears to be #{choice_vector}"
+              new_arg[:default_value].gsub!(/"|'/, '') if new_arg[:default_value]
 
               # parse the choices from the measure
-              possible_choices = measure_string.scan(/#{choice_vector}.*<<.*(')(.*)(')/)
-              possible_choices += measure_string.scan(/#{choice_vector}.*<<.*(")(.*)(")/)
+              # scan from where the "instance has been created to the measure"
+              possible_choices = nil
+              possible_choice_block = measure_string #.scan(/#{choice_vector}.*=(.*)#{new_arg[:local_variable]}.*=/mi)
+              if possible_choice_block
+                #puts "possible_choice_block is #{possible_choice_block}"
+                possible_choices = possible_choice_block.scan(/#{choice_vector}.*<<.*(')(.*)(')/)
+                possible_choices += possible_choice_block.scan(/#{choice_vector}.*<<.*(")(.*)(")/)
+              end
+
               #puts "Possible choices are #{possible_choices}"
 
-              if possible_choices.empty?
+              if possible_choices.nil? || possible_choices.empty?
                 new_arg[:choices] = []
               else
                 new_arg[:choices] = possible_choices.map { |c| c[1] }
@@ -253,6 +260,34 @@ module BCL
       end
 
       measure_hash
+    end
+
+    def translate_measure_hash_to_csv(measure_hash)
+      csv = []
+      csv << [false, measure_hash[:display_name], measure_hash[:classname], measure_hash[:classname], measure_hash[:measure_type]]
+
+      measure_hash[:arguments].each do |argument|
+        values = []
+        values << ''
+        values << 'argument'
+        values << ''
+        values << argument[:display_name]
+        values << argument[:name]
+        values << argument[:variable_type]
+        values << argument[:units]
+
+        # watch out because :default_value can be a boolean
+        argument[:default_value].nil? ? values << '' : values << argument[:default_value]
+        choices = ''
+        if argument[:choices]
+          choices << "|#{argument[:choices].join(",")}|" if not argument[:choices].empty?
+        end
+        values << choices
+
+        csv << values
+      end
+
+      csv
     end
 
     # Read the measure's information to pull out the metadata and to move into a more friendly directory name.
