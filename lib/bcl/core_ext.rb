@@ -29,7 +29,7 @@ class String
   # simple method to create titles -- very custom to catch known inflections
   def titleize
     arr = ['a', 'an', 'the', 'by', 'to']
-    upcase_arr = ['DX', 'EDA']
+    upcase_arr = ['DX', 'EDA', 'AEDG']
     r = self.gsub('_', ' ').gsub(/\w+/) { |match|
       match_result = match
       if upcase_arr.include?(match.upcase)
