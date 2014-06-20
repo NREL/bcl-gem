@@ -33,10 +33,6 @@ end
 
 module BCL
 
-  WorksheetStruct = Struct.new(:name, :components)
-  HeaderStruct = Struct.new(:name, :children)
-  ComponentStruct = Struct.new(:row, :name, :uid, :version_id, :headers, :values)
-
   class ComponentSpreadsheet
 
     public

@@ -167,7 +167,8 @@ module BCL
     # does not exist in the .rb file, so you have to pass this in.
     def parse_measure_file(measure_name, measure_filename)
       measure_hash = {}
-      if File.exists? measure_filename
+
+      if File.exist? measure_filename
         # read in the measure file and extract some information
         measure_string = File.read(measure_filename)
 
@@ -257,6 +258,23 @@ module BCL
 
           measure_hash[:arguments] << new_arg
         end
+      end
+
+      # check if there is a measure.xml file?
+      measure_xml_filename = "#{File.join(File.dirname(measure_filename), File.basename(measure_filename, '.*'))}.xml"
+      if File.exist? measure_xml_filename
+        f = File.open measure_xml_filename
+        doc = Nokogiri::XML(f)
+
+        # pull out some information
+        measure_hash[:name_xml] = doc.xpath('/measure/name').first.content
+        measure_hash[:uid] = doc.xpath('/measure/uid').first.content
+        measure_hash[:version_id] = doc.xpath('/measure/version_id').first.content
+        measure_hash[:modeler_description] = doc.xpath('/measure/modeler_description').first.content
+        measure_hash[:description] = doc.xpath('/measure/description').first.content
+        measure_hash[:tags] = doc.xpath('/measure/tags/tag').map { |k| k.content}
+        f.close
+
       end
 
       measure_hash
