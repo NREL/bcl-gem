@@ -1,17 +1,17 @@
 ######################################################################
 #  Copyright (c) 2008-2014, Alliance for Sustainable Energy.
 #  All rights reserved.
-#  
+#
 #  This library is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU Lesser General Public
 #  License as published by the Free Software Foundation; either
 #  version 2.1 of the License, or (at your option) any later version.
-#  
+#
 #  This library is distributed in the hope that it will be useful,
 #  but WITHOUT ANY WARRANTY; without even the implied warranty of
 #  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 #  Lesser General Public License for more details.
-#  
+#
 #  You should have received a copy of the GNU Lesser General Public
 #  License along with this library; if not, write to the Free Software
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
@@ -31,7 +31,6 @@ if RUBY_PLATFORM =~ /mswin|mingw|cygwin/
 end
 
 module BCL
-
   # each TagStruct represents a node in the taxonomy tree
   TagStruct = Struct.new(:level_hierarchy, :name, :description, :parent_tag, :child_tags, :terms)
 
@@ -42,16 +41,14 @@ module BCL
                           :tp_required, :tp_use_in_search, :tp_use_in_facets, :tp_show_data_to_data_users, :tp_third_party_testing,
                           :tp_additional_web_dev_info, :tp_additional_data_user_info, :tp_additional_data_submitter_info)
 
-
   # class for parsing, validating, and querying the master taxonomy document
   class MasterTaxonomy
-
     # parse the master taxonomy document
     def initialize(xlsx_path = nil, sort_alpha = false)
       @sort_alphabetical = sort_alpha
 
       # hash of level_taxonomy to tag
-      @tag_hash = Hash.new
+      @tag_hash = {}
 
       if xlsx_path.nil?
         # load from the current taxonomy
@@ -67,9 +64,9 @@ module BCL
         # WINDOWS ONLY SECTION BECAUSE THIS USES WIN32OLE
         if $have_win32ole
           begin
-            excel = WIN32OLE::new('Excel.Application')
+            excel = WIN32OLE.new('Excel.Application')
             xlsx = excel.Workbooks.Open(xlsx_path)
-            terms_worksheet = xlsx.Worksheets("Terms")
+            terms_worksheet = xlsx.Worksheets('Terms')
             parse_terms(terms_worksheet)
           ensure
             # not really saving just pretending so don't get prompted on quit
@@ -77,20 +74,20 @@ module BCL
             excel.Quit
             WIN32OLE.ole_free(excel)
             excel.ole_free
-            xlsx=nil
-            excel=nil
+            xlsx = nil
+            excel = nil
             GC.start
           end
         else # if $have_win32ole
           puts "MasterTaxonomy class requires 'win32ole' to parse master taxonomy document."
-          puts "MasterTaxonomy may also be stored and loaded from JSON if your platform does not support win32ole."
+          puts 'MasterTaxonomy may also be stored and loaded from JSON if your platform does not support win32ole.'
         end # if $have_win32ole
       end
     end
 
     # save the current taxonomy
     def save_as_current_taxonomy(path = nil)
-      if not path
+      unless path
         path = current_taxonomy_path
       end
       puts "Saving current taxonomy to #{path}"
@@ -102,41 +99,37 @@ module BCL
 
     # write taxonomy to xml
     def write_xml(path, output_type = 'tpex')
-
-      root_tag = @tag_hash[""]
+      root_tag = @tag_hash['']
 
       if root_tag.nil?
-        puts "Cannot find root tag"
+        puts 'Cannot find root tag'
         return false
       end
 
       File.open(path, 'w') do |file|
-        xml = Builder::XmlMarkup.new(:target => file, :indent => 2)
+        xml = Builder::XmlMarkup.new(target: file, indent: 2)
 
-        #setup the xml file
-        xml.instruct!(:xml, :version => "1.0", :encoding => "UTF-8")
-        xml.schema("xmlns:xsi" => "http://www.w3.org/2001/XMLSchema-instance") {
+        # setup the xml file
+        xml.instruct!(:xml, version: '1.0', encoding: 'UTF-8')
+        xml.schema('xmlns:xsi' => 'http://www.w3.org/2001/XMLSchema-instance') {
           write_tag_to_xml(root_tag, 0, xml, output_type)
         }
       end
-
     end
 
     # get all terms for a given tag
     # this includes terms that are inherited from parent levels
     # e.g. master_taxonomy.get_terms("Space Use.Lighting.Lamp Ballast")
     def get_terms(tag)
-
       terms = tag.terms
 
       parent_tag = tag.parent_tag
-      while not parent_tag.nil?
+      until parent_tag.nil?
         terms.concat(parent_tag.terms)
         parent_tag = parent_tag.parent_tag
       end
 
-
-      #sort the terms as they come out
+      # sort the terms as they come out
       result = terms.uniq
       if !@sort_alphabetical
         result = result.sort { |x, y| x.row <=> y.row }
@@ -144,7 +137,7 @@ module BCL
         result = result.sort { |x, y| x.name <=> y.name }
       end
 
-      return result
+      result
     end
 
     # check that the given component is conforms with the master taxonomy
@@ -155,30 +148,30 @@ module BCL
       # see if we can find the component's tag in the taxonomy
       tags = component.tags
       if tags.empty?
-        puts "[Check Component ERROR] Component does not have any tags"
+        puts '[Check Component ERROR] Component does not have any tags'
         valid = false
       elsif tags.size > 1
-        puts "[Check Component ERROR] Component has multiple tags"
+        puts '[Check Component ERROR] Component has multiple tags'
         valid = false
       else
         tag = @tag_hash[tags[0].descriptor]
-        if not tag
+        unless tag
           puts "[Check Component ERROR] Cannot find #{tags[0].descriptor} in the master taxonomy"
           valid = false
         end
       end
 
-      if not tag
+      unless tag
         return false
       end
 
       terms = get_terms(tag)
 
       # todo: check for all required attributes
-      terms.each do |term|
-        #if term.required
+      terms.each do |_term|
+        # if term.required
         # make sure we find attribute
-        #end
+        # end
       end
 
       # check that all attributes are allowed
@@ -192,7 +185,7 @@ module BCL
           end
         end
 
-        if not term
+        unless term
           puts "[Check Component ERROR] Cannot find term for #{attribute.name} in #{tag.level_hierarchy}"
           valid = false
           next
@@ -202,36 +195,35 @@ module BCL
 
       end
 
-      return valid
+      valid
     end
 
     private
 
     def current_taxonomy_path
-      return File.dirname(__FILE__) + "/current_taxonomy.json"
+      File.dirname(__FILE__) + '/current_taxonomy.json'
     end
 
     def parse_terms(terms_worksheet)
-
       # check header
       header_error = validate_terms_header(terms_worksheet)
       if header_error
-        raise "Header Error on Terms Worksheet"
+        fail 'Header Error on Terms Worksheet'
       end
 
       # add root tag
       root_terms = []
-      root_terms << TermStruct.new("", "", "", "", "OpenStudio Type", "Type of OpenStudio Object")
+      root_terms << TermStruct.new('', '', '', '', 'OpenStudio Type', 'Type of OpenStudio Object')
       root_terms[0].row = 0
-      #root_terms << TermStruct.new()
-      root_tag = TagStruct.new("", "root", "Root of the taxonomy", nil, [], root_terms)
-      @tag_hash[""] = root_tag
+      # root_terms << TermStruct.new()
+      root_tag = TagStruct.new('', 'root', 'Root of the taxonomy', nil, [], root_terms)
+      @tag_hash[''] = root_tag
 
       ### puts "**** tag hash: #{@tag_hash}"
 
       # find number of rows by parsing until hit empty value in first column
       row_num = 3
-      while true do
+      while true
         term = parse_term(terms_worksheet, row_num)
         if term.nil?
           break
@@ -247,46 +239,43 @@ module BCL
 
       # check the tag tree
       check_tag(root_tag)
-
     end
-
 
     def validate_terms_header(terms_worksheet)
       test_arr = []
-      test_arr << {"name" => "First Level", "strict" => true}
-      test_arr << {"name" => "Second Level", "strict" => true}
-      test_arr << {"name" => "Third Level", "strict" => true}
-      test_arr << {"name" => "Level Hierarchy", "strict" => true}
-      test_arr << {"name" => "Term", "strict" => true}
-      test_arr << {"name" => "Abbr", "strict" => true}
-      test_arr << {"name" => "Description", "strict" => true}
-      test_arr << {"name" => "Data Type", "strict" => true}
-      test_arr << {"name" => "Allow Multiple", "strict" => true}
-      test_arr << {"name" => "Enumerations", "strict" => true}
-      test_arr << {"name" => "IP Units Written Out", "strict" => true}
-      test_arr << {"name" => "IP Units Symbol", "strict" => true}
-      test_arr << {"name" => "IP Display Mask", "strict" => true}
-      test_arr << {"name" => "SI Units Written Out", "strict" => true}
-      test_arr << {"name" => "SI Units Symbol", "strict" => true}
-      test_arr << {"name" => "SI Display Mask", "strict" => true}
-      test_arr << {"name" => "Unit Conversion", "strict" => true}
-      test_arr << {"name" => "Default", "strict" => true}
-      test_arr << {"name" => "Min", "strict" => true}
-      test_arr << {"name" => "Max", "strict" => true}
-      test_arr << {"name" => "Source", "strict" => true}
-      test_arr << {"name" => "Review State", "strict" => true}
-      test_arr << {"name" => "General Comments", "strict" => true}
-      test_arr << {"name" => "Requested By / Project", "strict" => true}
-      test_arr << {"name" => "Include in TPE", "strict" => false}
-      test_arr << {"name" => "Required for Adding a New Product", "strict" => false}
-      test_arr << {"name" => "Use as a Column Header in Search Results", "strict" => false}
-      test_arr << {"name" => "Allow Users to Filter with this Facet", "strict" => false}
-      test_arr << {"name" => "Show Data to Data Users", "strict" => false}
-      test_arr << {"name" => "Additional Instructions for Web Developers", "strict" => false}
-      test_arr << {"name" => "Related Third Party Testing Standards", "strict" => false}
-      test_arr << {"name" => "Additional Guidance to Data Submitters", "strict" => false}
-      test_arr << {"name" => "Additional Guidance to Data Users", "strict" => false}
-
+      test_arr << { 'name' => 'First Level', 'strict' => true }
+      test_arr << { 'name' => 'Second Level', 'strict' => true }
+      test_arr << { 'name' => 'Third Level', 'strict' => true }
+      test_arr << { 'name' => 'Level Hierarchy', 'strict' => true }
+      test_arr << { 'name' => 'Term', 'strict' => true }
+      test_arr << { 'name' => 'Abbr', 'strict' => true }
+      test_arr << { 'name' => 'Description', 'strict' => true }
+      test_arr << { 'name' => 'Data Type', 'strict' => true }
+      test_arr << { 'name' => 'Allow Multiple', 'strict' => true }
+      test_arr << { 'name' => 'Enumerations', 'strict' => true }
+      test_arr << { 'name' => 'IP Units Written Out', 'strict' => true }
+      test_arr << { 'name' => 'IP Units Symbol', 'strict' => true }
+      test_arr << { 'name' => 'IP Display Mask', 'strict' => true }
+      test_arr << { 'name' => 'SI Units Written Out', 'strict' => true }
+      test_arr << { 'name' => 'SI Units Symbol', 'strict' => true }
+      test_arr << { 'name' => 'SI Display Mask', 'strict' => true }
+      test_arr << { 'name' => 'Unit Conversion', 'strict' => true }
+      test_arr << { 'name' => 'Default', 'strict' => true }
+      test_arr << { 'name' => 'Min', 'strict' => true }
+      test_arr << { 'name' => 'Max', 'strict' => true }
+      test_arr << { 'name' => 'Source', 'strict' => true }
+      test_arr << { 'name' => 'Review State', 'strict' => true }
+      test_arr << { 'name' => 'General Comments', 'strict' => true }
+      test_arr << { 'name' => 'Requested By / Project', 'strict' => true }
+      test_arr << { 'name' => 'Include in TPE', 'strict' => false }
+      test_arr << { 'name' => 'Required for Adding a New Product', 'strict' => false }
+      test_arr << { 'name' => 'Use as a Column Header in Search Results', 'strict' => false }
+      test_arr << { 'name' => 'Allow Users to Filter with this Facet', 'strict' => false }
+      test_arr << { 'name' => 'Show Data to Data Users', 'strict' => false }
+      test_arr << { 'name' => 'Additional Instructions for Web Developers', 'strict' => false }
+      test_arr << { 'name' => 'Related Third Party Testing Standards', 'strict' => false }
+      test_arr << { 'name' => 'Additional Guidance to Data Submitters', 'strict' => false }
+      test_arr << { 'name' => 'Additional Guidance to Data Users', 'strict' => false }
 
       parse = true
       col = 1
@@ -294,11 +283,11 @@ module BCL
         if terms_worksheet.Columns(col).Rows(2).Value.nil? || col > test_arr.size
           parse = false
         else
-          if not terms_worksheet.Columns(col).Rows(2).Value == test_arr[col-1]["name"]
-            if test_arr[col-1]["strict"]
-              raise "[ERROR] Header does not match: #{col}: '#{terms_worksheet.Columns(col).Rows(2).Value} <> #{test_arr[col-1]["name"]}'"
+          unless terms_worksheet.Columns(col).Rows(2).Value == test_arr[col - 1]['name']
+            if test_arr[col - 1]['strict']
+              fail "[ERROR] Header does not match: #{col}: '#{terms_worksheet.Columns(col).Rows(2).Value} <> #{test_arr[col - 1]['name']}'"
             else
-              puts "[WARNING] Header does not match: #{col}: '#{terms_worksheet.Columns(col).Rows(2).Value} <> #{test_arr[col-1]["name"]}'"
+              puts "[WARNING] Header does not match: #{col}: '#{terms_worksheet.Columns(col).Rows(2).Value} <> #{test_arr[col - 1]['name']}'"
             end
           end
         end
@@ -307,7 +296,6 @@ module BCL
     end
 
     def parse_term(terms_worksheet, row)
-
       term = TermStruct.new
       term.row = row
       term.first_level = terms_worksheet.Columns(1).Rows(row).Value
@@ -331,7 +319,7 @@ module BCL
       term.min_val = terms_worksheet.Columns(19).Rows(row).Value
       term.max_val = terms_worksheet.Columns(20).Rows(row).Value
 
-      #custom TPex Columns
+      # custom TPex Columns
       term.tp_include = terms_worksheet.Columns(25).Rows(row).Value
       term.tp_required = terms_worksheet.Columns(26).Rows(row).Value
       term.tp_use_in_search = terms_worksheet.Columns(27).Rows(row).Value
@@ -347,11 +335,10 @@ module BCL
         return nil
       end
 
-      return term
+      term
     end
 
     def add_term(term)
-
       level_hierarchy = term.level_hierarchy
 
       # create the tag
@@ -367,7 +354,7 @@ module BCL
 
       else
         # this row is about a term
-        if not validate_term(term)
+        unless validate_term(term)
           return nil
         end
 
@@ -376,9 +363,8 @@ module BCL
       end
     end
 
-    def create_tag(level_hierarchy, tag_description="")
-
-      #puts "create_tag called for #{level_hierarchy}"
+    def create_tag(level_hierarchy, tag_description = '')
+      # puts "create_tag called for #{level_hierarchy}"
 
       parts = level_hierarchy.split('.')
 
@@ -399,21 +385,20 @@ module BCL
 
       @tag_hash[level_hierarchy] = tag
 
-      return tag
+      tag
     end
 
     def sort_tag(tag)
-      #tag.terms = tag.terms.sort {|x, y| x.level_hierarchy <=> y.level_hierarchy}
+      # tag.terms = tag.terms.sort {|x, y| x.level_hierarchy <=> y.level_hierarchy}
       tag.child_tags = tag.child_tags.sort { |x, y| x.level_hierarchy <=> y.level_hierarchy }
       tag.child_tags.each { |child_tag| sort_tag(child_tag) }
 
-      #tag.terms = tag.terms.sort {|x, y| x.name <=> y.name}
-      #tag.child_tags = tag.child_tags.sort {|x, y| x.name <=> y.name}
-      #tag.child_tags.each {|child_tag| sort_tag(child_tag) }
+      # tag.terms = tag.terms.sort {|x, y| x.name <=> y.name}
+      # tag.child_tags = tag.child_tags.sort {|x, y| x.name <=> y.name}
+      # tag.child_tags.each {|child_tag| sort_tag(child_tag) }
     end
 
     def check_tag(tag)
-
       if tag.description.nil? or tag.description.empty?
         puts "[check_tag] tag '#{tag.level_hierarchy}' has no description"
       end
@@ -452,25 +437,25 @@ module BCL
         valid = false
       end
 
-      if !term.data_type.nil?
-        valid_types = ["double", "integer", "enum", "file", "string", "autocomplete"]
+      unless term.data_type.nil?
+        valid_types = %w(double integer enum file string autocomplete)
         if (term.data_type.downcase != term.data_type) || !valid_types.include?(term.data_type)
           puts "[ERROR] Term '#{term.name}' does not have a valid data type with '#{term.data_type}'"
         end
 
-        if term.data_type.downcase == "enum"
-          if term.enums.nil? || term.enums == "" || term.enums.downcase == "no enum found"
+        if term.data_type.downcase == 'enum'
+          if term.enums.nil? || term.enums == '' || term.enums.downcase == 'no enum found'
             puts "[ERROR] Term '#{term.name}' does not have valid enumerations"
           end
         end
       end
 
-      return valid
+      valid
     end
 
     def check_term(term)
       if term.description.nil? or term.description.empty?
-        #puts "[check_term] term '#{term.level_hierarchy}.#{term.name}' has no description"
+        # puts "[check_term] term '#{term.level_hierarchy}.#{term.name}' has no description"
       end
     end
 
@@ -481,42 +466,42 @@ module BCL
         terms.each do |term|
           xml.term {
             xml.name term.name
-            xml.abbr term.abbr if !term.abbr.nil?
-            xml.description term.description if !term.description.nil?
-            xml.data_type term.data_type if !term.data_type.nil?
-            xml.allow_multiple term.allow_multiple if !term.allow_multiple.nil?
+            xml.abbr term.abbr unless term.abbr.nil?
+            xml.description term.description unless term.description.nil?
+            xml.data_type term.data_type unless term.data_type.nil?
+            xml.allow_multiple term.allow_multiple unless term.allow_multiple.nil?
 
-            if !term.enums.nil? && term.enums != ""
+            if !term.enums.nil? && term.enums != ''
               xml.enumerations {
-                out = term.enums.split("|")
+                out = term.enums.split('|')
                 out.sort! if @sort_alphabetical
                 out.each do |enum|
                   xml.enumeration enum
                 end
               }
             end
-            xml.ip_written term.ip_written if !term.ip_written.nil?
-            xml.ip_symbol term.ip_symbol if !term.ip_symbol.nil?
-            xml.ip_mask term.ip_mask if !term.ip_mask.nil?
-            xml.si_written term.si_written if !term.si_written.nil?
-            xml.si_symbol term.si_symbol if !term.si_symbol.nil?
-            xml.si_mask term.si_mask if !term.si_mask.nil?
-            xml.row term.row if !term.row.nil?
-            xml.unit_conversion term.unit_conversion if !term.unit_conversion.nil?
-            xml.default_val term.default_val if !term.default_val.nil?
-            xml.min_val term.min_val if !term.min_val.nil?
-            xml.max_val term.max_val if !term.max_val.nil?
+            xml.ip_written term.ip_written unless term.ip_written.nil?
+            xml.ip_symbol term.ip_symbol unless term.ip_symbol.nil?
+            xml.ip_mask term.ip_mask unless term.ip_mask.nil?
+            xml.si_written term.si_written unless term.si_written.nil?
+            xml.si_symbol term.si_symbol unless term.si_symbol.nil?
+            xml.si_mask term.si_mask unless term.si_mask.nil?
+            xml.row term.row unless term.row.nil?
+            xml.unit_conversion term.unit_conversion unless term.unit_conversion.nil?
+            xml.default_val term.default_val unless term.default_val.nil?
+            xml.min_val term.min_val unless term.min_val.nil?
+            xml.max_val term.max_val unless term.max_val.nil?
 
             if output_type == 'tpex'
-              xml.tp_include term.tp_include if !term.tp_include.nil?
-              xml.tp_required term.tp_required if !term.tp_required.nil?
-              xml.tp_use_in_search term.tp_use_in_search if !term.tp_use_in_search.nil?
-              xml.tp_use_in_facets term.tp_use_in_facets if !term.tp_use_in_facets.nil?
-              xml.tp_show_data_to_data_users term.tp_show_data_to_data_users if !term.tp_show_data_to_data_users.nil?
-              xml.tp_third_party_testing term.tp_third_party_testing if !term.tp_third_party_testing.nil?
-              xml.tp_additional_web_dev_info term.tp_additional_web_dev_info if !term.tp_additional_web_dev_info.nil?
-              xml.tp_additional_data_user_info term.tp_additional_data_user_info if !term.tp_additional_data_user_info.nil?
-              xml.tp_additional_data_submitter_info term.tp_additional_data_submitter_info if !term.tp_additional_data_submitter_info.nil?
+              xml.tp_include term.tp_include unless term.tp_include.nil?
+              xml.tp_required term.tp_required unless term.tp_required.nil?
+              xml.tp_use_in_search term.tp_use_in_search unless term.tp_use_in_search.nil?
+              xml.tp_use_in_facets term.tp_use_in_facets unless term.tp_use_in_facets.nil?
+              xml.tp_show_data_to_data_users term.tp_show_data_to_data_users unless term.tp_show_data_to_data_users.nil?
+              xml.tp_third_party_testing term.tp_third_party_testing unless term.tp_third_party_testing.nil?
+              xml.tp_additional_web_dev_info term.tp_additional_web_dev_info unless term.tp_additional_web_dev_info.nil?
+              xml.tp_additional_data_user_info term.tp_additional_data_user_info unless term.tp_additional_data_user_info.nil?
+              xml.tp_additional_data_submitter_info term.tp_additional_data_submitter_info unless term.tp_additional_data_submitter_info.nil?
             end
           }
         end
@@ -544,9 +529,5 @@ module BCL
 
       }
     end
-
   end
-
 end # module BCL
-
-

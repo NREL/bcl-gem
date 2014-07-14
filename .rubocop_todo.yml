@@ -166,4 +166,3 @@ Style/UnlessElse:
 # Configuration parameters: EnforcedStyle, SupportedStyles.
 Style/VariableName:
   Enabled: false
-  

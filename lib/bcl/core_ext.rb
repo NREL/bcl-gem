@@ -19,18 +19,18 @@
 
 class String
   def to_underscore
-    self.gsub(/::/, '/').
+    gsub(/::/, '/').
         gsub(/([A-Z]+)([A-Z][a-z])/, '\1_\2').
         gsub(/([a-z\d])([A-Z])/, '\1_\2').
-        tr("-", "_").
+        tr('-', '_').
         downcase
   end
 
   # simple method to create titles -- very custom to catch known inflections
   def titleize
-    arr = ['a', 'an', 'the', 'by', 'to']
-    upcase_arr = ['DX', 'EDA', 'AEDG', 'LPD', 'COP']
-    r = self.gsub('_', ' ').gsub(/\w+/) { |match|
+    arr = %w(a an the by to)
+    upcase_arr = %w(DX EDA AEDG LPD COP)
+    r = gsub('_', ' ').gsub(/\w+/) { |match|
       match_result = match
       if upcase_arr.include?(match.upcase)
         match_result = upcase_arr[upcase_arr.index(match.upcase)]

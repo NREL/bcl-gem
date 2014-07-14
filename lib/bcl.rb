@@ -17,7 +17,6 @@ require 'builder'
 require 'uuid'
 require 'net/https'
 
-
 # todo: can we condense these into one?
 require 'archive/tar/minitar'
 require 'zlib'
@@ -36,11 +35,8 @@ require 'bcl/tar_ball'
 require 'bcl/master_taxonomy'
 require 'bcl/version'
 
-
 # Some global structures
 
 WorksheetStruct = Struct.new(:name, :components)
 HeaderStruct = Struct.new(:name, :children)
 ComponentStruct = Struct.new(:row, :name, :uid, :version_id, :headers, :values)
-
-

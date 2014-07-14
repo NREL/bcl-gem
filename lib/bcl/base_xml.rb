@@ -41,17 +41,17 @@ module BCL
     attr_accessor :tags
     attr_accessor :provenances
 
-    def initialize(save_path)
-      @name = "" #this is also a unique identifier to the component...
-      @description = ""
-      @modeler_description = ""
+    def initialize(_save_path)
+      @name = '' # this is also a unique identifier to the component...
+      @description = ''
+      @modeler_description = ''
 
       @provenances = []
       @tags = []
       @attributes = []
       @files = []
 
-      @schema_url = "schema.xsd"
+      @schema_url = 'schema.xsd'
     end
 
     def generate_uuid()
@@ -100,17 +100,17 @@ module BCL
       fs.fqp_file = fqp_file
       fs.filename = filename
       fs.filetype = filetype
-      fs.usage_type = usage_type if usage_type != nil
-      fs.checksum = checksum if checksum != nil
+      fs.usage_type = usage_type unless usage_type.nil?
+      fs.checksum = checksum unless checksum.nil?
 
       @files << fs
     end
 
-    #return the title case of the string
+    # return the title case of the string
     def tc(input)
       val = input.gsub(/\b\w/) { $&.upcase }
-      if val.downcase == "energyplus"
-        val = "EnergyPlus"
+      if val.downcase == 'energyplus'
+        val = 'EnergyPlus'
       end
 
       val
@@ -136,11 +136,11 @@ module BCL
       input_value = test.match('\.').nil? ? Integer(test) : Float(test) rescue test.to_s
 
       if input_value.is_a?(Fixnum) || input_value.is_a?(Bignum)
-        dt = "int"
+        dt = 'int'
       elsif input_value.is_a?(Float)
-        dt = "float"
+        dt = 'float'
       else
-        dt = "string"
+        dt = 'string'
       end
 
       dt
