@@ -21,9 +21,10 @@ module BCL
   class ComponentMethods
 
     attr_accessor :config
-    attr_accessor :session
-    attr_accessor :http
     attr_accessor :parsed_measures_path
+    attr_reader :session
+    attr_reader :http
+    attr_reader :logged_in
 
     def initialize()
       @parsed_measures_path = './measures/parsed'
@@ -33,6 +34,7 @@ module BCL
       @http = nil
       @api_version = 2.0
       @group_id = nil
+      @logged_in = false
 
       load_config
     end
@@ -155,12 +157,14 @@ module BCL
 
       # retrieve measures
       puts "retrieving measures that match search_term: #{search_term.nil? ? "nil" : search_term} and filters: #{filter_term.nil? ? "nil" : filter_term}"
-      retrieve_measures(search_term, filter_term, return_all_pages) do |measure|
+      measures = []
+      retrieve_measures(search_term, filter_term, return_all_pages) do |m|
         # parse and save
-        parse_measure_metadata(measure)
+        r = parse_measure_metadata(m)
+        measures << r if r
       end
 
-      true
+      measures
     end
 
     # Read in an exisitng measure.rb file and extract the arguments.  Note that the measure_name (display name)
@@ -272,7 +276,7 @@ module BCL
         measure_hash[:version_id] = doc.xpath('/measure/version_id').first.content
         measure_hash[:modeler_description] = doc.xpath('/measure/modeler_description').first.content
         measure_hash[:description] = doc.xpath('/measure/description').first.content
-        measure_hash[:tags] = doc.xpath('/measure/tags/tag').map { |k| k.content}
+        measure_hash[:tags] = doc.xpath('/measure/tags/tag').map { |k| k.content }
         f.close
 
       end
@@ -309,9 +313,9 @@ module BCL
     end
 
     # Read the measure's information to pull out the metadata and to move into a more friendly directory name.
-    # option measure is a JSON
+    # argument of measure is a hash
     def parse_measure_metadata(measure)
-
+      m_result = nil
       # check for valid measure
       if measure[:measure][:name] && measure[:measure][:uuid]
 
@@ -334,7 +338,7 @@ module BCL
               end
             end
 
-            temp_dir_name = "#{@parsed_measures_path}/#{measure[:measure][:name]}"
+            temp_dir_name = File.join(@parsed_measures_path, measure[:measure][:name])
 
             # Read the measure.rb file
             #puts "save dir name #{temp_dir_name}"
@@ -342,18 +346,24 @@ module BCL
             measure_hash = parse_measure_file(measure[:measure][:name], measure_filename)
 
             unless measure_hash.empty?
+              m_result = measure_hash
               # move the directory to the class name
-              FileUtils.rm_rf(measure_hash[:path]) if File.exists?(measure_hash[:path]) && temp_dir_name != measure_hash[:path]
-              FileUtils.move(temp_dir_name, measure_hash[:path]) unless temp_dir_name == measure_hash[:path]
+              new_dir_name = File.join(@parsed_measures_path, measure_hash[:classname])
+              FileUtils.rm_rf(new_dir_name) if File.exists?(new_dir_name) && temp_dir_name != measure_hash[:classname]
+              FileUtils.move(temp_dir_name, new_dir_name) unless temp_dir_name == measure_hash[:classname]
 
               # create a new measure.json file for parsing later if need be
-              File.open("#{measure_hash[:path]}/measure.json", 'w') { |f| f << MultiJson.dump(measure_hash, :pretty => true) }
+              File.open(File.join(new_dir_name, "measure.json"), 'w') { |f| f << MultiJson.dump(measure_hash, :pretty => true) }
+            else
+              puts "Measure Hash was empty... moving on"
             end
           else
             puts "Problems downloading #{measure[:measure][:name]}... moving on"
           end
         end
       end
+
+      m_result
     end
 
     # parse measure name
