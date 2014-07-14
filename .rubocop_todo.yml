@@ -69,11 +69,6 @@ Style/CommentAnnotation:
 Style/CyclomaticComplexity:
   Max: 32
 
-# Offense count: 9
-# Cop supports --auto-correct.
-Style/DefWithParentheses:
-  Enabled: false
-
 # Offense count: 18
 Style/Documentation:
   Enabled: false

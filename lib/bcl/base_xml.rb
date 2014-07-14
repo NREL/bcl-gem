@@ -54,11 +54,11 @@ module BCL
       @schema_url = 'schema.xsd'
     end
 
-    def generate_uuid()
+    def generate_uuid
       @uuid = UUID.new.generate
     end
 
-    def generate_vuid()
+    def generate_vuid
       @vuid = UUID.new.generate
     end
 

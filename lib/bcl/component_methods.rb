@@ -25,7 +25,7 @@ module BCL
     attr_reader :http
     attr_reader :logged_in
 
-    def initialize()
+    def initialize
       @parsed_measures_path = './measures/parsed'
       @config = nil
       @session = nil
@@ -725,7 +725,7 @@ module BCL
       end
     end
 
-    def list_all_measures()
+    def list_all_measures
       json = search(nil, 'fq[]=bundle%3Anrel_measure&show_rows=100')
 
       json
@@ -751,7 +751,7 @@ module BCL
 
     private
 
-    def load_config()
+    def load_config
       config_filename = File.expand_path('~/.bcl/config.yml')
 
       if File.exist?(config_filename)
