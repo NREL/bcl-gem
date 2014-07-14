@@ -43,7 +43,6 @@ task :import_taxonomy do
   taxonomy.write_xml(dirname + 'lib/bcl/current_taxonomy.xml')
 end
 
-
 desc "uninstall all gems"
 task :uninstall do
   system "gem uninstall bcl -a"
@@ -87,6 +86,19 @@ RSpec::Core::RakeTask.new("spec") do |spec|
   spec.rspec_opts = %w(--format progress --format CI::Reporter::RSpec)
   spec.pattern = "spec/**/*_spec.rb"
 end
+
+require 'rubocop/rake_task'
+desc 'Run RuboCop on the lib directory'
+RuboCop::RakeTask.new(:rubocop) do |task|
+  #task.patterns = ['server/**/*.rb']
+  # only show the files with failures
+  task.options = ['--no-color', '--out=rubocop-results.xml']
+  task.formatters = ['RuboCop::Formatter::CheckstyleFormatter']
+  task.requires = ['rubocop/formatter/checkstyle_formatter']
+  # don't abort rake on failure
+  task.fail_on_error = false
+end
+
 
 desc "Default task run rspec tests"
 task :test => :spec
