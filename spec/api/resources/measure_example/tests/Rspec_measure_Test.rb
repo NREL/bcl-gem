@@ -49,7 +49,7 @@ class RotateBuilding_Test < Test::Unit::TestCase
     translator = OpenStudio::OSVersion::VersionTranslator.new
     path = OpenStudio::Path.new(File.dirname(__FILE__) + '/RotateBuilding_TestModel_01.osm')
     model = translator.loadModel(path)
-    assert((not model.empty?))
+    assert(!model.empty?)
     model = model.get
 
     # set argument values to good values and run the measure on model with spaces
