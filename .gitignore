@@ -8,6 +8,7 @@ faraday.log
 *.gem
 tmp/*
 rubocop-results.xml
+Gemfile.lock
 /spec/bcl/output
 /spec/reports
 /spec/api/resources/*.receipt

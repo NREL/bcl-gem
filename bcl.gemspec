@@ -34,6 +34,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency('rubocop', '~> 0.24.1')
   s.add_development_dependency('rubocop-checkstyle_formatter', '~> 0.1.1')
   s.add_development_dependency('ci_reporter', '~> 1.9.1')
+  s.add_development_dependency('rspec-legacy_formatters', '~> 1.0.0')
 
   s.files = Dir.glob('lib/**/*')
   s.require_path = 'lib'
