@@ -456,7 +456,7 @@ module BCL
         when '406'
           puts "  Response: #{api_response.code} - #{api_response.body}"
           puts '  406 - check these common causes first:'
-          puts '    - the UUID of the item that you are already uploading is on the BCL'
+          puts '    - the UUID of the item that you are uploading is already on the BCL'
           puts '    - the group_id is not correct in the config.yml (go to group on site, and copy the number at the end of the URL)'
           puts "    - you are not an 'administrator member' of the group you're trying to upload to"
           result = MultiJson.load api_response.body
@@ -473,46 +473,52 @@ module BCL
       [valid, result]
     end
 
+    # Construct the post parameter for the API content.json end point.
+    # param(@update) is a boolean that triggers whether to use content_type or uuid
+    def construct_post_data(filepath, update, content_type_or_uuid)
+      # TODO remove special characters in the filename; they create firewall errors
+      # filename = filename.gsub(/\W/,'_').gsub(/___/,'_').gsub(/__/,'_').chomp('_').strip
+
+      file_b64 = Base64.encode64(File.read(filepath))
+
+      data = {}
+      data['file'] = {
+          'file' => file_b64,
+          'filesize' => File.size(filepath).to_s,
+          'filename' => File.basename(filepath)
+      }
+
+      data['node'] = {}
+
+      # Only include the content type if this is an update
+      if update
+        data['node']['uuid'] = content_type_or_uuid
+      else
+        data['node']['type'] = content_type_or_uuid
+      end
+
+      # TODO remove this field_component_tags once BCL is fixed
+      data['node']['field_component_tags'] = {'und' => '1289'}
+      data['node']['og_group_ref'] = {'und' => ['target_id' => @group_id]}
+
+      # NOTE THIS ONLY WORKS IF YOU ARE A BCL SITE ADMIN
+      data['node']['publish'] = "1"
+
+      data
+    end
+
     # pushes component to the bcl and publishes them (if logged-in as BCL Website Admin user).
     # username, password, and group_id are set in the ~/.bcl/config.yml file
     def push_content(filename_and_path, write_receipt_file, content_type)
       fail 'Please login before pushing components' if @session.nil?
       fail 'Do not have a valid access token; try again' if @access_token.nil?
 
-      filename = File.basename(filename_and_path)
-      # TODO remove special characters in the filename; they create firewall errors
-      # filename = filename.gsub(/\W/,'_').gsub(/___/,'_').gsub(/__/,'_').chomp('_').strip
-      filepath = File.dirname(filename_and_path) + '/'
-      file = File.open(filename_and_path, 'rb')
-      file_b64 = Base64.encode64(file.read)
-      @data = {
-          'file' =>
-              {
-                  'file' => "#{file_b64}",
-                  'filesize' => "#{File.size(filename_and_path)}",
-                  'filename' => filename
-              },
-          'node' =>
-              {
-                  'type' => "#{content_type}",
-                  'field_component_tags' => # TODO remove this field_component_tags once BCL is fixed
-                      {
-                          'und' => '1289'
-                      },
-                  'og_group_ref' =>
-                      {
-                          'und' =>
-                              ['target_id' => @group_id],
-
-                      },
-                  'publish' => 1 # NOTE THIS ONLY WORKS IF YOU ARE A BCL SITE ADMIN
-              }
-      }
+      data = construct_post_data(filename_and_path, false, content_type)
 
       path = '/api/content.json'
       headers = {'Content-Type' => 'application/json', 'X-CSRF-Token' => @access_token, 'Cookie' => @session}
 
-      res = @http.post(path, MultiJson.dump(@data), headers)
+      res = @http.post(path, MultiJson.dump(data), headers)
 
       valid, json = evaluate_api_response(res)
 
@@ -528,12 +534,6 @@ module BCL
 
       [valid, json]
     end
-
-    # # delete component or measure of BCL
-    # def delete_content(node_id)
-    #   res = @http.delete "/node/#{node_id}"
-    #   res
-    # end
 
     # pushes updated content to the bcl and publishes it (if logged-in as BCL Website Admin user).
     # username and password set in ~/.bcl/config.yml file
@@ -556,40 +556,12 @@ module BCL
       end
       fail "Please pass in a tar.gz file or pass in the uuid" unless uuid
 
-
-      # TODO remove special characters in the filename; they create firewall errors
-      # filename = filename.gsub(/\W/,'_').gsub(/___/,'_').gsub(/__/,'_').chomp('_').strip
-
-      valid = false
-      res_j = nil
-      file_b64 = Base64.encode64(File.read(filename_and_path))
-      @data = {
-          'file' =>
-              {
-                  'file' => "#{file_b64}",
-                  'filesize' => "#{File.size(filename_and_path)}",
-                  'filename' => File.basename(filename_and_path)
-              },
-          'node' =>
-              {
-                  'uuid' => "#{uuid}",
-                  'field_component_tags' => # TODO remove this field_component_tags once BCL is fixed
-                      {
-                          'und' => '1289'
-                      },
-                  'og_group_ref' =>
-                      {
-                          'und' =>
-                              ['target_id' => @group_id],
-                      },
-                  'publish' => 1 # NOTE: THIS ONLY WORKS IF YOU ARE A BCL SITE ADMIN
-              }
-      }
+      data = construct_post_data(filename_and_path, true, uuid)
 
       path = '/api/content.json'
-      headers = {'Content-Type' => 'application/json', 'Cookie' => @session, 'X-CSRF-Token' => @access_token}
+      headers = {'Content-Type' => 'application/json', 'X-CSRF-Token' => @access_token, 'Cookie' => @session}
 
-      res = @http.post(path, MultiJson.dump(@data), headers)
+      res = @http.post(path, MultiJson.dump(data), headers)
 
       valid, json = evaluate_api_response(res)
 
@@ -626,6 +598,7 @@ module BCL
       logs
     end
 
+    # Unpack the tarball in memory and extract the XML file to read the UUID and Version ID
     def uuid_vid_from_tarball(path_to_tarball)
       uuid = nil
       vid = nil
@@ -638,8 +611,19 @@ module BCL
           xml_file = Nokogiri::XML(entry.read)
 
           # pull out some information
-          uuid = xml_file.xpath('/measure/uid').first.content
-          vid = xml_file.xpath('/measure/version_id').first.content
+          if entry.name =~ /component/
+            u = xml_file.xpath('/component/uid').first
+            v = xml_file.xpath('/component/version_id').first
+          else
+            u = xml_file.xpath('/measure/uid').first
+            v = xml_file.xpath('/measure/version_id').first
+          end
+          fail "Could not find UUID in XML file #{path_to_tarball}" unless u
+          # Don't error on version not existing.
+
+          uuid = u.content
+          vid = v ? v.content : nil
+
           # puts "uuid = #{uuid}; vid = #{vid}"
         end
       end

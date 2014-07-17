@@ -78,7 +78,7 @@ describe 'BCL API' do
       end
 
       # search and iterate through all pages of API
-      context 'and search component information (all results search, returns JSON-parsed hash with symbols only, API v2.0 only)'  do
+      context 'and search component information (all results search, returns JSON-parsed hash with symbols only, API v2.0 only)' do
         before :all do
           query = 'ashrae.json'
           filter = 'fq[]=sm_vid_Component_Tags:Material&fq[]=bundle:nrel_component'
@@ -98,15 +98,15 @@ describe 'BCL API' do
 
       context 'and download component v2.0' do
         before :all do
-           query = 'ashrae'
-           filter = 'fq[]=bundle:nrel_component&show_rows=3'
+          query = 'ashrae'
+          filter = 'fq[]=bundle:nrel_component&show_rows=3'
 
-           @results = @cm.search(query, filter)
-           @uids = []
-           @results[:result].each do |result|
-             @uids << result[:component][:uuid]
-           end
-         end
+          @results = @cm.search(query, filter)
+          @uids = []
+          @results[:result].each do |result|
+            @uids << result[:component][:uuid]
+          end
+        end
 
         it 'should have uuid to download' do
           @uids.length.should be > 0
@@ -145,22 +145,29 @@ describe 'BCL API' do
 
       context 'post component' do
         it 'should be able to post new component with no ids set' do
-          # filename = "#{File.dirname(__FILE__)}/resources/component_example_no_ids.tar.gz"
-          # valid, res = @cm.push_content(filename, true, "nrel_component")
+          filename = "#{File.dirname(__FILE__)}/resources/component_example_no_ids.tar.gz"
+          valid, res = @cm.push_content(filename, true, "nrel_component")
 
-          # todo: fix these
-          # valid.should be_true
-          # res["nid"].to_i.should be > 0
-          # res["uuid"].should_not be_nil
-
+          expect(valid).to eq true
+          expect(res['uuid']).to match /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/
+          #expect(res['version_id']).to match /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/
         end
 
         it 'should fail when posting a component with a non-unique uuid' do
           filename = "#{File.dirname(__FILE__)}/resources/component_example_no_vid.tar.gz"
           valid, res = @cm.push_content(filename, true, 'nrel_component')
 
-          puts res.inspect
           expect(valid).to eq(false)
+          expect(res['form_errors']['field_tar_file']).to eq "There is already content with that UUID."
+        end
+
+        it 'should update the component if the uuid already exists' do
+          filename = "#{File.dirname(__FILE__)}/resources/component_example_no_vid.tar.gz"
+          valid, res = @cm.update_content(filename, false)
+
+          expect(valid).to eq true
+          expect(res['nid']).to eq "69193"
+          expect(res['uuid']).to eq "85b35216-0d57-11e4-b052-b2227cce2b54"
         end
 
         it 'should fail when posting component with same uuid/vid components' do
@@ -168,6 +175,7 @@ describe 'BCL API' do
           valid, res = @cm.push_content(filename, true, 'nrel_component')
 
           expect(valid).to eq(false)
+          puts res.inspect
         end
       end
 

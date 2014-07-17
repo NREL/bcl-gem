@@ -106,7 +106,7 @@ describe 'BCL API' do
         puts res.inspect
 
         expect(valid).to eq true
-        expect(res['nid']).to eq "68837"
+        expect(res['nid']).to eq "69197"
         expect(res['uuid']).to eq "a5be6c96-4ecc-47fa-8d32-f4216ebc2e8f"
       end
 
