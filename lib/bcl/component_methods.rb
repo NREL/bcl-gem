@@ -78,7 +78,7 @@ module BCL
       # data = {"username" => username, "password" => password}
 
       login_path = '/api/user/login.json'
-      headers = {'Content-Type' => 'application/json'}
+      headers = { 'Content-Type' => 'application/json' }
 
       res = @http.post(login_path, data, headers)
 
@@ -121,7 +121,7 @@ module BCL
 
         # get access token
         token_path = '/services/session/token'
-        token_headers = {'Content-Type' => 'application/json', 'Cookie' => @session}
+        token_headers = { 'Content-Type' => 'application/json', 'Cookie' => @session }
         # puts "token_headers = #{token_headers.inspect}"
         access_token = @http.post(token_path, '', token_headers)
         if access_token.code == '200'
@@ -432,14 +432,14 @@ module BCL
     # evaluate the response from the API in a consistent manner
     def evaluate_api_response(api_response)
       valid = false
-      result = {error: "could not get json from http post response"}
+      result = { error: 'could not get json from http post response' }
       case api_response.code
         when '200'
           puts "  Response Code: #{api_response.code} - #{api_response.body}"
           if api_response.body.empty?
             puts '  200 BUT ERROR: Returned body was empty. Possible causes:'
             puts '      - BSD tar on Mac OSX vs gnutar'
-            result = {error: "returned 200, but returned body was empty"}
+            result = { error: 'returned 200, but returned body was empty' }
             valid = false
           else
             puts '  200 - Successful Upload'
@@ -483,9 +483,9 @@ module BCL
 
       data = {}
       data['file'] = {
-          'file' => file_b64,
-          'filesize' => File.size(filepath).to_s,
-          'filename' => File.basename(filepath)
+        'file' => file_b64,
+        'filesize' => File.size(filepath).to_s,
+        'filename' => File.basename(filepath)
       }
 
       data['node'] = {}
@@ -498,11 +498,11 @@ module BCL
       end
 
       # TODO remove this field_component_tags once BCL is fixed
-      data['node']['field_component_tags'] = {'und' => '1289'}
-      data['node']['og_group_ref'] = {'und' => ['target_id' => @group_id]}
+      data['node']['field_component_tags'] = { 'und' => '1289' }
+      data['node']['og_group_ref'] = { 'und' => ['target_id' => @group_id] }
 
       # NOTE THIS ONLY WORKS IF YOU ARE A BCL SITE ADMIN
-      data['node']['publish'] = "1"
+      data['node']['publish'] = '1'
 
       data
     end
@@ -516,7 +516,7 @@ module BCL
       data = construct_post_data(filename_and_path, false, content_type)
 
       path = '/api/content.json'
-      headers = {'Content-Type' => 'application/json', 'X-CSRF-Token' => @access_token, 'Cookie' => @session}
+      headers = { 'Content-Type' => 'application/json', 'X-CSRF-Token' => @access_token, 'Cookie' => @session }
 
       res = @http.post(path, MultiJson.dump(data), headers)
 
@@ -554,12 +554,12 @@ module BCL
           fail "uuid of #{uuid} is invalid"
         end
       end
-      fail "Please pass in a tar.gz file or pass in the uuid" unless uuid
+      fail 'Please pass in a tar.gz file or pass in the uuid' unless uuid
 
       data = construct_post_data(filename_and_path, true, uuid)
 
       path = '/api/content.json'
-      headers = {'Content-Type' => 'application/json', 'X-CSRF-Token' => @access_token, 'Cookie' => @session}
+      headers = { 'Content-Type' => 'application/json', 'X-CSRF-Token' => @access_token, 'Cookie' => @session }
 
       res = @http.post(path, MultiJson.dump(data), headers)
 
@@ -728,7 +728,7 @@ module BCL
           end
         end
         # return unparsed b/c that is what is expected
-        formatted_results = {'result' => results}
+        formatted_results = { 'result' => results }
         results_to_return = MultiJson.load(MultiJson.dump(formatted_results), symbolize_keys: true)
       end
     end
@@ -787,14 +787,14 @@ module BCL
 
     def default_yaml
       settings = {
-          server: {
-              url: 'https://bcl.nrel.gov',
-              user: {
-                  username: 'ENTER_BCL_USERNAME',
-                  password: 'ENTER_BCL_PASSWORD',
-                  group: 'ENTER_GROUP_ID'
-              }
+        server: {
+          url: 'https://bcl.nrel.gov',
+          user: {
+            username: 'ENTER_BCL_USERNAME',
+            password: 'ENTER_BCL_PASSWORD',
+            group: 'ENTER_GROUP_ID'
           }
+        }
       }
 
       settings

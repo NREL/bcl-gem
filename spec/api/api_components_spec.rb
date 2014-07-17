@@ -146,11 +146,11 @@ describe 'BCL API' do
       context 'post component' do
         it 'should be able to post new component with no ids set' do
           filename = "#{File.dirname(__FILE__)}/resources/component_example_no_ids.tar.gz"
-          valid, res = @cm.push_content(filename, true, "nrel_component")
+          valid, res = @cm.push_content(filename, true, 'nrel_component')
 
           expect(valid).to eq true
           expect(res['uuid']).to match /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/
-          #expect(res['version_id']).to match /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/
+          # expect(res['version_id']).to match /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/
         end
 
         it 'should fail when posting a component with a non-unique uuid' do
@@ -158,7 +158,7 @@ describe 'BCL API' do
           valid, res = @cm.push_content(filename, true, 'nrel_component')
 
           expect(valid).to eq(false)
-          expect(res['form_errors']['field_tar_file']).to eq "There is already content with that UUID."
+          expect(res['form_errors']['field_tar_file']).to eq 'There is already content with that UUID.'
         end
 
         it 'should update the component if the uuid already exists' do
@@ -166,8 +166,8 @@ describe 'BCL API' do
           valid, res = @cm.update_content(filename, false)
 
           expect(valid).to eq true
-          expect(res['nid']).to eq "69193"
-          expect(res['uuid']).to eq "85b35216-0d57-11e4-b052-b2227cce2b54"
+          expect(res['nid']).to eq '69193'
+          expect(res['uuid']).to eq '85b35216-0d57-11e4-b052-b2227cce2b54'
         end
 
         it 'should fail when posting component with same uuid/vid components' do
@@ -196,7 +196,7 @@ describe 'BCL API' do
 
           test = true
           log.each do |comp|
-            test = false if !comp.include?('skipping') and !comp.include?('false')
+            test = false if !comp.include?('skipping') && !comp.include?('false')
           end
           expect(test).to be_a TrueClass
         end

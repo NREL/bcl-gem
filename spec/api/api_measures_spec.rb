@@ -15,7 +15,7 @@ describe 'BCL API' do
         @res = @cm.login
         expect(@res.code).to eq('200')
         expect(@cm.session).to_not be_nil
-      end     
+      end
     end
 
     context 'and searching for measures (simple search, returns JSON only, API v2.0)' do
@@ -72,17 +72,17 @@ describe 'BCL API' do
       end
     end
 
-    context "and uploading measures" do
+    context 'and uploading measures' do
       before :all do
         @cm.login unless @cm.logged_in
       end
 
-      it "should fail with malformed UUID" do
+      it 'should fail with malformed UUID' do
         filename = "#{File.dirname(__FILE__)}/resources/measure_example.tar.gz"
-        expect { @cm.update_content(filename, false, '1234-1234') }.to raise_error "uuid of 1234-1234 is invalid"
+        expect { @cm.update_content(filename, false, '1234-1234') }.to raise_error 'uuid of 1234-1234 is invalid'
       end
 
-      it "should NOT upload the measure as it already exists" do
+      it 'should NOT upload the measure as it already exists' do
         filename = "#{File.dirname(__FILE__)}/resources/measure_example.tar.gz"
         valid, res = @cm.push_content(filename, false, 'nrel_measure')
 
@@ -90,14 +90,14 @@ describe 'BCL API' do
         expect(res['form_errors']['field_tar_file']).to eq 'There is already content with that UUID.'
       end
 
-      it "should be able to update the measure" do
+      it 'should be able to update the measure' do
         filename = "#{File.dirname(__FILE__)}/resources/measure_example.tar.gz"
         valid, res = @cm.update_content(filename, false)
         puts res.inspect
 
         expect(valid).to eq true
-        expect(res['nid']).to eq "69197"
-        expect(res['uuid']).to eq "a5be6c96-4ecc-47fa-8d32-f4216ebc2e8f"
+        expect(res['nid']).to eq '69197'
+        expect(res['uuid']).to eq 'a5be6c96-4ecc-47fa-8d32-f4216ebc2e8f'
       end
 
       it "should not be able to update a measure that doesn't already exist" do
@@ -105,21 +105,21 @@ describe 'BCL API' do
         valid, res = @cm.update_content(filename, false)
 
         expect(valid).to eq false
-        expect(res).to eq ["Node  not found"] # TODO: this should be JSON, and fix the double space
+        expect(res).to eq ['Node  not found'] # TODO: this should be JSON, and fix the double space
       end
     end
 
-    context "BSD Tarball" do
+    context 'BSD Tarball' do
       before :all do
         @cm.login unless @cm.logged_in
       end
 
-      it "should cause errors" do
+      it 'should cause errors' do
         filename = "#{File.dirname(__FILE__)}/resources/bsd_created_measure.tar.gz"
         valid, res = @cm.push_content(filename, false, 'nrel_measure')
 
         expect(valid).to eq false
-        expect(res[:error]).to eq "returned 200, but returned body was empty"
+        expect(res[:error]).to eq 'returned 200, but returned body was empty'
       end
     end
   end

@@ -417,17 +417,17 @@ module BCL
         valid = false
       end
 
-      if parts.size >= 1 and not term.first_level == parts[0]
+      if parts.size >= 1 && !term.first_level == parts[0]
         puts "First level '#{term.first_level}' does not match level hierarchy '#{term.level_hierarchy}', skipping term"
         valid = false
       end
 
-      if parts.size >= 2 and not term.second_level == parts[1]
+      if parts.size >= 2 && !term.second_level == parts[1]
         puts "Second level '#{term.second_level}' does not match level hierarchy '#{term.level_hierarchy}', skipping term"
         valid = false
       end
 
-      if parts.size >= 3 and not term.third_level == parts[2]
+      if parts.size >= 3 && !term.third_level == parts[2]
         puts "Third level '#{term.third_level}' does not match level hierarchy '#{term.level_hierarchy}', skipping term"
         valid = false
       end
