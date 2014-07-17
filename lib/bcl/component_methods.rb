@@ -78,7 +78,7 @@ module BCL
       # data = {"username" => username, "password" => password}
 
       login_path = '/api/user/login.json'
-      headers = { 'Content-Type' => 'application/json' }
+      headers = {'Content-Type' => 'application/json'}
 
       res = @http.post(login_path, data, headers)
 
@@ -121,7 +121,7 @@ module BCL
 
         # get access token
         token_path = '/services/session/token'
-        token_headers = { 'Content-Type' => 'application/json', 'Cookie' => @session }
+        token_headers = {'Content-Type' => 'application/json', 'Cookie' => @session}
         # puts "token_headers = #{token_headers.inspect}"
         access_token = @http.post(token_path, '', token_headers)
         if access_token.code == '200'
@@ -429,13 +429,56 @@ module BCL
       end
     end
 
+    # evaluate the response from the API in a consistent manner
+    def evaluate_api_response(api_response)
+      valid = false
+      result = {error: "could not get json from http post response"}
+      case api_response.code
+        when '200'
+          puts "  Response Code: #{api_response.code} - #{api_response.body}"
+          if api_response.body.empty?
+            puts '  200 BUT ERROR: Returned body was empty. Possible causes:'
+            puts '      - BSD tar on Mac OSX vs gnutar'
+            result = {error: "returned 200, but returned body was empty"}
+            valid = false
+          else
+            puts '  200 - Successful Upload'
+            result = MultiJson.load api_response.body
+            valid = true
+          end
+        when '404'
+          puts "  Response: #{api_response.code} - #{api_response.body}"
+          puts '  404 - check these common causes first:'
+          puts '    - the filename contains periods (other than the ones before the file extension)'
+          puts "    - you are not an 'administrator member' of the group you're trying to upload to"
+          result = MultiJson.load api_response.body
+          valid = false
+        when '406'
+          puts "  Response: #{api_response.code} - #{api_response.body}"
+          puts '  406 - check these common causes first:'
+          puts '    - the UUID of the item that you are already uploading is on the BCL'
+          puts '    - the group_id is not correct in the config.yml (go to group on site, and copy the number at the end of the URL)'
+          puts "    - you are not an 'administrator member' of the group you're trying to upload to"
+          result = MultiJson.load api_response.body
+          valid = false
+        when '500'
+          puts "  Response: #{api_response.code} - #{api_response.body}"
+          fail 'server exception'
+          valid = false
+        else
+          puts "  Response: #{api_response.code} - #{api_response.body}"
+          valid = false
+      end
+
+      [valid, result]
+    end
+
     # pushes component to the bcl and publishes them (if logged-in as BCL Website Admin user).
-    # username and password set in ~/.bcl/config.yml file
+    # username, password, and group_id are set in the ~/.bcl/config.yml file
     def push_content(filename_and_path, write_receipt_file, content_type)
       fail 'Please login before pushing components' if @session.nil?
       fail 'Do not have a valid access token; try again' if @access_token.nil?
-      valid = false
-      res_j = nil
+
       filename = File.basename(filename_and_path)
       # TODO remove special characters in the filename; they create firewall errors
       # filename = filename.gsub(/\W/,'_').gsub(/___/,'_').gsub(/__/,'_').chomp('_').strip
@@ -454,57 +497,113 @@ module BCL
                   'type' => "#{content_type}",
                   'field_component_tags' => # TODO remove this field_component_tags once BCL is fixed
                       {
-                        'und' => '1289'
+                          'und' => '1289'
                       },
                   'og_group_ref' =>
                       {
-                        'und' =>
-                            ['target_id' => @group_id],
+                          'und' =>
+                              ['target_id' => @group_id],
 
                       },
                   'publish' => 1 # NOTE THIS ONLY WORKS IF YOU ARE A BCL SITE ADMIN
               }
-
       }
 
       path = '/api/content.json'
-      headers = { 'Content-Type' => 'application/json', 'X-CSRF-Token' => @access_token, 'Cookie' => @session }
+      headers = {'Content-Type' => 'application/json', 'X-CSRF-Token' => @access_token, 'Cookie' => @session}
 
       res = @http.post(path, MultiJson.dump(@data), headers)
 
-      res_j = 'could not get json from http post response'
-      if res.code == '200'
-        puts '200'
-        res_j = MultiJson.load(res.body)
-        puts '  200 - Successful Upload'
-        valid = true
-
-      elsif res.code == '404'
-        puts "  error code: #{res.code} - #{res.body}"
-        puts '  404 - check these common causes first:'
-        puts '    the filename contains periods (other than the ones before the file extension)'
-        puts "    you are not an 'administrator member' of the group you're trying to upload to"
-        valid = false
-      elsif res.code == '500'
-        puts "  error code: #{res.code} - #{res.body}"
-        fail 'server exception'
-        valid = false
-      else
-        puts "  error code: #{res.code} - #{res.body}"
-        valid = false
-      end
+      valid, json = evaluate_api_response(res)
 
       if valid
         # write out a receipt file into the same directory of the component with the same file name as
         # the component
         if write_receipt_file
-          File.open(filepath + File.basename(filename, '.tar.gz') + '.receipt', 'w') do |file|
+          File.open("#{File.dirname(filename_and_path)}/#{File.basename(filename_and_path, '.tar.gz')}.receipt", 'w') do |file|
             file << Time.now.to_s
           end
         end
       end
 
-      [valid, res_j]
+      [valid, json]
+    end
+
+    # # delete component or measure of BCL
+    # def delete_content(node_id)
+    #   res = @http.delete "/node/#{node_id}"
+    #   res
+    # end
+
+    # pushes updated content to the bcl and publishes it (if logged-in as BCL Website Admin user).
+    # username and password set in ~/.bcl/config.yml file
+    def update_content(filename_and_path, write_receipt_file, uuid = nil)
+      fail 'Please login before pushing components' unless @session
+
+      # get the UUID if zip or xml file
+      version_id = nil
+      if uuid.nil?
+        puts File.extname(filename_and_path).downcase
+        if filename_and_path =~ /^.*.tar.gz$/i
+          uuid, version_id = uuid_vid_from_tarball(filename_and_path)
+          puts "Parsed uuid out of tar.gz file with value #{uuid}"
+        end
+      else
+        # verify the uuid via regex
+        unless uuid =~ /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/
+          fail "uuid of #{uuid} is invalid"
+        end
+      end
+      fail "Please pass in a tar.gz file or pass in the uuid" unless uuid
+
+
+      # TODO remove special characters in the filename; they create firewall errors
+      # filename = filename.gsub(/\W/,'_').gsub(/___/,'_').gsub(/__/,'_').chomp('_').strip
+
+      valid = false
+      res_j = nil
+      file_b64 = Base64.encode64(File.read(filename_and_path))
+      @data = {
+          'file' =>
+              {
+                  'file' => "#{file_b64}",
+                  'filesize' => "#{File.size(filename_and_path)}",
+                  'filename' => File.basename(filename_and_path)
+              },
+          'node' =>
+              {
+                  'uuid' => "#{uuid}",
+                  'field_component_tags' => # TODO remove this field_component_tags once BCL is fixed
+                      {
+                          'und' => '1289'
+                      },
+                  'og_group_ref' =>
+                      {
+                          'und' =>
+                              ['target_id' => @group_id],
+                      },
+                  'publish' => 1 # NOTE: THIS ONLY WORKS IF YOU ARE A BCL SITE ADMIN
+              }
+      }
+
+      path = '/api/content.json'
+      headers = {'Content-Type' => 'application/json', 'Cookie' => @session, 'X-CSRF-Token' => @access_token}
+
+      res = @http.post(path, MultiJson.dump(@data), headers)
+
+      valid, json = evaluate_api_response(res)
+
+      if valid
+        # write out a receipt file into the same directory of the component with the same file name as
+        # the component
+        if write_receipt_file
+          File.open("#{File.dirname(filename_and_path)}/#{File.basename(filename_and_path, '.tar.gz')}.receipt", 'w') do |file|
+            file << Time.now.to_s
+          end
+        end
+      end
+
+      [valid, json]
     end
 
     def push_contents(array_of_components, skip_files_with_receipts, content_type)
@@ -527,101 +626,37 @@ module BCL
       logs
     end
 
-    # pushes updated content to the bcl and publishes it (if logged-in as BCL Website Admin user).
-    # username and password set in ~/.bcl/config.yml file
-    def update_content(filename_and_path, write_receipt_file, uuid)
-      fail 'Please login before pushing components' if @session.nil?
-      valid = false
-      res_j = nil
-      filename = File.basename(filename_and_path)
-      # TODO remove special characters in the filename; they create firewall errors
-      # filename = filename.gsub(/\W/,'_').gsub(/___/,'_').gsub(/__/,'_').chomp('_').strip
-      filepath = File.dirname(filename_and_path) + '/'
-      file = File.open(filename_and_path, 'rb')
-      file_b64 = Base64.encode64(file.read)
-      @data = {
-          'file' =>
-              {
-                  'file' => "#{file_b64}",
-                  'filesize' => "#{File.size(filename_and_path)}",
-                  'filename' => filename
-              },
-          'node' =>
-              {
-                  'uuid' => "#{uuid}",
-                  'field_component_tags' => # TODO remove this field_component_tags once BCL is fixed
-                      {
-                        'und' => '1289'
-                      },
-                  'og_group_ref' =>
-                      {
-                        'und' =>
-                            ['target_id' => @group_id],
-                      },
-                  'publish' => 1 # NOTE THIS ONLY WORKS IF YOU ARE A BCL SITE ADMIN
-              }
-      }
+    def uuid_vid_from_tarball(path_to_tarball)
+      uuid = nil
+      vid = nil
 
-      path = '/api/content.json'
-      headers = { 'Content-Type' => 'application/json', 'Cookie' => @session, 'X-CSRF-Token' => @access_token }
+      fail "File does not exist #{path_to_tarball}" unless File.exist? path_to_tarball
+      tgz = Zlib::GzipReader.open(path_to_tarball)
+      Archive::Tar::Minitar::Reader.open(tgz).each do |entry|
+        # If taring with tar zcf ameasure.tar.gz -C measure_dir .
+        if entry.name =~ /^.{0,2}component.xml$/ || entry.name =~ /^.{0,2}measure.xml$/
+          xml_file = Nokogiri::XML(entry.read)
 
-      res = @http.post(path, MultiJson.dump(@data), headers)
-
-      res_j = 'could not get json from http post response'
-      if res.code == '200'
-        res_j = MultiJson.load(res.body)
-        puts '  200 - Successful Upload'
-        valid = true
-      elsif res.code == '404'
-        puts "  error code: #{res.code} - #{res.body}"
-        puts '  404 - check these common causes first:'
-        puts '    the filename contains periods (other than the ones before the file extension)'
-        puts "    you are not an 'administrator member' of the group you're trying to upload to"
-        valid = false
-      elsif res.code == '500'
-        puts "  error code: #{res.code} - #{res.body}"
-        fail 'server exception'
-        valid = false
-      else
-        puts "  error code: #{res.code} - #{res.body}"
-        valid = false
-      end
-
-      if valid
-        # write out a receipt file into the same directory of the component with the same file name as
-        # the component
-        if write_receipt_file
-          File.open(filepath + File.basename(filename, '.tar.gz') + '.receipt', 'w') do |file|
-            file << Time.now.to_s
-          end
+          # pull out some information
+          uuid = xml_file.xpath('/measure/uid').first.content
+          vid = xml_file.xpath('/measure/version_id').first.content
+          # puts "uuid = #{uuid}; vid = #{vid}"
         end
       end
 
-      [valid, res_j]
+      [uuid, vid]
     end
 
-    def update_contents(array_of_components, skip_files_with_receipts)
+    def update_contents(array_of_tarball_components, skip_files_with_receipts)
       logs = []
-      array_of_components.each do |comp|
+      array_of_tarball_components.each do |comp|
         receipt_file = File.dirname(comp) + '/' + File.basename(comp, '.tar.gz') + '.receipt'
         log_message = ''
         if skip_files_with_receipts && File.exist?(receipt_file)
           log_message = "skipping update because found receipt #{File.basename(comp)}"
           puts log_message
         else
-          # extract uuid from the .tar.gz file
-          uuid = nil
-          tgz = Zlib::GzipReader.open(comp)
-          Archive::Tar::Minitar::Reader.open(tgz).each do |entry|
-            if entry.name == 'component.xml' or entry.name == 'measure.xml'
-              xml_file = LibXML::XML::Document.string(entry.read)
-              uid_node = xml_file.find('uid').first
-              uuid = uid_node.content
-              # vid_node = xml_file.find('version_id').first
-              # vid = vid_node.content
-              # puts "uuid = #{uuid}; vid = #{vid}"
-            end
-          end
+          uuid, vid = uuid_vid_from_tarball(comp)
           if uuid.nil?
             log_message = "ERROR: uuid not found for #{File.basename(comp)}"
             puts log_message
@@ -709,7 +744,7 @@ module BCL
           end
         end
         # return unparsed b/c that is what is expected
-        formatted_results = { 'result' => results }
+        formatted_results = {'result' => results}
         results_to_return = MultiJson.load(MultiJson.dump(formatted_results), symbolize_keys: true)
       end
     end
@@ -744,7 +779,7 @@ module BCL
         puts "Download fail. Error code #{result.code}"
         nil
       end
-     rescue
+    rescue
       puts "Couldn't download uid(s): #{uid}...skipping"
       nil
     end
@@ -768,14 +803,14 @@ module BCL
 
     def default_yaml
       settings = {
-        server: {
-          url: 'https://bcl.nrel.gov',
-          user: {
-            username: 'ENTER_BCL_USERNAME',
-            password: 'ENTER_BCL_PASSWORD',
-            group: 'ENTER_GROUP_ID'
+          server: {
+              url: 'https://bcl.nrel.gov',
+              user: {
+                  username: 'ENTER_BCL_USERNAME',
+                  password: 'ENTER_BCL_PASSWORD',
+                  group: 'ENTER_GROUP_ID'
+              }
           }
-        }
       }
 
       settings
