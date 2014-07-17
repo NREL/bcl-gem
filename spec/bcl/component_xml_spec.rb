@@ -10,7 +10,7 @@ describe BCL::Component do
     it 'should add a file' do
       @comp.add_file('abc', '1.2', 'def', 'ghi', 'energyplus', 'usage', 'checksum')
 
-      @comp.files.size.should == 1
+      expect(@comp.files.size).to eq 1
     end
 
     it 'should save the component' do
@@ -43,7 +43,7 @@ describe BCL::Component do
     end
 
     it 'should resolve paths' do
-      @comp.resolve_path.should eq("#{@savepath}/#{@component_name}")
+      expect(@comp.resolve_path).to eq("#{@savepath}/#{@component_name}")
       @comp.save_component_xml
       # FileUtils.rm_rf(component_dir) if File.exists?(component_dir) and File.directory?(component_dir)
       # assert((not File.exists?(component_dir)))

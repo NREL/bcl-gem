@@ -45,11 +45,11 @@ describe 'BCL API' do
       end
 
       it 'should return 200' do
-        @res.code.should eq('200')
+        expect(@res.code).to eq '200'
       end
 
       it 'should have a valid session' do
-        @cm.session.should_not be_nil
+        expect(@cm.session).to_not be_nil
       end
 
       context 'and search component information (simple search, returns JSON-parsed hash with symbols only, API v2.0 only)' do
@@ -66,7 +66,7 @@ describe 'BCL API' do
         end
 
         it 'should return three results' do
-          @results[:result].count.should eq(3)
+          expect(@results[:result].count).to eq 3
         end
 
         it 'should return results in hash with symbols (even when querying in xml)' do
@@ -109,7 +109,7 @@ describe 'BCL API' do
         end
 
         it 'should have uuid to download' do
-          @uids.length.should be > 0
+          expect(@uids.length).to be > 0
         end
 
         it 'should be able to use get to download multiple components that is valid' do

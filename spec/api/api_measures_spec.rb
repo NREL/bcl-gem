@@ -15,17 +15,7 @@ describe 'BCL API' do
         @res = @cm.login
         expect(@res.code).to eq('200')
         expect(@cm.session).to_not be_nil
-      end
-
-      it 'should be able to post new measure with ids set' do
-        filename = "#{File.dirname(__FILE__)}/resources/measure_example.tar.gz"
-        valid, res = @cm.push_content(filename, true, 'nrel_measure')
-
-        # todo: fix these as well
-        # valid.should be_true
-        # res["nid"].to_i.should be > 0
-        # res["uuid"].should_not be_nil
-      end
+      end     
     end
 
     context 'and searching for measures (simple search, returns JSON only, API v2.0)' do
@@ -42,7 +32,7 @@ describe 'BCL API' do
       end
 
       it 'should return three results' do
-        @results[:result].count.should eq(3)
+        expect(@results[:result].count).to eq 3
       end
 
     end
@@ -78,7 +68,7 @@ describe 'BCL API' do
         num_measures = Dir.glob("#{@cm.parsed_measures_path}*/measure.rb")
         puts "downloaded #{num_measures.size} measures"
         num_json = Dir.glob(@cm.parsed_measures_path + '*/measure.json')
-        num_json.count.should eq(num_measures.count)
+        expect(num_json.count).to eq num_measures.count
       end
     end
 
