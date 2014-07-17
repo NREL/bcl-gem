@@ -166,7 +166,7 @@ module BCL
       measures
     end
 
-    # Read in an exisitng measure.rb file and extract the arguments.  Note that the measure_name (display name)
+    # Read in an existing measure.rb file and extract the arguments.  Note that the measure_name (display name)
     # does not exist in the .rb file, so you have to pass this in.
     def parse_measure_file(_measure_name, measure_filename)
       measure_hash = {}
@@ -277,7 +277,6 @@ module BCL
         measure_hash[:description] = doc.xpath('/measure/description').first.content
         measure_hash[:tags] = doc.xpath('/measure/tags/tag').map { |k| k.content }
         f.close
-
       end
 
       measure_hash
@@ -294,6 +293,7 @@ module BCL
         values << ''
         values << argument[:display_name]
         values << argument[:name]
+        values << argument[:display_name] # this is the default short display name
         values << argument[:variable_type]
         values << argument[:units]
 

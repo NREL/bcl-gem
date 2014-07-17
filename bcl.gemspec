@@ -21,7 +21,6 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency('zliby')
   s.add_runtime_dependency('archive-tar-minitar')
   s.add_runtime_dependency('multi_json')
-  s.add_runtime_dependency('libxml-ruby')
   s.add_runtime_dependency('yamler')
   s.add_runtime_dependency('faraday')
   s.add_runtime_dependency('roo')
