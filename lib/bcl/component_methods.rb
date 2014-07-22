@@ -479,7 +479,7 @@ module BCL
       # TODO remove special characters in the filename; they create firewall errors
       # filename = filename.gsub(/\W/,'_').gsub(/___/,'_').gsub(/__/,'_').chomp('_').strip
 
-      file_b64 = Base64.encode64(File.read(filepath))
+      file_b64 = Base64.encode64(File.binread(filepath))
 
       data = {}
       data['file'] = {

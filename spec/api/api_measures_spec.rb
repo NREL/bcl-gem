@@ -98,6 +98,7 @@ describe 'BCL API' do
         expect(valid).to eq true
         expect(res['nid']).to eq '69197'
         expect(res['uuid']).to eq 'a5be6c96-4ecc-47fa-8d32-f4216ebc2e8f'
+        # needs to return version id
       end
 
       it "should not be able to update a measure that doesn't already exist" do

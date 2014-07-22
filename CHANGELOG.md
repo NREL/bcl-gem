@@ -1,5 +1,7 @@
 # Overview
 List of changes to the bcl gem
+## Version 0.5.5
+* Read as binary for .tar.gz
 
 ## Version 0.5.2-4
 * Remove libxml dependency
