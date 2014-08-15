@@ -4,9 +4,14 @@
 	<xs:annotation>
 		<xs:documentation>Component.xsd describes the components that are in the building component library or NREL analysis platform library.</xs:documentation>
 	</xs:annotation>
-	<xs:annotation>
-		<xs:documentation>Version - 3.0</xs:documentation>
-	</xs:annotation>
+	<xs:element name="schema_version" fixed="3">
+		<xs:annotation>
+			<xs:documentation>schema version</xs:documentation>
+		</xs:annotation>
+		<xs:simpleType>
+			<xs:restriction base="xs:string"/>
+		</xs:simpleType>
+	</xs:element>
 	<xs:element name="uid" type="xs:string">
 		<xs:annotation>
 			<xs:documentation>universally unique identifier which does not chage</xs:documentation>
@@ -392,6 +397,7 @@
 		</xs:annotation>
 		<xs:complexType>
 			<xs:sequence>
+				<xs:element ref="schema_version"/>
 				<xs:element ref="name"/>
 				<xs:element ref="uid"/>
 				<xs:element ref="version_id"/>
