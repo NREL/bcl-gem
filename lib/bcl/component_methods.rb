@@ -63,7 +63,7 @@ module BCL
         username = @config[:server][:user][:username]
         password = @config[:server][:user][:password]
         @group_id = group_id || @config[:server][:user][:group]
-        puts "logging in using credentials in .bcl/config.yml: Connecting to #{url} on port #{port} as #{username}"
+        puts "logging in using credentials in .bcl/config.yml: Connecting to #{url} on port #{port} as #{username} with group #{@group_id}"
       else
         @group_id = group_id
         puts "logging in using credentials in function arguments: Connecting to #{url} on port #{port} as #{username} with group #{@group_id}"
@@ -243,8 +243,12 @@ module BCL
 
                 # local variable name to get other attributes
                 new_arg[:display_name] = measure_string.match(/#{new_arg[:local_variable]}.setDisplayName\((.*)\)/)[1]
+                # extract possible units from raw display_name
+                new_arg[:units] = extract_units(new_arg[:display_name])
+                # clean name
                 new_arg[:display_name].gsub!(/"|'/, "") if new_arg[:display_name]
                 new_arg[:display_name] = clean(new_arg[:display_name])
+
 
                 if measure_string =~ /#{new_arg[:local_variable]}.setDefaultValue/
                   new_arg[:default_value] = measure_string.match(/#{new_arg[:local_variable]}.setDefaultValue\((.*)\)/)[1]
@@ -333,6 +337,23 @@ module BCL
 
       return clean_name
 
+    end
+
+    # extract potential units from measure name
+    # brackets get precedence over parentheses for unit placement
+    def extract_units(name)
+      m = nil
+      # extract data in brackets
+      m = name.match(/\[(.+?)\]/)
+      unless m.nil?
+        return m[0].gsub("[", "").gsub("]", "")
+      end
+      # extract data in parentheses
+      m = name.match(/\((.+?)\)/)
+      unless m.nil?
+        return m[0].gsub("(", "").gsub(")", "")
+      end
+      m
     end
 
     # retrieve measures for parsing metadata.
@@ -499,9 +520,10 @@ module BCL
 
       path = "/api/content.json"
       headers = {'Content-Type' => 'application/json', 'Cookie' => @session, 'X-CSRF-Token' => @access_token}
-
+      puts "DATA: #{MultiJson.dump(@data)}"
       res = @http.post(path, MultiJson.dump(@data), headers)
 
+      puts "RESPONSE: #{res.inspect}"
       res_j = "could not get json from http post response"
       if res.code == '200'
         res_j = MultiJson.load(res.body)
