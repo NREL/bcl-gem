@@ -1,4 +1,21 @@
-require 'uuid' # gem install uuid
+######################################################################
+#  Copyright (c) 2008-2014, Alliance for Sustainable Energy.
+#  All rights reserved.
+#
+#  This library is free software; you can redistribute it and/or
+#  modify it under the terms of the GNU Lesser General Public
+#  License as published by the Free Software Foundation; either
+#  version 2.1 of the License, or (at your option) any later version.
+#
+#  This library is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+#  Lesser General Public License for more details.
+#
+#  You should have received a copy of the GNU Lesser General Public
+#  License along with this library; if not, write to the Free Software
+#  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+######################################################################
 
 module BCL
   ProvStruct = Struct.new(:author, :datetime, :comment)
@@ -24,27 +41,26 @@ module BCL
     attr_accessor :tags
     attr_accessor :provenances
 
-    def initialize(save_path)
-      @name = ""  #this is also a unique identifier to the component...
-      @description = ""
-      @modeler_description = ""
+    def initialize(_save_path)
+      @name = '' # this is also a unique identifier to the component...
+      @description = ''
+      @modeler_description = ''
 
       @provenances = []
       @tags = []
       @attributes = []
       @files = []
 
-      @schema_url = "schema.xsd"
+      @schema_url = 'schema.xsd'
     end
 
-    def generate_uuid()
+    def generate_uuid
       @uuid = UUID.new.generate
     end
 
-    def generate_vuid()
+    def generate_vuid
       @vuid = UUID.new.generate
     end
-
 
     def add_provenance(author, datetime, comment)
       prov = ProvStruct.new
@@ -84,19 +100,20 @@ module BCL
       fs.fqp_file = fqp_file
       fs.filename = filename
       fs.filetype = filetype
-      fs.usage_type = usage_type if usage_type != nil
-      fs.checksum = checksum if checksum != nil
+      fs.usage_type = usage_type unless usage_type.nil?
+      fs.checksum = checksum unless checksum.nil?
 
       @files << fs
     end
 
-    #return the title case of the string
+    # return the title case of the string
     def tc(input)
-      val = input.gsub(/\b\w/){$&.upcase}
-      if val.downcase == "energyplus"
-        val = "EnergyPlus"
+      val = input.gsub(/\b\w/) { $&.upcase }
+      if val.downcase == 'energyplus'
+        val = 'EnergyPlus'
       end
-      return val
+
+      val
     end
 
     def get_attribute(attribute_name)
@@ -119,11 +136,11 @@ module BCL
       input_value = test.match('\.').nil? ? Integer(test) : Float(test) rescue test.to_s
 
       if input_value.is_a?(Fixnum) || input_value.is_a?(Bignum)
-        dt = "int"
+        dt = 'int'
       elsif input_value.is_a?(Float)
-        dt = "float"
+        dt = 'float'
       else
-        dt = "string"
+        dt = 'string'
       end
 
       dt

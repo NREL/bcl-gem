@@ -7,6 +7,7 @@ faraday.log
 *.swp
 *.gem
 tmp/*
+rubocop-results.xml
 Gemfile.lock
 /spec/bcl/output
 /spec/reports

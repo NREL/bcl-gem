@@ -1,17 +1,17 @@
 ######################################################################
-#  Copyright (c) 2008-2013, Alliance for Sustainable Energy.
+#  Copyright (c) 2008-2014, Alliance for Sustainable Energy.
 #  All rights reserved.
-#  
+#
 #  This library is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU Lesser General Public
 #  License as published by the Free Software Foundation; either
 #  version 2.1 of the License, or (at your option) any later version.
-#  
+#
 #  This library is distributed in the hope that it will be useful,
 #  but WITHOUT ANY WARRANTY; without even the implied warranty of
 #  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 #  Lesser General Public License for more details.
-#  
+#
 #  You should have received a copy of the GNU Lesser General Public
 #  License along with this library; if not, write to the Free Software
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
@@ -32,47 +32,40 @@ if RUBY_PLATFORM =~ /mswin|mingw|cygwin/
 end
 
 module BCL
-
-  WorksheetStruct = Struct.new(:name, :components)
-  HeaderStruct = Struct.new(:name, :children)
-  ComponentStruct = Struct.new(:row, :name, :uid, :version_id, :headers, :values)
-
   class ComponentSpreadsheet
-
     public
 
     # WINDOWS ONLY SECTION BECAUSE THIS USES WIN32OLE
     if $have_win32ole
 
-      #initialize with Excel spreadsheet to read
-      def initialize(xlsx_path, worksheet_names =["all"])
-
+      # initialize with Excel spreadsheet to read
+      def initialize(xlsx_path, worksheet_names = ['all'])
         @xlsx_path = Pathname.new(xlsx_path).realpath.to_s
         @worksheets = []
 
         begin
 
-          excel = WIN32OLE::new('Excel.Application')
+          excel = WIN32OLE.new('Excel.Application')
 
           xlsx = excel.Workbooks.Open(@xlsx_path)
 
-          #by default, operate on all worksheets
-          if worksheet_names == ["all"]
+          # by default, operate on all worksheets
+          if worksheet_names == ['all']
             xlsx.Worksheets.each do |xlsx_worksheet|
               parse_xlsx_worksheet(xlsx_worksheet)
             end
-          else #if specific worksheets are specified, operate on them
+          else # if specific worksheets are specified, operate on them
             worksheet_names.each do |worksheet_name|
               parse_xlsx_worksheet(xlsx.Worksheets(worksheet_name))
             end
           end
 
-          #save spreadsheet if changes have been made
+          # save spreadsheet if changes have been made
           if xlsx.saved == true
-            #puts "[ComponentSpreadsheet] Spreadsheet unchanged; not saving"
+            # puts "[ComponentSpreadsheet] Spreadsheet unchanged; not saving"
           else
             xlsx.Save
-            puts "[ComponentSpreadsheet] Spreadsheet changes saved"
+            puts '[ComponentSpreadsheet] Spreadsheet changes saved'
           end
 
         ensure
@@ -80,30 +73,28 @@ module BCL
           excel.Quit
           WIN32OLE.ole_free(excel)
           excel.ole_free
-          xlsx=nil
-          excel=nil
+          xlsx = nil
+          excel = nil
           GC.start
 
         end
-
       end
 
     else # if $have_win32ole
 
-         # parse the master taxonomy document
-      def initialize(xlsx_path)
+      # parse the master taxonomy document
+      def initialize(_xlsx_path)
         puts "ComponentSpreadsheet class requires 'win32ole' to parse the component spreadsheet."
-        puts "ComponentSpreadsheet may also be stored and loaded from JSON if your platform does not support win32ole."
+        puts 'ComponentSpreadsheet may also be stored and loaded from JSON if your platform does not support win32ole.'
       end
 
     end # if $have_win32ole
 
     def save(save_path, chunk_size = 1000, delete_old_gather = false)
-
       # load master taxonomy to validate components
       taxonomy = BCL::MasterTaxonomy.new
 
-      #FileUtils.rm_rf(save_path) if File.exists?(save_path) and File.directory?(save_path)
+      # FileUtils.rm_rf(save_path) if File.exists?(save_path) and File.directory?(save_path)
 
       @worksheets.each do |worksheet|
         worksheet.components.each do |component|
@@ -135,7 +126,7 @@ module BCL
               author = values.delete_at(0)
               datetime = values.delete_at(0)
               if datetime.nil?
-                #puts "[ComponentSpreadsheet] WARNING missing the date in the datetime column in the spreadsheet - assuming today"
+                # puts "[ComponentSpreadsheet] WARNING missing the date in the datetime column in the spreadsheet - assuming today"
                 datetime = DateTime.new
               else
                 datetime = DateTime.parse(datetime)
@@ -153,7 +144,7 @@ module BCL
 
               value = values.delete_at(0)
               name = header.children[0]
-              units = ""
+              units = ''
               if match_data = /(.*)\((.*)\)/.match(name)
                 name = match_data[1].strip
                 units = match_data[2].strip
@@ -180,17 +171,17 @@ module BCL
               filename = values.delete_at(0)
               filetype = values.delete_at(0)
               filepath = values.delete_at(0)
-              #not all components(rows) have all files; skip if filename "" or nil
-              next if filename == "" or filename == nil
-              #skip the file if it doesn't exist at the specified location
-              if not File.exists?(filepath)
+              # not all components(rows) have all files; skip if filename "" or nil
+              next if filename == '' or filename.nil?
+              # skip the file if it doesn't exist at the specified location
+              unless File.exist?(filepath)
                 puts "[ComponentSpreadsheet] ERROR #{filepath} -> File does not exist, will not be included in component xml"
-                next #go to the next file
+                next # go to the next file
               end
               component_xml.add_file(software_program, version, filepath, filename, filetype)
 
             else
-              raise "Unknown section #{header.name}"
+              fail "Unknown section #{header.name}"
 
             end
 
@@ -205,21 +196,19 @@ module BCL
       end
 
       BCL.gather_components(save_path, chunk_size, delete_old_gather)
-
     end
 
     private
 
     def parse_xlsx_worksheet(xlsx_worksheet)
-
       worksheet = WorksheetStruct.new
-      worksheet.name = xlsx_worksheet.Range("A1").Value
+      worksheet.name = xlsx_worksheet.Range('A1').Value
       worksheet.components = []
       puts "[ComponentSpreadsheet] Starting parsing components of type #{worksheet.name}"
 
       # find number of rows, first column should be name, should not be empty
       num_rows = 1
-      while true do
+      while true
         test = xlsx_worksheet.Range("A#{num_rows}").Value
         if test.nil? or test.empty?
           num_rows -= 1
@@ -233,11 +222,11 @@ module BCL
       header = nil
       max_col = nil
       xlsx_worksheet.Columns.each do |col|
-        value1 = col.Rows("1").Value
-        value2 = col.Rows("2").Value
+        value1 = col.Rows('1').Value
+        value2 = col.Rows('2').Value
 
         if not value1.nil? and not value1.empty?
-          if not header.nil?
+          unless header.nil?
             headers << header
           end
           header = HeaderStruct.new
@@ -246,7 +235,7 @@ module BCL
         end
 
         if not value2.nil? and not value2.empty?
-          if not header.nil?
+          unless header.nil?
             header.children << value2
           end
         end
@@ -259,12 +248,12 @@ module BCL
         max_col = matchdata[1]
       end
 
-      if not header.nil?
+      unless header.nil?
         headers << header
       end
 
-      if not headers.empty?
-        headers[0].name = "description"
+      unless headers.empty?
+        headers[0].name = 'description'
       end
 
       puts "  Found #{num_rows - 2} components"
@@ -301,9 +290,6 @@ module BCL
       @worksheets << worksheet
 
       puts "[ComponentSpreadsheet] Finished parsing components of type #{worksheet.name}"
-
     end
-
   end
-
 end # module BCL

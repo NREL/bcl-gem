@@ -1,10 +1,10 @@
 ######################################################################
-#  Copyright (c) 2008-2013, Alliance for Sustainable Energy.
+#  Copyright (c) 2008-2014, Alliance for Sustainable Energy.
 #  All rights reserved.
 #
 #  This library is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU Lesser General Public
-#  License as published by th e Free Software Foundation; either
+#  License as published by the Free Software Foundation; either
 #  version 2.1 of the License, or (at your option) any later version.
 #
 #  This library is distributed in the hope that it will be useful,
@@ -17,21 +17,31 @@
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ######################################################################
 
-# Provides programmatic access to the component.xsd schema needed for
-# generating the component information that will be uploaded to
-# the Building Component Library.
+class String
+  def to_underscore
+    gsub(/::/, '/').
+        gsub(/([A-Z]+)([A-Z][a-z])/, '\1_\2').
+        gsub(/([a-z\d])([A-Z])/, '\1_\2').
+        tr('-', '_').
+        downcase
+  end
 
-module BCL
-  class Measure
-    def initialize(save_path)
-      super(save_path)
+  # simple method to create titles -- very custom to catch known inflections
+  def titleize
+    arr = %w(a an the by to)
+    upcase_arr = %w(DX EDA AEDG LPD COP)
+    r = gsub('_', ' ').gsub(/\w+/) { |match|
+      match_result = match
+      if upcase_arr.include?(match.upcase)
+        match_result = upcase_arr[upcase_arr.index(match.upcase)]
+      elsif arr.include?(match)
+        match_result = match
+      else
+        match_result = match.capitalize
+      end
+      match_result
+    }
 
-    end
-
-    def read_measure_xml(filepath)
-      xmlfile = File.open(filepath, 'r').read
-
-      @xml = LibXML::XML::Document.string(xmlfile)
-    end
+    r
   end
 end
