@@ -58,7 +58,7 @@ module BCL
         username = @config[:server][:user][:username]
         password = @config[:server][:user][:password]
         @group_id = group_id || @config[:server][:user][:group]
-        puts "logging in using credentials in .bcl/config.yml: Connecting to #{url} on port #{port} as #{username}"
+        puts "logging in using credentials in .bcl/config.yml: Connecting to #{url} on port #{port} as #{username} with group #{@group_id}"
       else
         @group_id = group_id
         puts "logging in using credentials in function arguments: Connecting to #{url} on port #{port} as #{username} with group #{@group_id}"
@@ -862,3 +862,4 @@ module BCL
     Dir.chdir(current_dir)
   end
 end # module BCL
+
