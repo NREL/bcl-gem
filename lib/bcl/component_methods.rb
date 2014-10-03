@@ -664,21 +664,21 @@ module BCL
 
       # add search term
       if !search_str.nil? && search_str != ''
-        full_url = full_url + search_str
+        full_url += search_str
         # strip out xml in case it's included. make sure .json is included
         full_url = full_url.gsub('.xml', '')
         unless search_str.include? '.json'
-          full_url = full_url + '.json'
+          full_url += '.json'
         end
       else
-        full_url = full_url + '*.json'
+        full_url += '*.json'
       end
 
       # add api_version
       if @api_version < 2.0
         puts "WARNING:  attempting to use search with api_version #{@api_version}. Use API v2.0 for this functionality."
       end
-      full_url = full_url + "?api_version=#{@api_version}"
+      full_url += "?api_version=#{@api_version}"
 
       # add filters
       unless filter_str.nil?
@@ -702,7 +702,7 @@ module BCL
         if filter_str.include? 'show_rows='
           full_url = full_url.gsub(/show_rows=\d{1,}/, 'show_rows=200')
         else
-          full_url = full_url + '&show_rows=200'
+          full_url += '&show_rows=200'
         end
         # make sure filter_str doesn't already have a page=x
         full_url.gsub(/page=\d{1,}/, '')

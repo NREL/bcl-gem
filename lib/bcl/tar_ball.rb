@@ -70,9 +70,9 @@ module BCL
     end
 
     if delete_zip
-      fileList = []
-      fileList << filename
-      FileUtils.rm(fileList)
+      file_list = []
+      file_list << filename
+      FileUtils.rm(file_list)
     end
   end
 end

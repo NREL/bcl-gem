@@ -167,7 +167,7 @@ module BCL
 
       terms = get_terms(tag)
 
-      # todo: check for all required attributes
+      # TODO: check for all required attributes
       terms.each do |_term|
         # if term.required
         # make sure we find attribute
@@ -191,7 +191,7 @@ module BCL
           next
         end
 
-        # todo: validate value, datatype, units
+        # TODO: validate value, datatype, units
 
       end
 

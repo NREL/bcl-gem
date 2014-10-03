@@ -60,10 +60,10 @@ module BCL
 
       @path = save_path
 
-      # todo: validate against master taxonomy
+      # TODO: validate against master taxonomy
     end
 
-    # TODO This isn't implemented at the moment
+    # TODO: This isn't implemented at the moment
     def open_component_xml(filename)
       read_component_xml(filename)
     end
