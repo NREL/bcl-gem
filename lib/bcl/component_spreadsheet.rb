@@ -172,7 +172,7 @@ module BCL
               filetype = values.delete_at(0)
               filepath = values.delete_at(0)
               # not all components(rows) have all files; skip if filename "" or nil
-              next if filename == '' or filename.nil?
+              next if filename == '' || filename.nil?
               # skip the file if it doesn't exist at the specified location
               unless File.exist?(filepath)
                 puts "[ComponentSpreadsheet] ERROR #{filepath} -> File does not exist, will not be included in component xml"
@@ -208,9 +208,9 @@ module BCL
 
       # find number of rows, first column should be name, should not be empty
       num_rows = 1
-      while true
+      loop do
         test = xlsx_worksheet.Range("A#{num_rows}").Value
-        if test.nil? or test.empty?
+        if test.nil? || test.empty?
           num_rows -= 1
           break
         end
@@ -225,7 +225,7 @@ module BCL
         value1 = col.Rows('1').Value
         value2 = col.Rows('2').Value
 
-        if not value1.nil? and not value1.empty?
+        if !value1.nil? && !value1.empty?
           unless header.nil?
             headers << header
           end
@@ -234,13 +234,13 @@ module BCL
           header.children = []
         end
 
-        if not value2.nil? and not value2.empty?
+        if !value2.nil? && !value2.empty?
           unless header.nil?
             header.children << value2
           end
         end
 
-        if (value1.nil? or value1.empty?) and (value2.nil? or value2.empty?)
+        if (value1.nil? || value1.empty?) && (value2.nil? || value2.empty?)
           break
         end
 
@@ -268,7 +268,7 @@ module BCL
 
         # get uid, if empty set it
         component.uid = xlsx_worksheet.Range("B#{i}").value
-        if component.uid.nil? or component.uid.empty?
+        if component.uid.nil? || component.uid.empty?
           component.uid = UUID.new.generate
           puts "#{component.name} uid missing; creating new one"
           xlsx_worksheet.Range("B#{i}").value = component.uid
@@ -276,7 +276,7 @@ module BCL
 
         # get version_id, if empty set it
         component.version_id = xlsx_worksheet.Range("C#{i}").value
-        if component.version_id.nil? or component.version_id.empty?
+        if component.version_id.nil? || component.version_id.empty?
           component.version_id = UUID.new.generate
           puts "#{component.name} version id missing; creating new one"
           xlsx_worksheet.Range("C#{i}").value = component.version_id

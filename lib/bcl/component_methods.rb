@@ -74,7 +74,7 @@ module BCL
         @http.use_ssl = true
       end
 
-      data = %Q({"username":"#{username}","password":"#{password}"})
+      data = %({"username":"#{username}","password":"#{password}"})
       # data = {"username" => username, "password" => password}
 
       login_path = '/api/user/login.json'
@@ -275,7 +275,7 @@ module BCL
         measure_hash[:version_id] = doc.xpath('/measure/version_id').first.content
         measure_hash[:modeler_description] = doc.xpath('/measure/modeler_description').first.content
         measure_hash[:description] = doc.xpath('/measure/description').first.content
-        measure_hash[:tags] = doc.xpath('/measure/tags/tag').map { |k| k.content }
+        measure_hash[:tags] = doc.xpath('/measure/tags/tag').map(&:content)
         f.close
       end
 
@@ -663,7 +663,7 @@ module BCL
       full_url = '/api/search/'
 
       # add search term
-      if !search_str.nil? and search_str != ''
+      if !search_str.nil? && search_str != ''
         full_url = full_url + search_str
         # strip out xml in case it's included. make sure .json is included
         full_url = full_url.gsub('.xml', '')
@@ -862,4 +862,3 @@ module BCL
     Dir.chdir(current_dir)
   end
 end # module BCL
-

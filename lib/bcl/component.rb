@@ -219,7 +219,7 @@ module BCL
 
       at = newcomp.componentData.componentDataAttributes
       @attributes.each do |attrib|
-        if (attrib.value.to_s != '') and (attrib.name.to_s != '')
+        if (attrib.value.to_s != '') && (attrib.name.to_s != '')
           if attrib.units != ''
             at.addAttribute(tc(attrib.name), attrib.value, attrib.units)
           else
@@ -232,7 +232,7 @@ module BCL
       comp_tag = ''
       @tags.each do |tag|
         tg.addTag(tc(tag.descriptor))
-        if (tag.descriptor != 'energyplus') and (tag.descriptor != 'construction')
+        if (tag.descriptor != 'energyplus') && (tag.descriptor != 'construction')
           # create a map of component tags to directories
           comp_tag = tag.descriptor
           if comp_tag == 'interior wall'
@@ -284,7 +284,7 @@ module BCL
       # setup the xml file
       comp_xml.instruct! :xml, version: '1.0', encoding: 'UTF-8'
       comp_xml.component('xmlns:xsi' => 'http://www.w3.org/2001/XMLSchema-instance',
-                         'xsi:noNamespaceSchemaLocation' => "#{@schema_url}") {
+                         'xsi:noNamespaceSchemaLocation' => "#{@schema_url}") do
         comp_xml.name @name
         comp_xml.uid @uuid
         comp_xml.version_id @vuid
@@ -294,57 +294,57 @@ module BCL
 
         # comp_xml.fidelity_level @fidelity_level if @fidelity_level != ""
 
-        comp_xml.provenances {
+        comp_xml.provenances do
           @provenances.each do |prov|
-            comp_xml.provenance {
+            comp_xml.provenance do
               comp_xml.author prov.author
               comp_xml.datetime prov.datetime
               comp_xml.comment prov.comment
-            }
+            end
           end
-        }
+        end
 
-        comp_xml.tags {
+        comp_xml.tags do
           @tags.each do |tag|
             comp_xml.tag tag.descriptor
           end
-        }
+        end
 
-        comp_xml.attributes {
+        comp_xml.attributes do
           @attributes.each do |attrib|
-            if (attrib.value.to_s != '') and (attrib.name.to_s != '') then
-              comp_xml.attribute {
+            if (attrib.value.to_s != '') && (attrib.name.to_s != '')
+              comp_xml.attribute do
                 comp_xml.name attrib.name
                 comp_xml.value attrib.value
                 comp_xml.datatype attrib.datatype
                 comp_xml.units attrib.units if attrib.units != ''
-              }
+              end
             end
           end
-        }
+        end
 
-        comp_xml.source {
+        comp_xml.source do
           comp_xml.manufacturer @source_manufacturer if @source_manufacturer != ''
           comp_xml.model @source_model if @source_model != ''
           comp_xml.serial_no @source_serial_no if @source_serial_no != ''
           comp_xml.year @source_year if @source_year != ''
           comp_xml.url @source_url if @source_url != ''
-        }
+        end
 
         unless @files.nil?
-          comp_xml.files {
+          comp_xml.files do
             @files.each do |file|
-            comp_xml.file {
-            comp_xml.version {
-            comp_xml.software_program file.version_software_program
-            comp_xml.identifier file.version_id
-          }
+              comp_xml.file do
+                comp_xml.version do
+                  comp_xml.software_program file.version_software_program
+                  comp_xml.identifier file.version_id
+                end
 
-            comp_xml.filename file.filename
-            comp_xml.filetype file.filetype
-          }
+                comp_xml.filename file.filename
+                comp_xml.filetype file.filetype
+              end
+            end
           end
-          }
         end
 
         # check if we should write out costs, don't write if all values are 0 or nil
@@ -360,9 +360,9 @@ module BCL
         # end
 
         if write_costs
-          comp_xml.costs {
+          comp_xml.costs do
             @costs.each do |cost|
-              comp_xml.cost {
+              comp_xml.cost do
                 comp_xml.instance_name cost.cost_name
                 comp_xml.cost_type cost.cost_type
                 comp_xml.category cost.category
@@ -375,12 +375,12 @@ module BCL
                 comp_xml.source cost.source if cost.source != ''
                 comp_xml.reference_component_name cost.reference_component_name if cost.reference_component_name != ''
                 comp_xml.reference_component_id cost.reference_component_id if cost.reference_component_id != ''
-              }
+              end
             end
-          }
+          end
         end
 
-      }
+      end
 
       xmlfile.close
     end

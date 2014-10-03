@@ -111,9 +111,9 @@ module BCL
 
         # setup the xml file
         xml.instruct!(:xml, version: '1.0', encoding: 'UTF-8')
-        xml.schema('xmlns:xsi' => 'http://www.w3.org/2001/XMLSchema-instance') {
+        xml.schema('xmlns:xsi' => 'http://www.w3.org/2001/XMLSchema-instance') do
           write_tag_to_xml(root_tag, 0, xml, output_type)
-        }
+        end
       end
     end
 
@@ -223,7 +223,7 @@ module BCL
 
       # find number of rows by parsing until hit empty value in first column
       row_num = 3
-      while true
+      loop do
         term = parse_term(terms_worksheet, row_num)
         if term.nil?
           break
@@ -331,7 +331,7 @@ module BCL
       term.tp_additional_data_user_info = terms_worksheet.Columns(33).Rows(row).Value
 
       # trigger to quit parsing the xcel doc
-      if term.first_level.nil? or term.first_level.empty?
+      if term.first_level.nil? || term.first_level.empty?
         return nil
       end
 
@@ -348,7 +348,7 @@ module BCL
         tag = create_tag(level_hierarchy, term.description)
       end
 
-      if term.name.nil? or term.name.strip.empty?
+      if term.name.nil? || term.name.strip.empty?
         # this row is really about the tag
         tag.description = term.description
 
@@ -399,7 +399,7 @@ module BCL
     end
 
     def check_tag(tag)
-      if tag.description.nil? or tag.description.empty?
+      if tag.description.nil? || tag.description.empty?
         puts "[check_tag] tag '#{tag.level_hierarchy}' has no description"
       end
 
@@ -454,7 +454,7 @@ module BCL
     end
 
     def check_term(term)
-      if term.description.nil? or term.description.empty?
+      if term.description.nil? || term.description.empty?
         # puts "[check_term] term '#{term.level_hierarchy}.#{term.name}' has no description"
       end
     end
@@ -464,7 +464,7 @@ module BCL
       terms = get_terms(tag)
       if terms.size > 0
         terms.each do |term|
-          xml.term {
+          xml.term do
             xml.name term.name
             xml.abbr term.abbr unless term.abbr.nil?
             xml.description term.description unless term.description.nil?
@@ -472,13 +472,13 @@ module BCL
             xml.allow_multiple term.allow_multiple unless term.allow_multiple.nil?
 
             if !term.enums.nil? && term.enums != ''
-              xml.enumerations {
+              xml.enumerations do
                 out = term.enums.split('|')
                 out.sort! if @sort_alphabetical
                 out.each do |enum|
                   xml.enumeration enum
                 end
-              }
+              end
             end
             xml.ip_written term.ip_written unless term.ip_written.nil?
             xml.ip_symbol term.ip_symbol unless term.ip_symbol.nil?
@@ -503,7 +503,7 @@ module BCL
               xml.tp_additional_data_user_info term.tp_additional_data_user_info unless term.tp_additional_data_user_info.nil?
               xml.tp_additional_data_submitter_info term.tp_additional_data_submitter_info unless term.tp_additional_data_submitter_info.nil?
             end
-          }
+          end
         end
       end
     end
@@ -511,7 +511,7 @@ module BCL
     # write a tag to xml
     def write_tag_to_xml(tag, level, xml, output_type)
       level_string = "level_#{level}"
-      xml.tag!(level_string) {
+      xml.tag!(level_string) do
         s_temp = tag.name
         xml.name s_temp
         xml.description tag.description
@@ -527,7 +527,7 @@ module BCL
           write_tag_to_xml(child_tag, level, xml, output_type)
         end
 
-      }
+      end
     end
   end
 end # module BCL
