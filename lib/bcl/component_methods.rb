@@ -350,13 +350,13 @@ module BCL
             if measure_hash.empty?
               puts 'Measure Hash was empty... moving on'
             else
-              #puts measure_hash.inspect
+              # puts measure_hash.inspect
               m_result = measure_hash
               # move the directory to the class name
               new_dir_name = File.join(@parsed_measures_path, measure_hash[:classname])
-              #puts "Moving #{temp_dir_name} to #{new_dir_name}"
+              # puts "Moving #{temp_dir_name} to #{new_dir_name}"
               if temp_dir_name == new_dir_name
-                puts "Destination directory is the same as the processed directory"
+                puts 'Destination directory is the same as the processed directory'
               else
                 FileUtils.rm_rf(new_dir_name) if File.exist?(new_dir_name) && temp_dir_name != measure_hash[:classname]
                 FileUtils.move(temp_dir_name, new_dir_name) unless temp_dir_name == measure_hash[:classname]
@@ -765,7 +765,7 @@ module BCL
       # puts "RESULTS BODY: #{result.body}"
       # look at response code
       if result.code == '200'
-        #puts 'Download Successful'
+        # puts 'Download Successful'
         result.body ? result.body : nil
       else
         puts "Download fail. Error code #{result.code}"
