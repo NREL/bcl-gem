@@ -16,6 +16,7 @@ Gem::Specification.new do |s|
 
   s.required_ruby_version = '>= 1.9.2'
 
+  # TODO reconcile all these dependencies
   s.add_runtime_dependency('uuid')
   s.add_runtime_dependency('builder')
   s.add_runtime_dependency('zliby')

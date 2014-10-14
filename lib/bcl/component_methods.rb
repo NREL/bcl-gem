@@ -158,9 +158,12 @@ module BCL
       puts "retrieving measures that match search_term: #{search_term.nil? ? 'nil' : search_term} and filters: #{filter_term.nil? ? 'nil' : filter_term}"
       measures = []
       retrieve_measures(search_term, filter_term, return_all_pages) do |m|
-        # parse and save
-        r = parse_measure_metadata(m)
-        measures << r if r
+        begin
+          r = parse_measure_metadata(m)
+          measures << r if r
+        rescue => e
+          puts "[ERROR] Parsing measure #{e.message}:#{e.backtrace.join("\n")}"
+        end
       end
 
       measures
@@ -344,17 +347,22 @@ module BCL
             measure_filename = "#{temp_dir_name}/measure.rb"
             measure_hash = parse_measure_file(measure[:measure][:name], measure_filename)
 
-            unless measure_hash.empty?
+            if measure_hash.empty?
+              puts 'Measure Hash was empty... moving on'
+            else
+              #puts measure_hash.inspect
               m_result = measure_hash
               # move the directory to the class name
               new_dir_name = File.join(@parsed_measures_path, measure_hash[:classname])
-              FileUtils.rm_rf(new_dir_name) if File.exist?(new_dir_name) && temp_dir_name != measure_hash[:classname]
-              FileUtils.move(temp_dir_name, new_dir_name) unless temp_dir_name == measure_hash[:classname]
-
+              #puts "Moving #{temp_dir_name} to #{new_dir_name}"
+              if temp_dir_name == new_dir_name
+                puts "Destination directory is the same as the processed directory"
+              else
+                FileUtils.rm_rf(new_dir_name) if File.exist?(new_dir_name) && temp_dir_name != measure_hash[:classname]
+                FileUtils.move(temp_dir_name, new_dir_name) unless temp_dir_name == measure_hash[:classname]
+              end
               # create a new measure.json file for parsing later if need be
               File.open(File.join(new_dir_name, 'measure.json'), 'w') { |f| f << MultiJson.dump(measure_hash, pretty: true) }
-            else
-              puts 'Measure Hash was empty... moving on'
             end
           else
             puts "Problems downloading #{measure[:measure][:name]}... moving on"
@@ -752,12 +760,12 @@ module BCL
 
     def download_component(uid)
       result = @http.get("/api/component/download?uids=#{uid}")
-      puts "DOWNLOADING: /api/component/download?uids=#{uid}"
+      puts "Downloading: http://#{@http.address}/api/component/download?uids=#{uid}"
       # puts "RESULTS: #{result.inspect}"
       # puts "RESULTS BODY: #{result.body}"
       # look at response code
       if result.code == '200'
-        puts 'Download Successful'
+        #puts 'Download Successful'
         result.body ? result.body : nil
       else
         puts "Download fail. Error code #{result.code}"

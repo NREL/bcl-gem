@@ -1,7 +1,8 @@
-# Overview
-List of changes to the bcl gem
+# Change Log
+
 ## Version 0.5.5
 * Read as binary for .tar.gz
+* When downloading and parsing measures, skip instance where the measure class name is already the directory name.
 
 ## Version 0.5.2-4
 * Remove libxml dependency
@@ -25,7 +26,7 @@ List of changes to the bcl gem
 * Several fixes to previous gem
 * Put required gems into the gemspec
 
-### New Features 
+### New Features
 * Able to specify the group_id when you create the component methods
 * Added parsing of BCL measures for extracting arguments
 
@@ -37,7 +38,6 @@ List of changes to the bcl gem
 
 ## Version 0.1.7
 
-### New Features 
+### New Features
 * Added rspec for testing
 * Made a datatype method in BCL class to resolve the appropriate values per BCL convention (i.e. int, float, string)
-
