@@ -125,7 +125,7 @@ module BCL
               filetype = values.delete_at(0)
               filepath = values.delete_at(0)
               # not all components(rows) have all files; skip if filename "" or nil
-              next if filename == '' or filename.nil?
+              next if filename == '' || filename.nil?
               # skip the file if it doesn't exist at the specified location
               unless File.exist?(filepath)
                 puts "[ComponentFromSpreadsheet] ERROR #{filepath} -> File does not exist, will not be included in component xml"
@@ -180,7 +180,7 @@ module BCL
         value1 = xlsx_data[0][index]
         value2 = xlsx_data[1][index]
 
-        if not value1.nil? and not value1.empty?
+        if !value1.nil? && !value1.empty?
           unless header.nil?
             headers << header
           end
@@ -189,13 +189,13 @@ module BCL
           header.children = []
         end
 
-        if not value2.nil? and not value2.empty?
+        if !value2.nil? && !value2.empty?
           unless header.nil?
             header.children << value2
           end
         end
 
-        if (value1.nil? or value1.empty?) and (value2.nil? or value2.empty?)
+        if (value1.nil? || value1.empty?) && (value2.nil? || value2.empty?)
           break
         end
 
@@ -222,7 +222,7 @@ module BCL
 
         # get uid, if empty set it
         component.uid = xlsx_data[i][1]
-        if component.uid.nil? or component.uid.empty?
+        if component.uid.nil? || component.uid.empty?
           component.uid = UUID.new.generate
           puts "#{component.name} uid missing; creating new one"
           xlsx_worksheet.add_cell(i, 1, component.uid)
