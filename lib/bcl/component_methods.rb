@@ -60,7 +60,7 @@ module BCL
         @group_id = group_id || @config[:server][:user][:group]
         puts "logging in using credentials in .bcl/config.yml: Connecting to #{url} on port #{port} as #{username} with group #{@group_id}"
       else
-        @group_id = group_id
+        @group_id = group_id || @config[:server][:user][:group]
         puts "logging in using credentials in function arguments: Connecting to #{url} on port #{port} as #{username} with group #{@group_id}"
       end
 

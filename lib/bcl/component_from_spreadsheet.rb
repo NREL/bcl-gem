@@ -77,6 +77,7 @@ module BCL
 
           values = component.values
 
+          puts " headers: #{component.headers}"
           component.headers.each do |header|
             if /description/i.match(header.name)
               name = values.delete_at(0) # name, uid already processed
@@ -155,18 +156,20 @@ module BCL
 
       xlsx_data = xlsx_worksheet.extract_data
       # puts "Data: #{xlsx_data.inspect}"
+      # puts "***********************"
+
 
       num_rows = xlsx_data.size
-      # puts "Number of Rows: #{xlsx_data.size}"
-      num_rows = 2
-      while true
-        test = xlsx_data[num_rows][0]
-        if test.nil? or test.empty?
-          # num_rows -= 1
-          break
-        end
-        num_rows += 1
-      end
+      puts "Number of Rows: #{xlsx_data.size}"
+     # num_rows = 2
+     # while true
+     #   test = xlsx_data[num_rows][0]
+     #   if test.nil? or test.empty?
+     #     # num_rows -= 1
+     #     break
+     #   end
+     #   num_rows += 1
+     # end
 
       # scan number of columns
       headers = []
