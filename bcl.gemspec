@@ -29,7 +29,7 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency('rubyzip')
   s.add_runtime_dependency('rubyXL')
 
-  s.add_development_dependency('rake', '~> 10.3.2')
+  s.add_development_dependency('rake', '~> 10.4.2')
   s.add_development_dependency('rspec', '~> 3.0')
   s.add_development_dependency('rubocop', '~> 0.26.1')
   s.add_development_dependency('rubocop-checkstyle_formatter', '~> 0.1.1')
