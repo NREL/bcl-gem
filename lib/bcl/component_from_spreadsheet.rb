@@ -158,18 +158,17 @@ module BCL
       # puts "Data: #{xlsx_data.inspect}"
       # puts "***********************"
 
-
       num_rows = xlsx_data.size
       puts "Number of Rows: #{xlsx_data.size}"
-     # num_rows = 2
-     # while true
-     #   test = xlsx_data[num_rows][0]
-     #   if test.nil? or test.empty?
-     #     # num_rows -= 1
-     #     break
-     #   end
-     #   num_rows += 1
-     # end
+      # num_rows = 2
+      # while true
+      #   test = xlsx_data[num_rows][0]
+      #   if test.nil? or test.empty?
+      #     # num_rows -= 1
+      #     break
+      #   end
+      #   num_rows += 1
+      # end
 
       # scan number of columns
       headers = []
