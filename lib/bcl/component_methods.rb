@@ -206,8 +206,14 @@ module BCL
           choice_vector = arg_params[1] ? arg_params[1].strip : nil
 
           # local variable name to get other attributes
-          new_arg[:display_name] = measure_string.match(/#{new_arg[:local_variable]}.setDisplayName\((.*)\)/)[1]
-          new_arg[:display_name].gsub!(/"|'/, '') if new_arg[:display_name]
+          reg = /#{new_arg[:local_variable]}.setDisplayName\((.*)\)/
+          if measure_string =~ reg
+            new_arg[:display_name] = measure_string.match(reg)[1]
+            new_arg[:display_name].gsub!(/"|'/, '') if new_arg[:display_name]
+          else
+            new_arg[:display_name] = new_arg[:name]
+          end
+
           p = parse_measure_name(new_arg[:display_name])
           new_arg[:display_name] = p[0]
           new_arg[:units] = p[1]

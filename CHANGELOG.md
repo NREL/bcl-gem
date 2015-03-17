@@ -1,5 +1,8 @@
 # Change Log
 
+## Version 0.5.6 (Unreleased)
+* Allow no display name when parsing measure arguments (measure argument does not have setDisplayName)
+
 ## Version 0.5.5
 * Read as binary for .tar.gz
 * When downloading and parsing measures, skip instance where the measure class name is already the directory name.
