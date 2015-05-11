@@ -169,8 +169,8 @@ module BCL
       measures
     end
 
-    # Read in an existing measure.rb file and extract the arguments.  Note that the measure_name (display name)
-    # does not exist in the .rb file, so you have to pass this in.
+    # Read in an existing measure.rb file and extract the arguments.
+    # TODO: deprecate the _measure_name. This is used in the openstudio analysis gem, so it has to be carefully removed or renamed
     def parse_measure_file(_measure_name, measure_filename)
       measure_hash = {}
 
@@ -180,7 +180,10 @@ module BCL
 
         measure_hash[:classname] = measure_string.match(/class (.*) </)[1]
         measure_hash[:name] = measure_hash[:classname].to_underscore
-        measure_hash[:display_name] = measure_hash[:name].titleize
+        measure_hash[:display_name] = nil
+        measure_hash[:display_name_titleized] = measure_hash[:name].titleize
+        measure_hash[:display_name_from_measure] = nil
+
         if measure_string =~ /OpenStudio::Ruleset::WorkspaceUserScript/
           measure_hash[:measure_type] = 'EnergyPlusMeasure'
         elsif measure_string =~ /OpenStudio::Ruleset::ModelUserScript/
@@ -193,11 +196,48 @@ module BCL
           fail "measure type is unknown with an inherited class in #{measure_filename}: #{measure_hash.inspect}"
         end
 
+        # New versions of measures have name, description, and modeler description methods
+        n = measure_string.scan(/def name(.*?)end/m).first
+        if n
+          n = n.first.strip
+          n.gsub!('return', '')
+          n.gsub!(/"|'/, '')
+          n.strip!
+          measure_hash[:display_name_from_measure] = n
+        end
+
+        # New versions of measures have name, description, and modeler description methods
+        n = measure_string.scan(/def description(.*?)end/m).first
+        if n
+          n = n.first.strip
+          n.gsub!('return', '')
+          n.gsub!(/"|'/, '')
+          n.strip!
+          measure_hash[:description] = n
+        end
+
+        # New versions of measures have name, description, and modeler description methods
+        n = measure_string.scan(/def modeler_description(.*?)end/m).first
+        if n
+          n = n.first.strip
+          n.gsub!('return', '')
+          n.gsub!(/"|'/, '')
+          n.strip!
+          measure_hash[:modeler_description] = n
+        end
+
         measure_hash[:arguments] = []
 
         args = measure_string.scan(/(.*).*=.*OpenStudio::Ruleset::OSArgument.*make(.*)Argument\((.*).*\)/)
         args.each do |arg|
           new_arg = {}
+          new_arg[:name] = nil
+          new_arg[:display_name] = nil
+          new_arg[:variable_type] = nil
+          new_arg[:local_variable] = nil
+          new_arg[:units] = nil
+          new_arg[:units_in_name] = nil
+
           new_arg[:local_variable] = arg[0].strip
           new_arg[:variable_type] = arg[1]
           arg_params = arg[2].split(',')
@@ -205,7 +245,7 @@ module BCL
           next if new_arg[:name] == 'info_widget'
           choice_vector = arg_params[1] ? arg_params[1].strip : nil
 
-          # local variable name to get other attributes
+          # try find the display name of the argument
           reg = /#{new_arg[:local_variable]}.setDisplayName\((.*)\)/
           if measure_string =~ reg
             new_arg[:display_name] = measure_string.match(reg)[1]
@@ -216,19 +256,25 @@ module BCL
 
           p = parse_measure_name(new_arg[:display_name])
           new_arg[:display_name] = p[0]
-          new_arg[:units] = p[1]
-          new_arg[:description] = p[2]
+          new_arg[:units_in_name] = p[1]
+
+          # try to get the units
+          reg = /#{new_arg[:local_variable]}.setUnits\((.*)\)/
+          if measure_string =~ reg
+            new_arg[:units] = measure_string.match(reg)[1]
+            new_arg[:units].gsub!(/"|'/, '') if new_arg[:units]
+          end
 
           if measure_string =~ /#{new_arg[:local_variable]}.setDefaultValue/
             new_arg[:default_value] = measure_string.match(/#{new_arg[:local_variable]}.setDefaultValue\((.*)\)/)[1]
           else
-            puts "[WARNING] #{measure_hash[:name]}:#{new_arg[:name]} has no default value... will try to continue"
+            puts "[WARNING] #{measure_hash[:name]}:#{new_arg[:name]} has no default value... will continue"
           end
 
           case new_arg[:variable_type]
             when 'Choice'
               # Choices to appear to only be strings?
-              puts "Choice vector appears to be #{choice_vector}"
+              # puts "Choice vector appears to be #{choice_vector}"
               new_arg[:default_value].gsub!(/"|'/, '') if new_arg[:default_value]
 
               # parse the choices from the measure
@@ -282,13 +328,80 @@ module BCL
         measure_hash[:name_xml] = doc.xpath('/measure/name').first.content
         measure_hash[:uid] = doc.xpath('/measure/uid').first.content
         measure_hash[:version_id] = doc.xpath('/measure/version_id').first.content
-        measure_hash[:modeler_description] = doc.xpath('/measure/modeler_description').first.content
-        measure_hash[:description] = doc.xpath('/measure/description').first.content
         measure_hash[:tags] = doc.xpath('/measure/tags/tag').map(&:content)
+
+        measure_hash[:modeler_description_xml] = doc.xpath('/measure/modeler_description').first.content
+
+        measure_hash[:description_xml] = doc.xpath('/measure/description').first.content
+
         f.close
       end
 
+      # validate the measure information
+
+      validate_measure_hash(measure_hash)
+
       measure_hash
+    end
+
+    # Validate the measure hash to make sure that it is meets the style guide. This will also perform the selection
+    # of which data to use for the "actual metadata"
+    #
+    # @param h [Hash] Measure hash
+    def validate_measure_hash(h)
+      if h.key? :name_xml
+        if h[:name_xml] != h[:name]
+          puts "[ERROR] {Validation}. Snake-cased name and the name in the XML do not match. Will default to automatic snake-cased measure name. #{h[:name_xml]} <> #{h[:name]}"
+        end
+      end
+
+      puts '[WARNING] {Validation} Could not find measure description in measure.'  unless h[:description]
+      puts '[WARNING] {Validation} Could not find modeler description in measure.'  unless h[:modeler_description]
+      puts '[WARNING] {Validation} Could not find measure name method in measure.'  unless h[:name_from_measure]
+
+      # check the naming conventions
+      if h[:display_name_from_measure]
+        if h[:display_name_from_measure] != h[:display_name_titleized]
+          puts '[WARNING] {Validation} Display name from measure and automated naming do not match. Will default to the automated name until all measures use the name method because of potential conflicts due to bad copy/pasting.'
+        end
+        h[:display_name] = h.delete :display_name_titleized
+      else
+        h[:display_name] = h.delete :display_name_titleized
+      end
+      h.delete :display_name_from_measure
+
+      if h.key?(:description) && h.key?(:description_xml)
+        if h[:description] != h[:description_xml]
+          puts '[ERROR] {Validation} Measure description and XML description differ. Will default to description in measure'
+        end
+        h.delete(:description_xml)
+      end
+
+      if h.key?(:modeler_description) && h.key?(:modeler_description_xml)
+        if h[:modeler_description] != h[:modeler_description_xml]
+          puts '[ERROR] {Validation} Measure modeler description and XML modeler description differ. Will default to modeler description in measure'
+        end
+        h.delete(:modeler_description_xml)
+      end
+
+      h[:arguments].each do |arg|
+        if arg[:units_in_name]
+          puts "[ERROR] {Validation} It appears that units are embedded in the argument name for #{arg[:name]}."
+
+          if arg[:units]
+            if arg[:units] != arg[:units_in_name]
+              puts '[ERROR] {Validation} Units in argument name do not match units in setUnits method. Using setUnits.'
+              arg.delete :units_in_name
+            end
+          else
+            puts '[ERROR] {Validation} Units appear to be in measure name. Please use setUnits.'
+            arg[:units] = arg.delete :units_in_name
+          end
+        else
+          # make sure to delete if null
+          arg.delete :units_in_name
+        end
+      end
     end
 
     def translate_measure_hash_to_csv(measure_hash)
@@ -334,7 +447,7 @@ module BCL
           File.open(save_file, 'wb') { |f| f << file_data }
 
           # unzip file and delete zip.
-          # TODO check that something was downloaded here before extracting zip
+          # TODO: check that something was downloaded here before extracting zip
           if File.exist? save_file
             BCL.extract_zip(save_file, @parsed_measures_path, true)
 
@@ -351,7 +464,7 @@ module BCL
             # Read the measure.rb file
             # puts "save dir name #{temp_dir_name}"
             measure_filename = "#{temp_dir_name}/measure.rb"
-            measure_hash = parse_measure_file(measure[:measure][:name], measure_filename)
+            measure_hash = parse_measure_file(measure_filename)
 
             if measure_hash.empty?
               puts 'Measure Hash was empty... moving on'
@@ -387,12 +500,11 @@ module BCL
 
       clean_name = name
       units = nil
-      description = nil
 
       # remove everything btw parentheses
       m = clean_name.match(/\((.+?)\)/)
       unless m.nil?
-        errors = errors + ' removing parentheses,'
+        errors += ' removing parentheses,'
         units = m[1]
         clean_name = clean_name.gsub(/\((.+?)\)/, '')
       end
@@ -401,7 +513,7 @@ module BCL
       m = nil
       m = clean_name.match(/\[(.+?)\]/)
       unless m.nil?
-        errors = errors + ' removing brackets,'
+        errors += ' removing brackets,'
         clean_name = clean_name.gsub(/\[(.+?)\]/, '')
       end
 
@@ -409,13 +521,13 @@ module BCL
       m = nil
       m = clean_name.match(/(\?|\.|\#).+?/)
       unless m.nil?
-        errors = errors + ' removing any of following: ?.#'
+        errors += ' removing any of following: ?.#'
         clean_name = clean_name.gsub(/(\?|\.|\#).+?/, '')
       end
       clean_name = clean_name.gsub('.', '')
       clean_name = clean_name.gsub('?', '')
 
-      [clean_name.strip, units, description]
+      [clean_name.strip, units]
     end
 
     # retrieve measures for parsing metadata.
@@ -429,7 +541,7 @@ module BCL
       if filter_term.nil?
         filter_term = 'fq[]=bundle%3Anrel_measure'
       elsif !filter_term.include? 'bundle'
-        filter_term = filter_term + '&fq[]=bundle%3Anrel_measure'
+        filter_term += '&fq[]=bundle%3Anrel_measure'
       end
 
       # use provided search term or nil.
@@ -490,7 +602,7 @@ module BCL
     # Construct the post parameter for the API content.json end point.
     # param(@update) is a boolean that triggers whether to use content_type or uuid
     def construct_post_data(filepath, update, content_type_or_uuid)
-      # TODO remove special characters in the filename; they create firewall errors
+      # TODO: remove special characters in the filename; they create firewall errors
       # filename = filename.gsub(/\W/,'_').gsub(/___/,'_').gsub(/__/,'_').chomp('_').strip
 
       file_b64 = Base64.encode64(File.binread(filepath))
@@ -511,7 +623,7 @@ module BCL
         data['node']['type'] = content_type_or_uuid
       end
 
-      # TODO remove this field_component_tags once BCL is fixed
+      # TODO: remove this field_component_tags once BCL is fixed
       data['node']['field_component_tags'] = { 'und' => '1289' }
       data['node']['og_group_ref'] = { 'und' => ['target_id' => @group_id] }
 
@@ -815,7 +927,7 @@ module BCL
     end
   end # class ComponentMethods
 
-  # TODO make this extend the component_xml class (or create a super class around components)
+  # TODO: make this extend the component_xml class (or create a super class around components)
 
   def self.gather_components(component_dir, chunk_size = 0, delete_previousgather = false, destination = nil)
     if destination.nil?
