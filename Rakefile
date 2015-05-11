@@ -1,31 +1,13 @@
 require 'bundler'    # don't use bundler right now because it runs these rake tasks differently
 Bundler.setup
-
-require 'rake'
-require 'rspec/core/rake_task'
-
 $LOAD_PATH.unshift File.expand_path('../lib', __FILE__)
 require 'bcl'
 require 'bcl/version'
 
-task gem: :build
-desc 'build gem'
-task :build do
-  system 'gem build bcl.gemspec'
-end
+require 'rspec/core/rake_task'
 
-desc 'install gem from local build'
-task install: :build do
-  system "gem install bcl-#{BCL::VERSION}.gem --no-ri --no-rdoc"
-end
-
-desc 'build and release version of gem on rubygems.org'
-task release: :build do
-  system "git tag -a v#{BCL::VERSION} -m 'Tagging #{BCL::VERSION}'"
-  system 'git push --tags'
-  system "gem push bcl-#{BCL::VERSION}.gem"
-  system "rm bcl-#{BCL::VERSION}.gem"
-end
+# Always create spec reports
+require 'ci/reporter/rake/rspec'
 
 desc 'import a new build of the taxonomy'
 task :import_taxonomy do
@@ -87,6 +69,10 @@ RSpec::Core::RakeTask.new('spec') do |spec|
   spec.pattern = 'spec/**/*_spec.rb'
 end
 
+task 'spec' => 'ci:setup:rspec'
+
+task default: 'spec'
+
 require 'rubocop/rake_task'
 desc 'Run RuboCop on the lib directory'
 RuboCop::RakeTask.new(:rubocop) do |task|
@@ -98,6 +84,3 @@ RuboCop::RakeTask.new(:rubocop) do |task|
   task.fail_on_error = false
 end
 
-desc 'Default task run rspec tests'
-task test: :spec
-task default: :spec
