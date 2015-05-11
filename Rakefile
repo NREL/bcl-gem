@@ -83,7 +83,7 @@ task reinstall: [:uninstall, :install]
 
 RSpec::Core::RakeTask.new('spec') do |spec|
   puts 'running tests...'
-  spec.rspec_opts = %w(--format progress --format CI::Reporter::RSpec)
+  spec.rspec_opts = %w(--format progress)
   spec.pattern = 'spec/**/*_spec.rb'
 end
 
