@@ -98,7 +98,6 @@ module BCL
 
       @worksheets.each do |worksheet|
         worksheet.components.each do |component|
-
           component_xml = Component.new("#{save_path}/components")
           component_xml.name = component.name
           component_xml.uid = component.uid
@@ -109,7 +108,6 @@ module BCL
 
           values = component.values[0]
           component.headers.each do |header|
-
             if /description/i.match(header.name)
 
               name = values.delete_at(0)
@@ -184,15 +182,12 @@ module BCL
               fail "Unknown section #{header.name}"
 
             end
-
           end
 
           taxonomy.check_component(component_xml)
 
           component_xml.save_tar_gz(false)
-
         end
-
       end
 
       BCL.gather_components(save_path, chunk_size, delete_old_gather)

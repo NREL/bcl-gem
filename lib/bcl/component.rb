@@ -105,7 +105,7 @@ module BCL
         destination = "#{@uid}"
         puts 'truncating filename...using uid instead of name'
       end
-      destination = destination + '.tar.gz'
+      destination += '.tar.gz'
 
       File.delete(destination) if File.exist?(destination)
 
@@ -186,7 +186,7 @@ module BCL
       FileUtils.mkdir_p(@path) unless File.directory?(@path)
       new_path = @path + '/OpenStudio'
       FileUtils.mkdir_p(new_path) unless File.directory?(new_path)
-      new_path = new_path + "/#{component_type}"
+      new_path += "/#{component_type}"
       FileUtils.mkdir_p(new_path) unless File.directory?(new_path)
       new_path
     end
@@ -379,7 +379,6 @@ module BCL
             end
           end
         end
-
       end
 
       xmlfile.close

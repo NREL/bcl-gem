@@ -201,7 +201,6 @@ describe 'BCL API' do
           expect(test).to be_a TrueClass
         end
       end
-
     end
   end
 end

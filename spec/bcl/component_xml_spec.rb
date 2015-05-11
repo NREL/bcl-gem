@@ -54,7 +54,7 @@ describe BCL::Component do
     end
   end
 
-  # TODO CONVERT this to Rspec
+  # TODO: CONVERT this to Rspec
   #
   #
   #   def test_osm_and_osc_component

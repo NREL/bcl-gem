@@ -34,7 +34,6 @@ describe 'BCL API' do
       it 'should return three results' do
         expect(@results[:result].count).to eq 3
       end
-
     end
 
     context 'and parsing measure metadata (5 NREL measures only)' do
@@ -93,7 +92,6 @@ describe 'BCL API' do
       it 'should be able to update the measure' do
         filename = "#{File.dirname(__FILE__)}/resources/measure_example.tar.gz"
         valid, res = @cm.update_content(filename, false)
-        puts res.inspect
 
         expect(valid).to eq true
         expect(res['nid']).to eq '69197'
