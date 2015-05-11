@@ -464,7 +464,7 @@ module BCL
             # Read the measure.rb file
             # puts "save dir name #{temp_dir_name}"
             measure_filename = "#{temp_dir_name}/measure.rb"
-            measure_hash = parse_measure_file(measure_filename)
+            measure_hash = parse_measure_file(nil, measure_filename)
 
             if measure_hash.empty?
               puts 'Measure Hash was empty... moving on'
