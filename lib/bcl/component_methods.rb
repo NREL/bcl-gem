@@ -233,6 +233,7 @@ module BCL
           new_arg = {}
           new_arg[:name] = nil
           new_arg[:display_name] = nil
+          new_arg[:description] = nil
           new_arg[:variable_type] = nil
           new_arg[:local_variable] = nil
           new_arg[:units] = nil
@@ -246,9 +247,9 @@ module BCL
           choice_vector = arg_params[1] ? arg_params[1].strip : nil
 
           # try find the display name of the argument
-          reg = /#{new_arg[:local_variable]}.setDisplayName\((.*)\)/
+          reg = /#{new_arg[:local_variable]}.setDisplayName.(.*)/
           if measure_string =~ reg
-            new_arg[:display_name] = measure_string.match(reg)[1]
+            new_arg[:display_name] = measure_string.match(reg)[1].strip
             new_arg[:display_name].gsub!(/"|'/, '') if new_arg[:display_name]
           else
             new_arg[:display_name] = new_arg[:name]
@@ -259,14 +260,22 @@ module BCL
           new_arg[:units_in_name] = p[1]
 
           # try to get the units
-          reg = /#{new_arg[:local_variable]}.setUnits\((.*)\)/
+          reg = /#{new_arg[:local_variable]}.setUnits.(.*)/
           if measure_string =~ reg
-            new_arg[:units] = measure_string.match(reg)[1]
+            new_arg[:units] = measure_string.match(reg)[1].strip
             new_arg[:units].gsub!(/"|'/, '') if new_arg[:units]
           end
 
+          # try to get the description of the argument
+          # try to get the units
+          reg = /#{new_arg[:local_variable]}.setDescription.(.*)/
+          if measure_string =~ reg
+            new_arg[:description] = measure_string.match(reg)[1].strip
+            new_arg[:description].gsub!(/"|'/, '') if new_arg[:description]
+          end
+
           if measure_string =~ /#{new_arg[:local_variable]}.setDefaultValue/
-            new_arg[:default_value] = measure_string.match(/#{new_arg[:local_variable]}.setDefaultValue\((.*)\)/)[1]
+            new_arg[:default_value] = measure_string.match(/#{new_arg[:local_variable]}.setDefaultValue.(.*)/)[1].strip
           else
             puts "[WARNING] #{measure_hash[:name]}:#{new_arg[:name]} has no default value... will continue"
           end
