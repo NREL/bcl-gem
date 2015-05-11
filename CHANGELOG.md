@@ -1,7 +1,11 @@
 # Change Log
 
-## Version 0.5.6 (Unreleased)
+## Version 0.5.6
 * Allow no display name when parsing measure arguments (measure argument does not have setDisplayName)
+* Parse measure display name, description, modeler description, and argument units
+* Add basic validation that prints to the terminal
+* Upgrade spec and ci reporter
+* New branch for development (develop)
 
 ## Version 0.5.5
 * Read as binary for .tar.gz
