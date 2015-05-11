@@ -1,5 +1,8 @@
 # Change Log
 
+## Version Unreleased
+* Parse argument description
+
 ## Version 0.5.6
 * Allow no display name when parsing measure arguments (measure argument does not have setDisplayName)
 * Parse measure display name, description, modeler description, and argument units
