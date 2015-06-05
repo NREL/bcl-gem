@@ -247,7 +247,7 @@ module BCL
           choice_vector = arg_params[1] ? arg_params[1].strip : nil
 
           # try find the display name of the argument
-          reg = /#{new_arg[:local_variable]}.setDisplayName.(.*)/
+          reg = /#{new_arg[:local_variable]}.setDisplayName.(.*)./
           if measure_string =~ reg
             new_arg[:display_name] = measure_string.match(reg)[1].strip
             new_arg[:display_name].gsub!(/"|'/, '') if new_arg[:display_name]
@@ -260,7 +260,7 @@ module BCL
           new_arg[:units_in_name] = p[1]
 
           # try to get the units
-          reg = /#{new_arg[:local_variable]}.setUnits.(.*)/
+          reg = /#{new_arg[:local_variable]}.setUnits.(.*)./
           if measure_string =~ reg
             new_arg[:units] = measure_string.match(reg)[1].strip
             new_arg[:units].gsub!(/"|'/, '') if new_arg[:units]
@@ -268,7 +268,7 @@ module BCL
 
           # try to get the description of the argument
           # try to get the units
-          reg = /#{new_arg[:local_variable]}.setDescription.(.*)/
+          reg = /#{new_arg[:local_variable]}.setDescription.(.*)./
           if measure_string =~ reg
             new_arg[:description] = measure_string.match(reg)[1].strip
             new_arg[:description].gsub!(/"|'/, '') if new_arg[:description]
@@ -277,7 +277,7 @@ module BCL
           if measure_string =~ /#{new_arg[:local_variable]}.setDefaultValue/
             new_arg[:default_value] = measure_string.match(/#{new_arg[:local_variable]}.setDefaultValue.(.*)/)[1].strip
           else
-            puts "[WARNING] #{measure_hash[:name]}:#{new_arg[:name]} has no default value... will continue"
+            puts "[WARNING] #{measure_hash[:name]}:#{new_arg[:name]} has no default value. Will continue."
           end
 
           case new_arg[:variable_type]
@@ -325,30 +325,30 @@ module BCL
 
           measure_hash[:arguments] << new_arg
         end
+
+        # check if there is a measure.xml file?
+        measure_xml_filename = "#{File.join(File.dirname(measure_filename), File.basename(measure_filename, '.*'))}.xml"
+        if File.exist? measure_xml_filename
+          f = File.open measure_xml_filename
+          doc = Nokogiri::XML(f)
+
+          # pull out some information
+          measure_hash[:name_xml] = doc.xpath('/measure/name').first.content
+          measure_hash[:uid] = doc.xpath('/measure/uid').first.content
+          measure_hash[:version_id] = doc.xpath('/measure/version_id').first.content
+          measure_hash[:tags] = doc.xpath('/measure/tags/tag').map(&:content)
+
+          measure_hash[:modeler_description_xml] = doc.xpath('/measure/modeler_description').first.content
+
+          measure_hash[:description_xml] = doc.xpath('/measure/description').first.content
+
+          f.close
+        end
+
+        # validate the measure information
+
+        validate_measure_hash(measure_hash)
       end
-
-      # check if there is a measure.xml file?
-      measure_xml_filename = "#{File.join(File.dirname(measure_filename), File.basename(measure_filename, '.*'))}.xml"
-      if File.exist? measure_xml_filename
-        f = File.open measure_xml_filename
-        doc = Nokogiri::XML(f)
-
-        # pull out some information
-        measure_hash[:name_xml] = doc.xpath('/measure/name').first.content
-        measure_hash[:uid] = doc.xpath('/measure/uid').first.content
-        measure_hash[:version_id] = doc.xpath('/measure/version_id').first.content
-        measure_hash[:tags] = doc.xpath('/measure/tags/tag').map(&:content)
-
-        measure_hash[:modeler_description_xml] = doc.xpath('/measure/modeler_description').first.content
-
-        measure_hash[:description_xml] = doc.xpath('/measure/description').first.content
-
-        f.close
-      end
-
-      # validate the measure information
-
-      validate_measure_hash(measure_hash)
 
       measure_hash
     end
@@ -403,7 +403,7 @@ module BCL
               arg.delete :units_in_name
             end
           else
-            puts '[ERROR] {Validation} Units appear to be in measure name. Please use setUnits.'
+            puts '[ERROR] {Validation} Units appear to be in argument name. Please use setUnits.'
             arg[:units] = arg.delete :units_in_name
           end
         else

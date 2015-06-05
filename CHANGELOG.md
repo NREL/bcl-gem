@@ -2,6 +2,7 @@
 
 ## Version Unreleased
 * Parse argument description
+* Only validate a measure if it is found
 
 ## Version 0.5.6
 * Allow no display name when parsing measure arguments (measure argument does not have setDisplayName)
