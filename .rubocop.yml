@@ -3,8 +3,6 @@ AllCops:
     - 'measures/**/*'
     - 'spec/api/resources/measure_example/**/*'
 
-inherit_from: .rubocop_todo.yml
-
 # ==================== Linters ====================
 Lint/AmbiguousOperator:
   Enabled: true

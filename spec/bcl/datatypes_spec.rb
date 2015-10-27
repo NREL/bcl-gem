@@ -1,7 +1,6 @@
 require 'spec_helper'
 
 describe BCL::Component do
-
   before(:all) do
     @comp = BCL::Component.new('./spec/bcl')
     @comp.add_attribute('elev', '5.5', '')
@@ -34,5 +33,4 @@ describe BCL::Component do
       expect(@comp.tc('ab cd ef')).to eq 'Ab Cd Ef'
     end
   end
-
 end

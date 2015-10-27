@@ -176,7 +176,6 @@ module BCL
 
       # check that all attributes are allowed
       component.attributes.each do |attribute|
-
         term = nil
         terms.each do |t|
           if t.name == attribute.name
@@ -192,7 +191,6 @@ module BCL
         end
 
         # TODO: validate value, datatype, units
-
       end
 
       valid
@@ -526,7 +524,6 @@ module BCL
         child_tags.each do |child_tag|
           write_tag_to_xml(child_tag, level, xml, output_type)
         end
-
       end
     end
   end
