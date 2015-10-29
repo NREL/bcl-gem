@@ -22,6 +22,11 @@
 			<xs:documentation>identifier which changes each time a new version is created</xs:documentation>
 		</xs:annotation>
 	</xs:element>
+	<xs:element name="version_modified" type="xs:dateTime">
+		<xs:annotation>
+			<xs:documentation>timestamp at which the current version_id was created</xs:documentation>
+		</xs:annotation>
+	</xs:element>
 	<xs:element name="xml_checksum" type="xs:string">
 		<xs:annotation>
 			<xs:documentation>checksum of selected xml elements and attributes, used to detect changes to the xml</xs:documentation>
@@ -422,6 +427,7 @@
 				<xs:element ref="name"/>
 				<xs:element ref="uid"/>
 				<xs:element ref="version_id"/>
+				<xs:element ref="version_modified" minOccurs="0"/>
 				<xs:element ref="xml_checksum"/>
 				<xs:element ref="masterguide_csi_values" minOccurs="0"/>
 				<xs:element ref="display_name"/>
