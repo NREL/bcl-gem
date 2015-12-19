@@ -366,7 +366,7 @@ module BCL
 
       puts '[WARNING] {Validation} Could not find measure description in measure.'  unless h[:description]
       puts '[WARNING] {Validation} Could not find modeler description in measure.'  unless h[:modeler_description]
-      puts '[WARNING] {Validation} Could not find measure name method in measure.'  unless h[:name_from_measure]
+      puts '[WARNING] {Validation} Could not find measure name method in measure.'  unless h[:display_name_from_measure]
 
       # check the naming conventions
       if h[:display_name_from_measure]
