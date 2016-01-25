@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- edited with XMLSpy v2008 rel. 2 sp2 (http://www.altova.com) by Daniel Macumber (NREL) -->
+<!-- edited with XMLSpy v2016 sp1 (x64) (http://www.altova.com) by Dan Macumber (NREL) -->
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
 	<xs:annotation>
-		<xs:documentation>Component.xsd describes the components that are in the building component library or NREL analysis platform library.</xs:documentation>
+		<xs:documentation>Measure.xsd describes the measures that are in the building component library or NREL analysis platform library.</xs:documentation>
 	</xs:annotation>
 	<xs:element name="schema_version" fixed="3.0">
 		<xs:annotation>
@@ -14,12 +14,12 @@
 	</xs:element>
 	<xs:element name="uid" type="xs:string">
 		<xs:annotation>
-			<xs:documentation>universally unique identifier which does not chage</xs:documentation>
+			<xs:documentation>universally unique identifier which does not chage each time a new version is created</xs:documentation>
 		</xs:annotation>
 	</xs:element>
 	<xs:element name="version_id" type="xs:string">
 		<xs:annotation>
-			<xs:documentation>identifier which changes each time a new version is created</xs:documentation>
+			<xs:documentation>universally unique identifier which changes each time a new version is created</xs:documentation>
 		</xs:annotation>
 	</xs:element>
 	<xs:element name="version_modified" type="xs:dateTime">
@@ -39,12 +39,12 @@
 	</xs:element>
 	<xs:element name="name" type="xs:string">
 		<xs:annotation>
-			<xs:documentation>snake cased machine readable name</xs:documentation>
+			<xs:documentation>snake cased machine readable name, e.g. 'my_name'</xs:documentation>
 		</xs:annotation>
 	</xs:element>
 	<xs:element name="display_name" type="xs:string">
 		<xs:annotation>
-			<xs:documentation>user facing name</xs:documentation>
+			<xs:documentation>user facing name, e.g. 'My Name'</xs:documentation>
 		</xs:annotation>
 	</xs:element>
 	<xs:element name="description" type="xs:string">
@@ -54,12 +54,12 @@
 	</xs:element>
 	<xs:element name="modeler_description" type="xs:string">
 		<xs:annotation>
-			<xs:documentation>technical description of implementation details</xs:documentation>
+			<xs:documentation>technical description of the content's implementation details</xs:documentation>
 		</xs:annotation>
 	</xs:element>
 	<xs:element name="class_name" type="xs:string">
 		<xs:annotation>
-			<xs:documentation>for measures only. name of the Ruby class implementing a measure</xs:documentation>
+			<xs:documentation>for measures only. the name of the Ruby class implementing a measure</xs:documentation>
 		</xs:annotation>
 	</xs:element>
 	<xs:element name="arguments">
@@ -206,7 +206,7 @@
 	</xs:element>
 	<xs:element name="tags">
 		<xs:annotation>
-			<xs:documentation>tags are used to classify the content using the appropriate taxonomy.  currently only one tag per piece of content is supported.</xs:documentation>
+			<xs:documentation>tags are used to classify the content within the appropriate taxonomy.  currently only one tag per piece of content is supported.</xs:documentation>
 		</xs:annotation>
 		<xs:complexType>
 			<xs:sequence>
@@ -315,6 +315,9 @@
 		</xs:complexType>
 	</xs:element>
 	<xs:element name="costs">
+		<xs:annotation>
+			<xs:documentation>for components only. costs related to the component</xs:documentation>
+		</xs:annotation>
 		<xs:complexType>
 			<xs:sequence>
 				<xs:element name="cost" minOccurs="0" maxOccurs="unbounded">
@@ -413,32 +416,6 @@
 						</xs:sequence>
 					</xs:complexType>
 				</xs:element>
-			</xs:sequence>
-		</xs:complexType>
-	</xs:element>
-	<xs:element name="component">
-		<xs:annotation>
-			<xs:documentation>root element defining a component</xs:documentation>
-		</xs:annotation>
-		<xs:complexType>
-			<xs:sequence>
-				<xs:element ref="schema_version"/>
-				<xs:element ref="error" minOccurs="0"/>
-				<xs:element ref="name"/>
-				<xs:element ref="uid"/>
-				<xs:element ref="version_id"/>
-				<xs:element ref="version_modified" minOccurs="0"/>
-				<xs:element ref="xml_checksum"/>
-				<xs:element ref="masterguide_csi_values" minOccurs="0"/>
-				<xs:element ref="display_name"/>
-				<xs:element ref="description"/>
-				<xs:element ref="modeler_description"/>
-				<xs:element ref="provenances"/>
-				<xs:element ref="tags"/>
-				<xs:element ref="attributes"/>
-				<xs:element ref="source"/>
-				<xs:element ref="files"/>
-				<xs:element ref="costs"/>
 			</xs:sequence>
 		</xs:complexType>
 	</xs:element>
