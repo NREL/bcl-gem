@@ -484,7 +484,7 @@
 				<xs:element ref="display_name"/>
 				<xs:element ref="description"/>
 				<xs:element ref="modeler_description"/>
-				<xs:element ref="provenances"/>
+				<xs:element ref="provenances" minOccurs="0"/>
 				<xs:element ref="tags"/>
 				<xs:element ref="attributes"/>
 				<xs:element ref="source"/>

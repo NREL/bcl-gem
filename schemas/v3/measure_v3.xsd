@@ -486,7 +486,7 @@
 				<xs:element ref="modeler_description"/>
 				<xs:element ref="arguments"/>
 				<xs:element ref="outputs"/>
-				<xs:element ref="provenances"/>
+				<xs:element ref="provenances" minOccurs="0"/>
 				<xs:element ref="tags"/>
 				<xs:element ref="attributes"/>
 				<xs:element ref="files"/>
