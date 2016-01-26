@@ -14,12 +14,12 @@
 	</xs:element>
 	<xs:element name="uid" type="xs:string">
 		<xs:annotation>
-			<xs:documentation>universally unique identifier which does not chage</xs:documentation>
+			<xs:documentation>universally unique identifier which does not change each time a new version is created</xs:documentation>
 		</xs:annotation>
 	</xs:element>
 	<xs:element name="version_id" type="xs:string">
 		<xs:annotation>
-			<xs:documentation>identifier which changes each time a new version is created</xs:documentation>
+			<xs:documentation>universally unique identifier which changes each time a new version is created</xs:documentation>
 		</xs:annotation>
 	</xs:element>
 	<xs:element name="version_modified" type="xs:dateTime">
@@ -39,12 +39,17 @@
 	</xs:element>
 	<xs:element name="name" type="xs:string">
 		<xs:annotation>
-			<xs:documentation>snake cased machine readable name</xs:documentation>
+			<xs:documentation>snake cased machine readable name, e.g. 'my_name'</xs:documentation>
 		</xs:annotation>
 	</xs:element>
 	<xs:element name="display_name" type="xs:string">
 		<xs:annotation>
-			<xs:documentation>user facing name</xs:documentation>
+			<xs:documentation>user facing name, e.g. 'My Name'</xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<xs:element name="short_name">
+		<xs:annotation>
+			<xs:documentation>brief name used in plots, e.g. 'Nm'</xs:documentation>
 		</xs:annotation>
 	</xs:element>
 	<xs:element name="description" type="xs:string">
@@ -54,17 +59,17 @@
 	</xs:element>
 	<xs:element name="modeler_description" type="xs:string">
 		<xs:annotation>
-			<xs:documentation>technical description of implementation details</xs:documentation>
+			<xs:documentation>technical description of the content's implementation details</xs:documentation>
 		</xs:annotation>
 	</xs:element>
 	<xs:element name="class_name" type="xs:string">
 		<xs:annotation>
-			<xs:documentation>for measures only. name of the Ruby class implementing a measure</xs:documentation>
+			<xs:documentation>for measures only. the name of the Ruby class implementing a measure</xs:documentation>
 		</xs:annotation>
 	</xs:element>
 	<xs:element name="arguments">
 		<xs:annotation>
-			<xs:documentation>for measures only. arguments are computed based on a particular model and passed to the measure at run time.  actual values passed to the measure at run time are not captured here, only properties of the arguments </xs:documentation>
+			<xs:documentation>for measures only. arguments in the xml are computed based on an empty seed model.  arguments computed on a particular model may vary </xs:documentation>
 		</xs:annotation>
 		<xs:complexType>
 			<xs:sequence>
@@ -73,6 +78,7 @@
 						<xs:sequence>
 							<xs:element ref="name"/>
 							<xs:element ref="display_name"/>
+							<xs:element ref="short_name" minOccurs="0"/>
 							<xs:element ref="description" minOccurs="0"/>
 							<xs:element name="type">
 								<xs:annotation>
@@ -150,6 +156,48 @@
 			</xs:sequence>
 		</xs:complexType>
 	</xs:element>
+	<xs:element name="outputs">
+		<xs:annotation>
+			<xs:documentation>for measures only. outputs in the xml are computed based on an empty seed model. </xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="output" minOccurs="0" maxOccurs="unbounded">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element ref="name"/>
+							<xs:element ref="display_name"/>
+							<xs:element ref="short_name" minOccurs="0"/>
+							<xs:element ref="description" minOccurs="0"/>
+							<xs:element name="type">
+								<xs:annotation>
+									<xs:documentation>type of the output</xs:documentation>
+								</xs:annotation>
+								<xs:simpleType>
+									<xs:restriction base="xs:string">
+										<xs:enumeration value="Boolean"/>
+										<xs:enumeration value="Double"/>
+										<xs:enumeration value="Integer"/>
+										<xs:enumeration value="String"/>
+									</xs:restriction>
+								</xs:simpleType>
+							</xs:element>
+							<xs:element name="units" type="xs:string" minOccurs="0">
+								<xs:annotation>
+									<xs:documentation>units of the output value in format parsable by OpenStudio::convert</xs:documentation>
+								</xs:annotation>
+							</xs:element>
+							<xs:element name="model_dependent" type="xs:boolean" default="false">
+								<xs:annotation>
+									<xs:documentation>true if any of this output's properties depend on the specific model used.  </xs:documentation>
+								</xs:annotation>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
 	<xs:element name="masterguide_csi_values">
 		<xs:annotation>
 			<xs:documentation>for components only. values from the MASTERSPEC</xs:documentation>
@@ -206,7 +254,7 @@
 	</xs:element>
 	<xs:element name="tags">
 		<xs:annotation>
-			<xs:documentation>tags are used to classify the content using the appropriate taxonomy.  currently only one tag per piece of content is supported.</xs:documentation>
+			<xs:documentation>tags are used to classify the content within the appropriate taxonomy.  currently only one tag per piece of content is supported.</xs:documentation>
 		</xs:annotation>
 		<xs:complexType>
 			<xs:sequence>
@@ -315,6 +363,9 @@
 		</xs:complexType>
 	</xs:element>
 	<xs:element name="costs">
+		<xs:annotation>
+			<xs:documentation>for components only. costs related to the component</xs:documentation>
+		</xs:annotation>
 		<xs:complexType>
 			<xs:sequence>
 				<xs:element name="cost" minOccurs="0" maxOccurs="unbounded">
