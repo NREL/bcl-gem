@@ -38,7 +38,7 @@ module BCL
       load_config
     end
 
-    def login(username = nil, password = nil, url = nil, group_id = nil)
+     def login(username = nil, secret = nil, url = nil, group_id = nil)
       # figure out what url to use
       if url.nil?
         url = @config[:server][:url]
@@ -53,10 +53,10 @@ module BCL
       url = url.gsub('http://', '')
       url = url.gsub('https://', '')
 
-      if username.nil? || password.nil?
+      if username.nil? || secret.nil?
         # log in via cached creditials
         username = @config[:server][:user][:username]
-        password = @config[:server][:user][:password]
+        secret = @config[:server][:user][:secret]
         @group_id = group_id || @config[:server][:user][:group]
         puts "logging in using credentials in .bcl/config.yml: Connecting to #{url} on port #{port} as #{username} with group #{@group_id}"
       else
@@ -74,10 +74,9 @@ module BCL
         @http.use_ssl = true
       end
 
-      data = %({"username":"#{username}","password":"#{password}"})
-      # data = {"username" => username, "password" => password}
+      data = %({"username":"#{username}","secret":"#{secret}"})
 
-      login_path = '/api/user/login.json'
+      login_path = '/api/user/loginsso.json'
       headers = { 'Content-Type' => 'application/json' }
 
       res = @http.post(login_path, data, headers)
@@ -634,7 +633,7 @@ module BCL
     end
 
     # pushes component to the bcl and publishes them (if logged-in as BCL Website Admin user).
-    # username, password, and group_id are set in the ~/.bcl/config.yml file
+    # username, secret, and group_id are set in the ~/.bcl/config.yml file
     def push_content(filename_and_path, write_receipt_file, content_type)
       fail 'Please login before pushing components' if @session.nil?
       fail 'Do not have a valid access token; try again' if @access_token.nil?
@@ -662,7 +661,7 @@ module BCL
     end
 
     # pushes updated content to the bcl and publishes it (if logged-in as BCL Website Admin user).
-    # username and password set in ~/.bcl/config.yml file
+    # username and secret set in ~/.bcl/config.yml file
     def update_content(filename_and_path, write_receipt_file, uuid = nil)
       fail 'Please login before pushing components' unless @session
 
@@ -917,7 +916,7 @@ module BCL
           url: 'https://bcl.nrel.gov',
           user: {
             username: 'ENTER_BCL_USERNAME',
-            password: 'ENTER_BCL_PASSWORD',
+            secret: 'ENTER_BCL_SECRET',
             group: 'ENTER_GROUP_ID'
           }
         }
