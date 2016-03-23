@@ -54,7 +54,7 @@ module BCL
       url = url.gsub('https://', '')
 
       if username.nil? || secret.nil?
-        # log in via cached creditials
+        # log in via cached credentials
         username = @config[:server][:user][:username]
         secret = @config[:server][:user][:secret]
         @group_id = group_id || @config[:server][:user][:group]
