@@ -14,7 +14,7 @@ options = {}
 
 optparse = OptionParser.new do|opts|
 
-  opts.banner = "\nUsage: #{$0} [options]\n\nScans all specified test files for (Minitest) tests and \
+  opts.banner = "\nUsage: #{$0} [options]\n\nScans all specified measure directories for (Minitest) tests and \
   \nruns them; errors reported to file."
    
   opts.separator ""
@@ -24,15 +24,20 @@ optparse = OptionParser.new do|opts|
   opts.on( '-d', '--directory <value>', "Working directory (default: '.')") do|f|
     options[:wd] = f
   end
-  
-  options[:test_file] = nil
-  opts.on( '-t', '--test <file1,file2...>', "Test filename(s)" ) do|f|
-    options[:test_file] = f.split(",")
+
+  options[:measures] = nil
+  opts.on( '-m', '--measure <dir1,dir2>, <measures/**>', "Measure name(s) to test" ) do|f|
+    options[:measures] = f
   end
 
-  options[:tests_map] = nil
-  opts.on( '-m', '--mask <regex>', "Regex search for test file(s)" ) do|f|
-    options[:tests_map] = f
+  options[:tests_dir] = "tests"
+  opts.on( '-t', '--testdir <directory>', "Measure test director(ies) (default: '<measure_dir>/tests')" ) do|f|
+    options[:tests_dir] = f
+  end  
+
+  options[:testfile_mask] = "*_[tT]est.rb"
+  opts.on( '-x', '--testspec <regex>', "Search spec for test file(s) (default: '*_[tT]est.rb')" ) do|f|
+    options[:testfile_mask] = f
   end
 
   options[:envs] = ["lib"]
@@ -74,55 +79,56 @@ if options[:bcl_fetch] || options[:test_bcl]
 	exit if options[:bcl_fetch]
 end
 
-tests = []
+
 measures = []
+test_files = []
+
 if options[:test_bcl]
   measures = Dir.glob("measures/parsed/**")
-  tests = Dir.glob("measures/parsed/**/tests/*_[tT]est.rb")
+  test_files = Dir.glob("measures/parsed/**/tests/*_[tT]est.rb")
 
-elsif !options[:test_file] && !options[:tests_map]
-	puts "#{$0}: ERROR: No test(s) specified, use '-t --test', '-m --mask', or try '#{$0} -h' for help."
-	exit
+else
+  measures = Dir.glob(options[:measures].split(/[\s,]/)).select { |fn| File.directory?(fn) }
+  test_dir = options[:tests_dir]
+  testfile_mask = options[:testfile_mask]
+  puts "Inspecting #{measures.size} measure directories..."
+  measures.each do |m|
+    tfile_search = File.join(m, test_dir, "*.rb")
+    t_tf = Dir.glob(tfile_search)      
+    test_files << t_tf
+  end
+  puts "Found #{test_files.size} test files:"
+  puts test_files
 
-# TODO support both filespecs
-elsif 
-  options[:test_file] && !options[:tests_map]
-	tests = Dir.glob(options[:test_file])
-
-elsif 
-  options[:tests_map] && !options[:test_file]
-  tests = Dir.glob(options[:tests_map])
-
-elsif 
-  options[:tests_map] && options[:test_file]
-  puts "#{$0}: Specify file name(s) or a search mask/regex, not both."
-  exit
-
-end
-
+end  
 
 puts "#{$0}: Working directory = #{options[:wd]}"
 
-if tests.size == 0 
-	puts "#{$0}: No files matched spec; check test file list/mask or try '#{$0} -h' for help."
+if test_files.size == 0 
+	puts "#{$0}: No measures matched spec; check measure list/mask or try '#{$0} -h' for help."
 	exit
 end
-puts "#{$0}: Running #{tests.size} test file(s)"
+puts "#{$0}: Running #{test_files.size} test file(s)"
+
+test_files = [] # we'll build this again in a sec...
 
 log = []
 errors = []
 log_json = []
 
-# scan test files for test definitions
-query = "def +test_([A-Za-z_0-9]+)" # minitest
-#query_spec = "it +([A-Za-z_0-9]+)" # RSpec (in progress)
+# scan test files for test Minitest definitions
+query = "def +test_([A-Za-z_0-9]+)"
+
 
 envs = options[:envs]
 
-
+## integrity check
 # store the binding before each measure
-b = binding
-measures.each do |measure|
+def bcl_ok(measure)
+
+  changes = false
+  
+  b = binding
   require 'openstudio'
   
   bcl_measure = OpenStudio::BCLMeasure.load(measure)
@@ -143,7 +149,8 @@ measures.each do |measure|
     end
       
     if file_updates || xml_updates || missing_fields
-      puts "Changes detected in measure'#{measure}'"
+      changes = true
+      puts "Changes detected in measure '#{measure}'"
 
       # try to load the ruby measure
       info = nil
@@ -158,48 +165,68 @@ measures.each do |measure|
       #bcl_measure.save
     end
   end
+
+  return true if !changes
+
 end
 
 
-tests.each do |test|
-	puts "#{$0}: Scanning file #{test} for tests..."
-	test_scan = File.readlines(test)
-	matches = test_scan.select { |name| name[/#{query}/] }
-  # TEST FILE
-  log_testfile = []
-	matches.each do |cmd|
-    # TEST NAME hash
-    testname_hash = {}
-    test_name = "#{cmd.split(" ")[1]}"
-    log_env = []
-		envs.each do |env|
-      test_path = File.join(options[:wd], test)
-			test_cmd = "ruby -I#{env} \"#{test_path}\" --name=#{test_name}"
-			puts "#{$0} running '#{test_cmd}'"
-			system(test_cmd)
- 			log << ["#{env}","#{test}","#{test_name}","#{$?.exitstatus}"]
-      # ENV and status code
-      env_hash = {}
-      env_hash['env'] = env
-      env_hash['exit_status'] = $?.exitstatus
-      log_env << env_hash
-			if $?.exitstatus !=0
-        errors << ["#{test_name}","#{test}","#{env}","#{$?.exitstatus}"]
-      end
-		end
-    testname_hash['name'] = test_name
-    testname_hash['results'] = log_env
-    log_testfile << testname_hash
-	end
-  testfile_hash = {}
-  testfile_hash['name'] = test
-  testfile_hash['tests'] = log_testfile
-  log_json << testfile_hash
+measures.each do |m|
+  measure_clean = "#{m.split("[/\\]")[-1]}" # works on Windows?
+  puts "Testing measure: '#{measure_clean}'"
+
+  bcl_status = "OK"
+  if !bcl_ok(m)
+    bcl_status = "changed"
+  end
+  log_json << measure_clean
+  log_json << bcl_status
+  test_files = []
+  tfile_search = File.join(m, test_dir, "*.rb")
+  t_tf = Dir.glob(tfile_search)      
+  test_files << t_tf
+  test_files.each do |test|
+    puts test
+  	puts "#{$0}: Scanning file #{test} for tests..."
+  	test_scan = File.readlines(test[0])
+  	matches = test_scan.select { |name| name[/#{query}/] }
+    # TEST FILE
+    log_testfile = []
+  	matches.each do |cmd|
+      # TEST NAME hash
+      testname_hash = {}
+      test_name = "#{cmd.split(" ")[1]}"
+      log_env = []
+  		envs.each do |env|
+        test_path = File.join(options[:wd], test)
+  			test_cmd = "ruby -I#{env} \"#{test_path}\" --name=#{test_name}"
+  			puts "#{$0} running '#{test_cmd}'"
+  			system(test_cmd)
+   			log << ["#{measure_clean}","#{bcl_status}","#{env}","#{test}","#{test_name}","#{$?.exitstatus}"]
+        # ENV and status code
+        env_hash = {}
+        env_hash['Ruby lib'] = env
+        env_hash['exit_status'] = $?.exitstatus
+        log_env << env_hash
+  			if $?.exitstatus !=0
+          errors << ["#{test_name}","#{test}","#{env}","#{$?.exitstatus}"]
+        end
+  		end
+      testname_hash['test_name'] = test_name
+      testname_hash['details'] = log_env
+      log_testfile << testname_hash
+  	end
+    testfile_hash = {}
+    testfile_hash['test_file'] = test
+    testfile_hash['tests'] = log_testfile
+    log_json << testfile_hash
+  end
+
 end
 
 log_file = 'test_log.csv'
 CSV.open("#{log_file}", 'w') do |report|
-	report << ["ENV_STRING","TEST_SOURCE","TEST_NAME","EXIT_CODE"]
+	report << ["MEASURE_NAME","ENV_STRING","TEST_SOURCE","TEST_NAME","EXIT_CODE"]
 	log.each do |row|
 		report << row
 	end
@@ -207,5 +234,4 @@ end
 
 File.open('test_log.json', 'w') { |f| f << JSON.pretty_generate(log_json)}
 
-puts "#{$0}: Tests complete. Test runner ran #{log.size} total tests, with #{errors.size} errors."
-puts "#{$0}: See #{options[:wd]}/#{log_file} or test_log.csv for details." if errors.size > 0
+puts "Test runner complete:\nMeasures:\t#{measures.count}\nTests:\t\t#{log.size}\nErrors:\t\t#{errors.size}"
