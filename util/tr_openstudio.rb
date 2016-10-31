@@ -229,7 +229,7 @@ log_json = measures_array
 
 log_file = 'test_log.csv'
 CSV.open("#{log_file}", 'w') do |report|
-	report << ["MEASURE_NAME","ENV_STRING","TEST_NAME","EXIT_CODE"]
+	report << ["MEASURE_NAME","BCL_STATUS","ENV_STRING","TEST_NAME","EXIT_CODE"]
 	log.each do |row|
 		report << row
 	end
