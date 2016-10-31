@@ -204,7 +204,7 @@ measures.each do |m|
   			test_cmd = "ruby -I#{env} \"#{test_path}\" --name=#{test_name}"
   			puts "#{$0} running '#{test_cmd}'"
   			system(test_cmd)
-   			log << ["#{measure_clean}","#{bcl_status}","#{env}","#{test}","#{test_name}","#{$?.exitstatus}"]
+   			log << ["#{measure_clean}","#{bcl_status}","#{env}","#{test_name}","#{$?.exitstatus}"]
         # ENV and status code
         env_hash = {}
         env_hash['ruby_lib'] = env
@@ -229,7 +229,7 @@ log_json = measures_array
 
 log_file = 'test_log.csv'
 CSV.open("#{log_file}", 'w') do |report|
-	report << ["MEASURE_NAME","ENV_STRING","TEST_SOURCE","TEST_NAME","EXIT_CODE"]
+	report << ["MEASURE_NAME","ENV_STRING","TEST_NAME","EXIT_CODE"]
 	log.each do |row|
 		report << row
 	end
