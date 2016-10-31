@@ -170,8 +170,10 @@ def bcl_ok(measure)
 
 end
 
-
+measures_array = []
 measures.each do |m|
+  testfile_hash = {}
+  measure_hash = {}
   measure_clean = "#{m.split("[/\\]")[-1]}" # works on Windows?
   puts "Testing measure: '#{measure_clean}'"
 
@@ -179,19 +181,19 @@ measures.each do |m|
   if !bcl_ok(m)
     bcl_status = "changed"
   end
-  log_json << measure_clean
-  log_json << bcl_status
+  measure_hash['measure_name'] = measure_clean
+  measure_hash['bcl_status'] = bcl_status
   test_files = []
   tfile_search = File.join(m, test_dir, "*.rb")
   t_tf = Dir.glob(tfile_search)      
+  log_testfile = []
   test_files << t_tf
   test_files.each do |test|
     puts test
   	puts "#{$0}: Scanning file #{test} for tests..."
   	test_scan = File.readlines(test[0])
   	matches = test_scan.select { |name| name[/#{query}/] }
-    # TEST FILE
-    log_testfile = []
+    # TEST FILE    
   	matches.each do |cmd|
       # TEST NAME hash
       testname_hash = {}
@@ -205,7 +207,7 @@ measures.each do |m|
    			log << ["#{measure_clean}","#{bcl_status}","#{env}","#{test}","#{test_name}","#{$?.exitstatus}"]
         # ENV and status code
         env_hash = {}
-        env_hash['Ruby lib'] = env
+        env_hash['ruby_lib'] = env
         env_hash['exit_status'] = $?.exitstatus
         log_env << env_hash
   			if $?.exitstatus !=0
@@ -216,13 +218,14 @@ measures.each do |m|
       testname_hash['details'] = log_env
       log_testfile << testname_hash
   	end
-    testfile_hash = {}
-    testfile_hash['test_file'] = test
-    testfile_hash['tests'] = log_testfile
-    log_json << testfile_hash
+    #testfile_hash['test_file'] = test
+    #testfile_hash['tests'] = log_testfile
   end
-
+  measure_hash['tests'] = log_testfile
+  measures_array << measure_hash
 end
+log_json = measures_array
+
 
 log_file = 'test_log.csv'
 CSV.open("#{log_file}", 'w') do |report|
