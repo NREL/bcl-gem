@@ -74,7 +74,7 @@ if options[:bcl_fetch] || options[:test_bcl]
 	require 'bcl/version'
 	bcl = BCL::ComponentMethods.new
 	bcl.login   # sets the BCL URL
-	bcl.measure_metadata(options[:bcl_query])
+	bcl.measure_metadata(options[:bcl_query],nil,return_all_pages = true)
   puts 'BCL fetch complete.'
 	exit if options[:bcl_fetch]
 end
@@ -108,7 +108,6 @@ if test_files.size == 0
 	puts "#{$0}: No measures matched spec; check measure list/mask or try '#{$0} -h' for help."
 	exit
 end
-puts "#{$0}: Running #{test_files.size} test file(s)"
 
 test_files = [] # we'll build this again in a sec...
 
@@ -118,7 +117,6 @@ log_json = []
 
 # scan test files for test Minitest definitions
 query = "def +test_([A-Za-z_0-9]+)"
-
 
 envs = options[:envs]
 
@@ -189,34 +187,40 @@ measures.each do |m|
   log_testfile = []
   test_files << t_tf
   test_files.each do |test|
-    puts test
-  	puts "#{$0}: Scanning file #{test} for tests..."
-  	test_scan = File.readlines(test[0])
-  	matches = test_scan.select { |name| name[/#{query}/] }
-    # TEST FILE    
-  	matches.each do |cmd|
-      # TEST NAME hash
-      testname_hash = {}
-      test_name = "#{cmd.split(" ")[1]}"
-      log_env = []
-  		envs.each do |env|
-        test_path = File.join(options[:wd], test)
-  			test_cmd = "ruby -I#{env} \"#{test_path}\" --name=#{test_name}"
-  			puts "#{$0} running '#{test_cmd}'"
-  			system(test_cmd)
-   			log << ["#{measure_clean}","#{bcl_status}","#{env}","#{test_name}","#{$?.exitstatus}"]
-        # ENV and status code
-        env_hash = {}
-        env_hash['ruby_lib'] = env
-        env_hash['exit_status'] = $?.exitstatus
-        log_env << env_hash
-  			if $?.exitstatus !=0
-          errors << ["#{test_name}","#{test}","#{env}","#{$?.exitstatus}"]
-        end
-  		end
-      testname_hash['test_name'] = test_name
-      testname_hash['details'] = log_env
-      log_testfile << testname_hash
+    if t_tf.size == 0
+      puts "WARNING: No tests found for measure '#{measure_clean}'. Boo."
+      test_files = "none"
+
+      log << ["#{measure_clean}","NO_TESTS","n/a","n/a","n/a"]
+    else
+    	puts "#{$0}: Scanning file #{test} for tests..."
+    	test_scan = File.readlines(test[0])
+    	matches = test_scan.select { |name| name[/#{query}/] }
+      # TEST FILE    
+    	matches.each do |cmd|
+        # TEST NAME hash
+        testname_hash = {}
+        test_name = "#{cmd.split(" ")[1]}"
+        log_env = []
+    		envs.each do |env|
+          test_path = File.join(options[:wd], test)
+    			test_cmd = "ruby -I#{env} \"#{test_path}\" --name=#{test_name}"
+    			puts "#{$0} running '#{test_cmd}'"
+    			system(test_cmd)
+     			log << ["#{measure_clean}","#{bcl_status}","#{env}","#{test_name}","#{$?.exitstatus}"]
+          # ENV and status code
+          env_hash = {}
+          env_hash['ruby_lib'] = env
+          env_hash['exit_status'] = $?.exitstatus
+          log_env << env_hash
+    			if $?.exitstatus !=0
+            errors << ["#{test_name}","#{test}","#{env}","#{$?.exitstatus}"]
+          end
+    		end
+        testname_hash['test_name'] = test_name
+        testname_hash['details'] = log_env
+        log_testfile << testname_hash
+      end
   	end
     #testfile_hash['test_file'] = test
     #testfile_hash['tests'] = log_testfile
