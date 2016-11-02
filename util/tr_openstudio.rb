@@ -26,7 +26,7 @@ optparse = OptionParser.new do|opts|
   end
 
   options[:measures] = nil
-  opts.on( '-m', '--measure <dir1,dir2>, <measures/**>', "Measure name(s) to test" ) do|f|
+  opts.on( '-m', '--measure <dir1,dir2>, <measures/**>', "Measure name(s) to test" ) do |f|
     options[:measures] = f
   end
 
@@ -87,7 +87,14 @@ test_files = []
 if options[:test_bcl]
   measures = Dir.glob("measures/parsed/**")
 else
-  measures = Dir.glob(options[:measures].split(/[\s,]/)).select { |fn| File.directory?(fn) }
+  measures = []
+  measure_dirs = options[:measures].split(/[\s,]/)
+  measure_dirs.each do |measure_dir|
+    if !/\*/.match(measure_dir)
+      measure_dir = File.join(measure_dir, '*')
+    end
+    measures.concat(Dir.glob(measure_dir).select { |fn| File.directory?(fn) })
+  end
 end
   
 puts "Inspecting #{measures.size} measure directories..."
@@ -206,7 +213,7 @@ measures.each do |m|
         log_env = []
     		envs.each do |env|
           test_path = File.join(options[:wd], test)
-    			test_cmd = "ruby -I#{env} \"#{test_path}\" --name=#{test_name}"
+    			test_cmd = "ruby -I\"#{env}\" \"#{test_path}\" --name=\"#{test_name}\""
     			puts "Running '#{test_cmd}'"
     			system(test_cmd)
      			log << ["#{measure_clean}","#{bcl_status}","#{env}","#{test_name}","#{$?.exitstatus}"]
