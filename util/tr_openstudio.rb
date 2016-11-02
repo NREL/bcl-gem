@@ -79,33 +79,29 @@ if options[:bcl_fetch] || options[:test_bcl]
 	exit if options[:bcl_fetch]
 end
 
+puts "Working directory = #{options[:wd]}"
 
 measures = []
 test_files = []
 
 if options[:test_bcl]
   measures = Dir.glob("measures/parsed/**")
-  test_files = Dir.glob("measures/parsed/**/tests/*_[tT]est.rb")
-
 else
   measures = Dir.glob(options[:measures].split(/[\s,]/)).select { |fn| File.directory?(fn) }
-  test_dir = options[:tests_dir]
-  testfile_mask = options[:testfile_mask]
-  puts "Inspecting #{measures.size} measure directories..."
-  measures.each do |m|
-    tfile_search = File.join(m, test_dir, "*.rb")
-    t_tf = Dir.glob(tfile_search)      
-    test_files << t_tf
-  end
-  puts "Found #{test_files.size} test files:"
-  puts test_files
+end
+  
+puts "Inspecting #{measures.size} measure directories..."
+measures.each do |m|
+  tfile_search = File.join(m, options[:tests_dir], options[:testfile_mask])
+  t_tf = Dir.glob(tfile_search)      
+  test_files << t_tf
+end
+puts "Found #{test_files.size} test files:"
+puts test_files
 
-end  
-
-puts "#{$0}: Working directory = #{options[:wd]}"
 
 if test_files.size == 0 
-	puts "#{$0}: No measures matched spec; check measure list/mask or try '#{$0} -h' for help."
+	puts "No measures matched spec; check measure list/mask or try '#{$0} -h' for help."
 	exit
 end
 
@@ -115,12 +111,14 @@ log = []
 errors = []
 log_json = []
 
+tests = []
+
 # scan test files for test Minitest definitions
 query = "def +test_([A-Za-z_0-9]+)"
 
 envs = options[:envs]
 
-## integrity check
+## Integrity Check
 # store the binding before each measure
 def bcl_ok(measure)
 
@@ -168,6 +166,7 @@ def bcl_ok(measure)
 
 end
 
+## Run Tests
 measures_array = []
 measures.each do |m|
   testfile_hash = {}
@@ -182,7 +181,7 @@ measures.each do |m|
   measure_hash['measure_name'] = measure_clean
   measure_hash['bcl_status'] = bcl_status
   test_files = []
-  tfile_search = File.join(m, test_dir, "*.rb")
+  tfile_search = File.join(m, options[:tests_dir], options[:testfile_mask])
   t_tf = Dir.glob(tfile_search)      
   log_testfile = []
   test_files << t_tf
@@ -193,7 +192,7 @@ measures.each do |m|
 
       log << ["#{measure_clean}","NO_TESTS","n/a","n/a","n/a"]
     else
-    	puts "#{$0}: Scanning file #{test} for tests..."
+    	puts "Scanning file #{test} for tests..."
     	test_scan = File.readlines(test[0])
     	matches = test_scan.select { |name| name[/#{query}/] }
       # TEST FILE    
@@ -201,11 +200,14 @@ measures.each do |m|
         # TEST NAME hash
         testname_hash = {}
         test_name = "#{cmd.split(" ")[1]}"
+
+        tests << test_name
+
         log_env = []
     		envs.each do |env|
           test_path = File.join(options[:wd], test)
     			test_cmd = "ruby -I#{env} \"#{test_path}\" --name=#{test_name}"
-    			puts "#{$0} running '#{test_cmd}'"
+    			puts "Running '#{test_cmd}'"
     			system(test_cmd)
      			log << ["#{measure_clean}","#{bcl_status}","#{env}","#{test_name}","#{$?.exitstatus}"]
           # ENV and status code
@@ -231,6 +233,8 @@ end
 log_json = measures_array
 
 
+## Logging Crap
+
 log_file = 'test_log.csv'
 CSV.open("#{log_file}", 'w') do |report|
 	report << ["MEASURE_NAME","BCL_STATUS","ENV_STRING","TEST_NAME","EXIT_CODE"]
@@ -241,4 +245,4 @@ end
 
 File.open('test_log.json', 'w') { |f| f << JSON.pretty_generate(log_json)}
 
-puts "Test runner complete:\nMeasures:\t#{measures.count}\nTests:\t\t#{log.size}\nErrors:\t\t#{errors.size}"
+puts "Test runner complete:\nMeasures:\t#{measures.count}\nTests:\t\t#{tests.size}\nErrors:\t\t#{errors.size}"
