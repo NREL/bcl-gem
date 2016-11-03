@@ -19,11 +19,19 @@
 
 class String
   def to_underscore
-    gsub(/::/, '/')
-      .gsub(/([A-Z]+)([A-Z][a-z])/, '\1_\2')
-      .gsub(/([a-z\d])([A-Z])/, '\1_\2')
-      .tr('-', '_')
-      .downcase
+    gsub('OpenStudio','Openstudio')
+        .gsub('EnergyPlus','Energyplus')
+        .gsub(/::/, '/')
+        .gsub(/([A-Z]+)([A-Z][a-z])/, '\1_\2')
+        .gsub(/([a-z\d])([A-Z])/, '\1_\2')
+        .tr('-', '_')
+        .downcase
+  end
+
+  def to_bool
+    return true if self == true || self =~ (/(true|t|yes|y|1)$/i)
+    return false if self == false || self =~ (/(false|f|no|n|0)$/i)
+    fail "invalid value for Boolean: '#{self}'"
   end
 
   # simple method to create titles -- very custom to catch known inflections
