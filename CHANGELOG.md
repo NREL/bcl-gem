@@ -1,5 +1,8 @@
 # Change Log
 
+## Version 0.5.7
+* Update to_underscore method to not break apart EnergyPlus nor OpenStudio
+
 ## Version 0.5.6
 * Allow no display name when parsing measure arguments (measure argument does not have setDisplayName)
 * Parse measure display name, description, modeler description, and argument units

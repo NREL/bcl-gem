@@ -9,6 +9,12 @@ describe String do
       expect("Pointless".to_underscore).to eq 'pointless'
       expect("already_downcased_openstudio".to_underscore).to eq 'already_downcased_openstudio'
       expect("EnergyPlus_Results".to_underscore).to eq 'energyplus_results'
+      expect("down spaced".to_underscore).to eq 'down_spaced'
+      expect("down     spaced".to_underscore).to eq 'down_spaced'
+      expect("down   ___ spaced".to_underscore).to eq 'down_spaced'
+      expect("down ()  ___ spaced".to_underscore).to eq 'down_()_spaced'
+      expect("123 _ _ _ OpenStudio ___ 456".to_underscore).to eq '123_openstudio_456'
+      expect("OPENSTUDIO".to_underscore).to eq 'openstudio'
     end
   end
 
