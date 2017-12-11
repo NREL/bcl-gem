@@ -53,7 +53,7 @@ module BCL
       url = url.gsub('http://', '')
       url = url.gsub('https://', '')
 
-      if username.nil? || passwrord.nil?
+      if username.nil? || password.nil?
         # log in via cached credentials
         username = @config[:server][:user][:username]
         password = @config[:server][:user][:password]
