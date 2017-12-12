@@ -75,8 +75,8 @@ desc 'test measure upload'
 task :measure_upload do
   bcl = BCL::ComponentMethods.new
   bcl.login
-  filename = "#{File.dirname(__FILE__)}/spec/api/resources/measure_example.tar.gz"
-  valid, res = bcl.push_content(filename, true, 'nrel_measure')
+  filename = "#{File.dirname(__FILE__)}/spec/api/resources/measure_original.tar.gz"
+  valid, res = bcl.push_content(filename, false, 'nrel_measure')
 end
 
 task reinstall: [:uninstall, :install]

@@ -587,8 +587,9 @@ module BCL
           result = MultiJson.load api_response.body
           valid = false
         when '500'
-          puts "  Response: #{api_response.code} - #{api_response.body}"
-          fail 'server exception'
+          puts "  Response: #{api_response.code} - #{api_response.message}"
+          result = {error: api_response.message}
+          #fail 'server exception'
           valid = false
         else
           puts "  Response: #{api_response.code} - #{api_response.body}"
