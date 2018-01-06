@@ -13,3 +13,4 @@ Gemfile.lock
 /spec/reports
 /spec/api/resources/*.receipt
 measures/
+staged/

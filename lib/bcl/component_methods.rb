@@ -757,6 +757,29 @@ module BCL
       [uuid, vid]
     end
 
+    def uuid_vid_from_xml(path_to_xml)
+      uuid = nil
+      vid = nil
+
+      fail "File does not exist #{path_to_xml}" unless File.exist? path_to_xml
+      xml_file = File.open(path_to_xml) { |f| Nokogiri::XML(f) }
+
+      if path_to_xml.to_s.split('/').last =~ /component.xml/ 
+        u = xml_file.xpath('/component/uid').first
+        v = xml_file.xpath('/component/version_id').first
+      else
+        u = xml_file.xpath('/measure/uid').first
+        v = xml_file.xpath('/measure/version_id').first
+      end
+      fail "Could not find UUID in XML file #{path_to_tarball}" unless u
+      # Don't error on version not existing?
+
+      uuid = u.content
+      vid = v ? v.content : nil
+
+      [uuid, vid]
+    end
+
     def update_contents(array_of_tarball_components, skip_files_with_receipts)
       logs = []
       array_of_tarball_components.each do |comp|
@@ -780,6 +803,50 @@ module BCL
         logs << log_message
       end
       logs
+    end
+
+    def search_by_uuid(uuid, vid = nil)
+      full_url = '/api/search/*.json'
+      action = nil
+
+      # add api_version
+      if @api_version < 2.0
+        puts "WARNING:  attempting to use search with api_version #{@api_version}. Use API v2.0 for this functionality."
+      end
+      full_url += "?api_version=#{@api_version}"
+
+      # uuid
+      full_url += "&fq[]=ss_uuid:#{uuid}"
+      puts "search url: #{full_url}"
+      
+      res = @http.get(full_url)
+      res = MultiJson.load(res.body)
+
+      if res['result'].count > 0
+        # found content, check version
+        content = res['result'].first
+        #puts "first result: #{content}"
+
+        # parse out measure vs component
+        if content['measure']
+          content = content['measure']
+        else
+          content = content['component']
+        end
+
+        # TODO: check version_modified date if it exists?
+        if !vid.nil? && content['vuuid'] == vid
+          # no update needed
+          action = 'noop'
+        else
+          # vid doesn't match: update existing
+          action = 'update'
+        end
+      else
+        # no uuid found: push new
+        action = 'push'
+      end
+      action
     end
 
     # Simple method to search bcl and return the result as hash with symbols
