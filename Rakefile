@@ -82,18 +82,17 @@ task :measure_upload do
 end
 
 namespace :bcl do
-  # to call: rake "bcl:upload_content[/path/to/your/content/directory, true]" 
+  # to call: rake "bcl:upload_content[true]" 
   # TODO: catch errors and continue
   desc 'upload/update BCL content'
-  task :upload_content, [:content_path, :reset] do |t, args|
+  task :upload_content, [:reset] do |t, args|
     # process options
     options = {reset: false}
-    options[:content_path] = Pathname.new args[:content_path]
     if args[:reset].to_s == 'true'
       options[:reset] = true 
     end
 
-    puts "OPTIONS: #{options[:content_path]}, #{options[:reset]}"
+    puts "OPTIONS -- reset: #{options[:reset]}"
 
     # initialize BCL and login
     bcl = BCL::ComponentMethods.new
@@ -105,7 +104,6 @@ namespace :bcl do
     skipped = 0;
 
     staged_path = Pathname.new(Dir.pwd + '/staged')
-    #puts "STAGED PATH: #{staged_path}"
 
     # grab all the new measure and component tar files and push to bcl
     ['measure', 'component'].each do |content_type|
@@ -177,7 +175,7 @@ namespace :bcl do
     if args[:reset].to_s == 'true'
       options[:reset] = true
     end
-    puts "OPTIONS: #{options[:content_path]}, #{options[:reset]}"
+    puts "OPTIONS -- content_path: #{options[:content_path]}, reset: #{options[:reset]}"
 
     # initialize BCL and login
     bcl = BCL::ComponentMethods.new
@@ -280,8 +278,8 @@ namespace :bcl do
     Rake.application.invoke_task("bcl:stage_content[#{options[:content_path]}, #{options[:reset]}]")
     Dir.chdir(current_dir)
 
-    # upload and update. pass in skip flag
-    Rake.application.invoke_task("bcl:upload_content[#{options[:content_path]}, #{options[:reset]}]")
+    # upload (new and updated). pass in skip flag
+    Rake.application.invoke_task("bcl:upload_content[#{options[:reset]}]")
 
   end
 end
