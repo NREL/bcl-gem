@@ -817,7 +817,7 @@ module BCL
 
       # uuid
       full_url += "&fq[]=ss_uuid:#{uuid}"
-      puts "search url: #{full_url}"
+      #puts "search url: #{full_url}"
       
       res = @http.get(full_url)
       res = MultiJson.load(res.body)

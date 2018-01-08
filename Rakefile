@@ -85,13 +85,14 @@ namespace :bcl do
   # to call: rake "bcl:upload_content[/path/to/your/content/directory, true]" 
   # TODO: catch errors and continue
   desc 'upload/update BCL content'
-  task :upload_content, [:content_path, :reset_receipts] do |t, args|
+  task :upload_content, [:content_path, :reset] do |t, args|
     # process options
     options = {reset: false}
     options[:content_path] = Pathname.new args[:content_path]
-    if args[:reset_receipts]
-      options[:reset] = args[:reset_receipts]  
+    if args[:reset].to_s == 'true'
+      options[:reset] = true 
     end
+
     puts "OPTIONS: #{options[:content_path]}, #{options[:reset]}"
 
     # initialize BCL and login
@@ -103,45 +104,58 @@ namespace :bcl do
     errors = 0;
     skipped = 0;
 
-    # TODO: handle skipping files
-
     staged_path = Pathname.new(Dir.pwd + '/staged')
-    puts "STAGED PATH: #{staged_path}"
-    # grab all the new content tar files and push to bcl
-    measures = []
-    paths = Pathname.glob(staged_path.to_s + '/push/*.tar.gz')
-    puts "PATHS: #{paths}"
-    paths.each do |path|
-      puts path
-      measures << path.to_s
-    end
-    measures.each do |item|
-      puts item
-      total_count += 1;
-      # TODO:  differentiate btw measures and components (only matters for new content, not updates)
-      valid, res = bcl.push_content(item, options[:reset], 'nrel_measure')
-      if valid
-        successes += 1;
-      else
-        errors += 1;
-        puts "ERROR: #{res.inspect.chomp}"
+    #puts "STAGED PATH: #{staged_path}"
+
+    # grab all the new measure and component tar files and push to bcl
+    ['measure', 'component'].each do |content_type|
+      items = []
+      paths = Pathname.glob(staged_path.to_s + "/push/#{content_type}/*.tar.gz")
+      paths.each do |path|
+        #puts path
+        items << path.to_s
+      end
+
+      items.each do |item|
+        puts item
+        total_count += 1;
+
+        receipt_file = File.dirname(item) + '/' + File.basename(item, '.tar.gz') + '.receipt'
+        if !options[:reset] && File.exist?(receipt_file)
+          skipped += 1;
+          puts "SKIP: receipt file found"
+          next
+        end
+
+        valid, res = bcl.push_content(item, true, "nrel_#{content_type}")
+        if valid
+          successes += 1;
+        else
+          errors += 1;
+          puts "ERROR: #{res.inspect.chomp}"
+        end
       end
     end
 
-    # grab all the updated content tar files and push to bcl
-    measures = []
-
+    # grab all the updated content (measures and components) tar files and push to bcl
+    items = []
     paths = Pathname.glob(staged_path.to_s + '/update/*.tar.gz')
-    puts "PATHS: #{paths}"
     paths.each do |path|
-      puts path
-      measures << path.to_s
+      #puts path
+      items << path.to_s
     end
-    measures.each do |item|
+    items.each do |item|
       puts item
       total_count += 1;
-      # TODO:  differentiate btw measures and components
-      valid, res = bcl.update_content(item, options[:reset])
+
+      receipt_file = File.dirname(item) + '/' + File.basename(item, '.tar.gz') + '.receipt'
+      if !options[:reset] && File.exist?(receipt_file)
+        skipped += 1;
+        puts "SKIP: receipt file found"
+        next
+      end
+
+      valid, res = bcl.update_content(item, true)
       if valid
         successes += 1;
       else
@@ -150,18 +164,18 @@ namespace :bcl do
       end
     end
 
-    puts "****DONE**** #{total_count} total, #{successes} success, #{errors} failures"
+    puts "****DONE**** #{total_count} total, #{successes} success, #{errors} failures, #{skipped} skipped"
 
   end
 
-  # to call: rake "bcl:generate_content[/path/to/your/content/directory, true]" 
-  desc 'prepare content for BCL'
-  task :generate_content, [:content_path, :reset_receipts] do |t, args|
+  # to call: rake "bcl:stage_content[/path/to/your/content/directory, true]" 
+  desc 'stage content for BCL'
+  task :stage_content, [:content_path, :reset] do |t, args|
     # process options
     options = {reset: false}
     options[:content_path] = Pathname.new args[:content_path]
-    if args[:reset_receipts]
-      options[:reset] = args[:reset_receipts]  
+    if args[:reset].to_s == 'true'
+      options[:reset] = true
     end
     puts "OPTIONS: #{options[:content_path]}, #{options[:reset]}"
 
@@ -180,11 +194,11 @@ namespace :bcl do
 
     # create new and existing directories
     FileUtils.mkdir_p(staged_path.to_s + '/update')
-    FileUtils.mkdir_p(staged_path.to_s + '/push')
+    FileUtils.mkdir_p(staged_path.to_s + '/push/component')
+    FileUtils.mkdir_p(staged_path.to_s + '/push/measure')
 
     # get all content directories to process
     dirs = Dir.glob("#{options[:content_path]}/*")
-    puts dirs.inspect
 
     dirs.each do |dir|
       next if dir.include?('Rakefile')
@@ -196,16 +210,17 @@ namespace :bcl do
       
       # figure out whether to upload new or update existing
       files = Pathname.glob('**/*')
-      # files.each do |f|
-      #   puts "  #{f}"
-      # end
       uuid = nil
       vid = nil
+      content_type = 'measure'
 
       paths = []
       files.each do |file|
         paths << file.to_s
         if file.to_s =~ /^.{0,2}component.xml$/ || file.to_s =~ /^.{0,2}measure.xml$/
+          if file.to_s =~ /^.{0,2}component.xml$/
+            content_type = 'component'
+          end
           # extract uuid  and vid
           uuid, vid = bcl.uuid_vid_from_xml(file)
           # TODO: what if this fails?  keep going and just skip this measure. add try/catch
@@ -213,38 +228,56 @@ namespace :bcl do
       end
       puts "UUID: #{uuid}, VID: #{vid}"
 
+      # if uuid is missing, will assume new content
+      # new content functionality needs to know if measure or component.  update is agnostic.
       action = bcl.search_by_uuid(uuid, vid)
       puts "#{content_name} ACTION TO TAKE: #{action}"
 
       if action == 'noop'  # ignore up-to-date content
-        puts "local #{content_name} uuid and vid match BCL...no update will be performed"
+        puts "*** WARNING: local #{content_name} uuid and vid match BCL...no update will be performed ***"
         next
       elsif action == 'update'
-        puts "#{content_name} labeled as update for BCL"
-      elsif action == 'new'
-        puts "#{content_name} labeled as new content for BCL"
+        #puts "#{content_name} labeled as update for BCL"
+        destination = staged_path.join(action, "#{content_name}.tar.gz")
+      elsif action == 'push'
+        #puts "#{content_name} labeled as new content for BCL"
+        destination = staged_path.join(action, content_type, "#{content_name}.tar.gz")
       end
 
-      # use absolute path
-      destination = staged_path.join(action, "#{content_name}.tar.gz")
-      FileUtils.rm(destination) if File.exist?(destination)
-      BCL.tarball(destination, paths)
+      puts "destination: #{destination}"
+
+      # copy over only if 'reset_receipts' is set to TRUE. otherwise ignore if file exists already
+      if File.exist?(destination)
+        if options[:reset]
+          FileUtils.rm(destination)
+          BCL.tarball(destination, paths)
+        else
+          puts "*** WARNING: File #{content_name}.tar.gz already exists in staged directory...keeping existing file. To overwrite, set reset_receipts arg to true ***"
+        end
+      else
+        BCL.tarball(destination, paths)
+      end
       Dir.chdir(current_d)
     end
   end
 
   # to call: rake "bcl:prep_and_push[/path/to/your/content/directory, true]"  
-  desc 'prepare and push/update all content in a repo'
-  task :prep_and_push, [:content_path, :reset_receipts] do |t, args|
+  # content_path arg: path to components or measures to upload
+  # reset flag:  
+    # If TRUE: content in the staged directory will be re-generated and receipt files will be deleted.  
+    # If FALSE, content that already exists in the staged directory will remain and content with receipt files will not be re-uploaded.
+  desc 'stage and push/update all content in a repo'
+  task :stage_and_upload, [:content_path, :reset] do |t, args|
     options = {reset: false}
     options[:content_path] = Pathname.new args[:content_path]
-    if args[:reset_receipts]
-      options[:reset] = args[:reset_receipts]  
+    if args[:reset].to_s == 'true'
+      options[:reset] = true
     end
 
     current_dir = Dir.pwd
 
-    Rake.application.invoke_task("bcl:generate_content[#{options[:content_path]}, #{options[:reset]}]")
+    # stage content
+    Rake.application.invoke_task("bcl:stage_content[#{options[:content_path]}, #{options[:reset]}]")
     Dir.chdir(current_dir)
 
     # upload and update. pass in skip flag
