@@ -29,56 +29,74 @@ task release: :build do
   system "rm bcl-#{BCL::VERSION}.gem"
 end
 
-desc 'import a new build of the taxonomy'
-task :import_taxonomy do
-  require 'pathname'
-
-  dirname = Pathname.new(File.dirname(__FILE__))
-  puts dirname
-  path_to_taxonomy = File.join(dirname, '../Utilities/Taxonomy')
-  path_to_taxonomy = 'C:/Projects/Utilities/Taxonomy'
-
-  puts dirname
-  taxonomy = BCL::MasterTaxonomy.new("#{path_to_taxonomy}/unified taxonomy.xlsm")
-  taxonomy.save_as_current_taxonomy
-  taxonomy.save_as_current_taxonomy(dirname + 'lib/bcl/current_taxonomy.json')
-  taxonomy.write_xml(dirname + 'lib/bcl/current_taxonomy.xml')
-end
-
 desc 'uninstall all gems'
 task :uninstall do
   system 'gem uninstall bcl -a'
 end
 
-desc 'retrieve measures, parse, and create json metadata file'
-task :measure_metadata do
-  bcl =  BCL::ComponentMethods.new
-  bcl.login   # do this to set BCL URL
-  # only retrieve "NREL" measures
-  bcl.measure_metadata('NREL')
+task reinstall: [:uninstall, :install]
+
+RSpec::Core::RakeTask.new('spec') do |spec|
+  puts 'running tests...'
+  spec.rspec_opts = %w(--format progress)
+  spec.pattern = 'spec/**/*_spec.rb'
 end
 
-desc 'test search all functionality'
-task :search_all do
-  # search with all=true
-  # ensure that a) results are returned (> 0) and b) [:measure][:name] is a string
-  # search with all=false
-  # ensure the same a) and b) as above
-  bcl = BCL::ComponentMethods.new
-  bcl.login
-  results = bcl.search('Add', 'show_rows=10', false)
-  puts "there are #{results[:result].count} results"
-  results[:result].each do |res|
-    puts "#{res[:measure][:name]}"
+namespace :test do
+  desc 'test search all functionality'
+  task :search_all do
+    # search with all=true
+    # ensure that a) results are returned (> 0) and b) [:measure][:name] is a string
+    # search with all=false
+    # ensure the same a) and b) as above
+    bcl = BCL::ComponentMethods.new
+    bcl.login
+    results = bcl.search('Add', 'show_rows=10', false)
+    puts "there are #{results[:result].count} results"
+    results[:result].each do |res|
+      puts "#{res[:measure][:name]}"
+    end
   end
-end
 
-desc 'test measure upload'
-task :measure_upload do
-  bcl = BCL::ComponentMethods.new
-  bcl.login
-  filename = "#{File.dirname(__FILE__)}/spec/api/resources/measure_original.tar.gz"
-  valid, res = bcl.push_content(filename, false, 'nrel_measure')
+  desc 'test measure upload'
+  task :measure_upload do
+    bcl = BCL::ComponentMethods.new
+    bcl.login
+    filename = "#{File.dirname(__FILE__)}/spec/api/resources/measure_original.tar.gz"
+    valid, res = bcl.push_content(filename, false, 'nrel_measure')
+  end
+
+  desc 'test the BCL login credentials defined in .bcl/config.yml'
+  task :bcl_login do
+    bcl = BCL::ComponentMethods.new
+    bcl.login
+  end
+
+  # todo: deprecate?
+  desc 'retrieve measures, parse, and create json metadata file'
+  task :measure_metadata do
+    bcl =  BCL::ComponentMethods.new
+    bcl.login   # do this to set BCL URL
+    # only retrieve "NREL" measures
+    bcl.measure_metadata('NREL')
+  end
+
+  # todo: deprecate?
+  desc 'import a new build of the taxonomy'
+  task :import_taxonomy do
+    require 'pathname'
+
+    dirname = Pathname.new(File.dirname(__FILE__))
+    puts dirname
+    path_to_taxonomy = File.join(dirname, '../Utilities/Taxonomy')
+    path_to_taxonomy = 'C:/Projects/Utilities/Taxonomy'
+
+    puts dirname
+    taxonomy = BCL::MasterTaxonomy.new("#{path_to_taxonomy}/unified taxonomy.xlsm")
+    taxonomy.save_as_current_taxonomy
+    taxonomy.save_as_current_taxonomy(dirname + 'lib/bcl/current_taxonomy.json')
+    taxonomy.write_xml(dirname + 'lib/bcl/current_taxonomy.xml')
+  end
 end
 
 namespace :bcl do
@@ -87,7 +105,7 @@ namespace :bcl do
   desc 'upload/update BCL content'
   task :upload_content, [:reset] do |t, args|
     # process options
-    options = {reset: false}
+    options = { reset: false }
     if args[:reset].to_s == 'true'
       options[:reset] = true 
     end
@@ -170,7 +188,7 @@ namespace :bcl do
   desc 'stage content for BCL'
   task :stage_content, [:content_path, :reset] do |t, args|
     # process options
-    options = {reset: false}
+    options = { reset: false }
     options[:content_path] = Pathname.new args[:content_path]
     if args[:reset].to_s == 'true'
       options[:reset] = true
@@ -181,7 +199,7 @@ namespace :bcl do
     bcl = BCL::ComponentMethods.new
     bcl.login
 
-    # verify staged directory exists
+    # verify staged directory exists (in same directory as Rakefile)
     staged_path = Pathname.new(Dir.pwd + '/staged')
     FileUtils.mkdir_p(staged_path)
 
@@ -232,7 +250,7 @@ namespace :bcl do
       puts "#{content_name} ACTION TO TAKE: #{action}"
 
       if action == 'noop'  # ignore up-to-date content
-        puts "*** WARNING: local #{content_name} uuid and vid match BCL...no update will be performed ***"
+        puts "*** WARNING: local #{content_name} uuid and vid match BCL... no update will be performed ***"
         next
       elsif action == 'update'
         #puts "#{content_name} labeled as update for BCL"
@@ -250,7 +268,7 @@ namespace :bcl do
           FileUtils.rm(destination)
           BCL.tarball(destination, paths)
         else
-          puts "*** WARNING: File #{content_name}.tar.gz already exists in staged directory...keeping existing file. To overwrite, set reset_receipts arg to true ***"
+          puts "*** WARNING: File #{content_name}.tar.gz already exists in staged directory... keeping existing file. To overwrite, set reset_receipts arg to true ***"
         end
       else
         BCL.tarball(destination, paths)
@@ -266,7 +284,7 @@ namespace :bcl do
     # If FALSE, content that already exists in the staged directory will remain and content with receipt files will not be re-uploaded.
   desc 'stage and push/update all content in a repo'
   task :stage_and_upload, [:content_path, :reset] do |t, args|
-    options = {reset: false}
+    options = { reset: false }
     options[:content_path] = Pathname.new args[:content_path]
     if args[:reset].to_s == 'true'
       options[:reset] = true
@@ -282,14 +300,6 @@ namespace :bcl do
     Rake.application.invoke_task("bcl:upload_content[#{options[:reset]}]")
 
   end
-end
-
-task reinstall: [:uninstall, :install]
-
-RSpec::Core::RakeTask.new('spec') do |spec|
-  puts 'running tests...'
-  spec.rspec_opts = %w(--format progress)
-  spec.pattern = 'spec/**/*_spec.rb'
 end
 
 require 'rubocop/rake_task'
