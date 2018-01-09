@@ -49,7 +49,35 @@ namespace :test do
 end
 
 namespace :bcl do
+
   STAGED_PATH = Pathname.new(Dir.pwd + '/staged')
+
+  # initialize BCL and login
+  bcl = BCL::ComponentMethods.new
+  bcl.login
+
+  # to call: rake "bcl:prep_and_push[/path/to/your/content/directory, true]"
+  # content_path arg: path to components or measures to upload
+  # reset flag:
+  # If TRUE: content in the staged directory will be re-generated and receipt files will be deleted.
+  # If FALSE, content that already exists in the staged directory will remain and content with receipt files will not be re-uploaded.
+  desc 'stage and push/update all content in a repo'
+  task :stage_and_upload, [:content_path, :reset] do |t, args|
+    options = { reset: false }
+    options[:content_path] = Pathname.new args[:content_path]
+    if args[:reset].to_s == 'true'
+      options[:reset] = true
+    end
+
+    current_dir = Dir.pwd
+
+    # stage content
+    Rake.application.invoke_task("bcl:stage_content[#{options[:content_path]}, #{options[:reset]}]")
+    Dir.chdir(current_dir)
+
+    # upload (new and updated). pass in skip flag
+    Rake.application.invoke_task("bcl:upload_content[#{options[:reset]}]")
+  end
 
   # to call: rake "bcl:upload_content[true]"
   # TODO: catch errors and continue
@@ -62,10 +90,6 @@ namespace :bcl do
     end
 
     puts "OPTIONS -- reset: #{options[:reset]}"
-
-    # initialize BCL and login
-    bcl = BCL::ComponentMethods.new
-    bcl.login
 
     total_count = 0
     successes = 0
@@ -143,10 +167,6 @@ namespace :bcl do
     end
     puts "OPTIONS -- content_path: #{options[:content_path]}, reset: #{options[:reset]}"
 
-    # initialize BCL and login
-    bcl = BCL::ComponentMethods.new
-    bcl.login
-
     FileUtils.mkdir_p(STAGED_PATH)
 
     # delete existing tarballs if reset is true
@@ -219,29 +239,6 @@ namespace :bcl do
       end
       Dir.chdir(current_d)
     end
-  end
-
-  # to call: rake "bcl:prep_and_push[/path/to/your/content/directory, true]"
-  # content_path arg: path to components or measures to upload
-  # reset flag:
-  # If TRUE: content in the staged directory will be re-generated and receipt files will be deleted.
-  # If FALSE, content that already exists in the staged directory will remain and content with receipt files will not be re-uploaded.
-  desc 'stage and push/update all content in a repo'
-  task :stage_and_upload, [:content_path, :reset] do |t, args|
-    options = { reset: false }
-    options[:content_path] = Pathname.new args[:content_path]
-    if args[:reset].to_s == 'true'
-      options[:reset] = true
-    end
-
-    current_dir = Dir.pwd
-
-    # stage content
-    Rake.application.invoke_task("bcl:stage_content[#{options[:content_path]}, #{options[:reset]}]")
-    Dir.chdir(current_dir)
-
-    # upload (new and updated). pass in skip flag
-    Rake.application.invoke_task("bcl:upload_content[#{options[:reset]}]")
   end
 end
 
