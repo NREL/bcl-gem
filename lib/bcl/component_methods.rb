@@ -38,7 +38,7 @@ module BCL
       load_config
     end
 
-     def login(username = nil, password = nil, url = nil, group_id = nil)
+    def login(username = nil, password = nil, url = nil, group_id = nil)
       # figure out what url to use
       if url.nil?
         url = @config[:server][:url]
@@ -143,7 +143,7 @@ module BCL
 
         res
       end
-    end
+   end
 
     # retrieve, parse, and save metadata for BCL measures
     def measure_metadata(search_term = nil, filter_term = nil, return_all_pages = false)
@@ -192,7 +192,7 @@ module BCL
         elsif measure_string =~ /OpenStudio::Ruleset::UtilityUserScript/
           measure_hash[:measure_type] = 'UtilityUserScript'
         else
-          fail "measure type is unknown with an inherited class in #{measure_filename}: #{measure_hash.inspect}"
+          raise "measure type is unknown with an inherited class in #{measure_filename}: #{measure_hash.inspect}"
         end
 
         # New versions of measures have name, description, and modeler description methods
@@ -303,14 +303,14 @@ module BCL
               new_arg[:default_value].gsub!(/"|'/, '') if new_arg[:default_value]
             when 'Bool'
               if new_arg[:default_value]
-                new_arg[:default_value] = new_arg[:default_value].downcase == 'true' ? true : false
+                new_arg[:default_value] = new_arg[:default_value].casecmp('true').zero? ? true : false
               end
             when 'Integer'
               new_arg[:default_value] = new_arg[:default_value].to_i if new_arg[:default_value]
             when 'Double'
               new_arg[:default_value] = new_arg[:default_value].to_f if new_arg[:default_value]
             else
-              fail "unknown variable type of #{new_arg[:variable_type]}"
+              raise "unknown variable type of #{new_arg[:variable_type]}"
           end
 
           measure_hash[:arguments] << new_arg
@@ -442,7 +442,7 @@ module BCL
         file_data = download_component(measure[:measure][:uuid])
 
         if file_data
-          save_file = File.expand_path("#{@parsed_measures_path}/#{measure[:measure][:name].downcase.gsub(' ', '_')}.zip")
+          save_file = File.expand_path("#{@parsed_measures_path}/#{measure[:measure][:name].downcase.tr(' ', '_')}.zip")
           File.open(save_file, 'wb') { |f| f << file_data }
 
           # unzip file and delete zip.
@@ -523,8 +523,8 @@ module BCL
         errors += ' removing any of following: ?.#'
         clean_name = clean_name.gsub(/(\?|\.|\#).+?/, '')
       end
-      clean_name = clean_name.gsub('.', '')
-      clean_name = clean_name.gsub('?', '')
+      clean_name = clean_name.delete('.')
+      clean_name = clean_name.delete('?')
 
       [clean_name.strip, units]
     end
@@ -588,8 +588,8 @@ module BCL
           valid = false
         when '500'
           puts "  Response: #{api_response.code} - #{api_response.message}"
-          result = {error: api_response.message}
-          #fail 'server exception'
+          result = { error: api_response.message }
+          # fail 'server exception'
           valid = false
         else
           puts "  Response: #{api_response.code} - #{api_response.body}"
@@ -636,8 +636,8 @@ module BCL
     # pushes component to the bcl and publishes them (if logged-in as BCL Website Admin user).
     # username, password, and group_id are set in the ~/.bcl/config.yml file
     def push_content(filename_and_path, write_receipt_file, content_type)
-      fail 'Please login before pushing components' if @session.nil?
-      fail 'Do not have a valid access token; try again' if @access_token.nil?
+      raise 'Please login before pushing components' if @session.nil?
+      raise 'Do not have a valid access token; try again' if @access_token.nil?
 
       data = construct_post_data(filename_and_path, false, content_type)
 
@@ -664,7 +664,7 @@ module BCL
     # pushes updated content to the bcl and publishes it (if logged-in as BCL Website Admin user).
     # username and password set in ~/.bcl/config.yml file
     def update_content(filename_and_path, write_receipt_file, uuid = nil)
-      fail 'Please login before pushing components' unless @session
+      raise 'Please login before pushing components' unless @session
 
       # get the UUID if zip or xml file
       version_id = nil
@@ -677,10 +677,10 @@ module BCL
       else
         # verify the uuid via regex
         unless uuid =~ /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/
-          fail "uuid of #{uuid} is invalid"
+          raise "uuid of #{uuid} is invalid"
         end
       end
-      fail 'Please pass in a tar.gz file or pass in the uuid' unless uuid
+      raise 'Please pass in a tar.gz file or pass in the uuid' unless uuid
 
       data = construct_post_data(filename_and_path, true, uuid)
 
@@ -729,7 +729,7 @@ module BCL
       uuid = nil
       vid = nil
 
-      fail "File does not exist #{path_to_tarball}" unless File.exist? path_to_tarball
+      raise "File does not exist #{path_to_tarball}" unless File.exist? path_to_tarball
       tgz = Zlib::GzipReader.open(path_to_tarball)
       Archive::Tar::Minitar::Reader.open(tgz).each do |entry|
         # If taring with tar zcf ameasure.tar.gz -C measure_dir .
@@ -744,7 +744,7 @@ module BCL
             u = xml_file.xpath('/measure/uid').first
             v = xml_file.xpath('/measure/version_id').first
           end
-          fail "Could not find UUID in XML file #{path_to_tarball}" unless u
+          raise "Could not find UUID in XML file #{path_to_tarball}" unless u
           # Don't error on version not existing.
 
           uuid = u.content
@@ -761,17 +761,17 @@ module BCL
       uuid = nil
       vid = nil
 
-      fail "File does not exist #{path_to_xml}" unless File.exist? path_to_xml
+      raise "File does not exist #{path_to_xml}" unless File.exist? path_to_xml
       xml_file = File.open(path_to_xml) { |f| Nokogiri::XML(f) }
 
-      if path_to_xml.to_s.split('/').last =~ /component.xml/ 
+      if path_to_xml.to_s.split('/').last =~ /component.xml/
         u = xml_file.xpath('/component/uid').first
         v = xml_file.xpath('/component/version_id').first
       else
         u = xml_file.xpath('/measure/uid').first
         v = xml_file.xpath('/measure/version_id').first
       end
-      fail "Could not find UUID in XML file #{path_to_tarball}" unless u
+      raise "Could not find UUID in XML file #{path_to_tarball}" unless u
       # Don't error on version not existing?
 
       uuid = u.content
@@ -817,15 +817,15 @@ module BCL
 
       # uuid
       full_url += "&fq[]=ss_uuid:#{uuid}"
-      #puts "search url: #{full_url}"
-      
+      # puts "search url: #{full_url}"
+
       res = @http.get(full_url)
       res = MultiJson.load(res.body)
 
       if res['result'].count > 0
         # found content, check version
         content = res['result'].first
-        #puts "first result: #{content}"
+        # puts "first result: #{content}"
 
         # parse out measure vs component
         if content['measure']
@@ -973,7 +973,7 @@ module BCL
         # location of template file
         FileUtils.mkdir_p(File.dirname(config_filename))
         File.open(config_filename, 'w') { |f| f << default_yaml.to_yaml }
-        File.chmod(0600, config_filename)
+        File.chmod(0o600, config_filename)
         puts "******** Please fill in user credentials in #{config_filename} file if you need to upload data **********"
       end
     end

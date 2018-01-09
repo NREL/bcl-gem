@@ -44,7 +44,6 @@ module BCL
         @worksheets = []
 
         begin
-
           excel = WIN32OLE.new('Excel.Application')
 
           xlsx = excel.Workbooks.Open(@xlsx_path)
@@ -67,16 +66,13 @@ module BCL
             xlsx.Save
             puts '[ComponentSpreadsheet] Spreadsheet changes saved'
           end
-
         ensure
-
           excel.Quit
           WIN32OLE.ole_free(excel)
           excel.ole_free
           xlsx = nil
           excel = nil
           GC.start
-
         end
       end
 
@@ -179,7 +175,7 @@ module BCL
               component_xml.add_file(software_program, version, filepath, filename, filetype)
 
             else
-              fail "Unknown section #{header.name}"
+              raise "Unknown section #{header.name}"
 
             end
           end

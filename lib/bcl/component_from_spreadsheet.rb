@@ -133,7 +133,7 @@ module BCL
               end
               component_xml.add_file(software_program, version, filepath, filename, filetype)
             else
-              fail "Unknown section #{header.name}"
+              raise "Unknown section #{header.name}"
             end
           end
 

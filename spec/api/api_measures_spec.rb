@@ -79,14 +79,14 @@ describe 'BCL API' do
       it 'should upload a measure' do
         filename = "#{File.dirname(__FILE__)}/resources/measure_original.tar.gz"
         puts "Filename: #{filename}"
-        valid, res = @cm.push_content(filename, false, 'nrel_measure') 
+        valid, res = @cm.push_content(filename, false, 'nrel_measure')
         puts "VALID: #{valid}, RESULTS: #{res.inspect}"
         expect(valid).to eq true
       end
 
       it 'should update a measure' do
         filename = "#{File.dirname(__FILE__)}/resources/measure_updated.tar.gz"
-        valid, res = @cm.update_content(filename, false, nil) 
+        valid, res = @cm.update_content(filename, false, nil)
         expect(valid).to eq true
       end
 
@@ -121,7 +121,7 @@ describe 'BCL API' do
         valid, res = @cm.update_content(filename, false, nil)
         expect(valid).to eq false
         expect(res['form_errors']['field_tar_file']).to eq 'Your file contains an invalid attribute: Attribute Does Not Exist'
-      end  
+      end
 
       it 'should fail upload/update when there is an <error> tag in the xml' do
         filename = "#{File.dirname(__FILE__)}/resources/measure_error_errorInXml.tar.gz"

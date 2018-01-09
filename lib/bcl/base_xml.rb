@@ -109,7 +109,7 @@ module BCL
     # return the title case of the string
     def tc(input)
       val = input.gsub(/\b\w/) { $&.upcase }
-      if val.downcase == 'energyplus'
+      if val.casecmp('energyplus').zero?
         val = 'EnergyPlus'
       end
 
@@ -133,9 +133,13 @@ module BCL
       # simple method to test if the input_value is a string, float, or integer.
       # First convert the value back to a string for testing (in case it was passed as a float/integer)
       test = input_value.to_s
-      input_value = test.match('\.').nil? ? Integer(test) : Float(test) rescue test.to_s
+      input_value = begin
+                      test.match('\.').nil? ? Integer(test) : Float(test)
+                    rescue
+                      test.to_s
+                    end
 
-      if input_value.is_a?(Fixnum) || input_value.is_a?(Bignum)
+      if input_value.is_a?(Integer) || input_value.is_a?(Integer)
         dt = 'int'
       elsif input_value.is_a?(Float)
         dt = 'float'
