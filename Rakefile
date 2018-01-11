@@ -56,7 +56,7 @@ namespace :bcl do
   bcl = BCL::ComponentMethods.new
   bcl.login
 
-  # to call: rake "bcl:prep_and_push[/path/to/your/content/directory, true]"
+  # to call: rake "bcl:stage_and_upload[/path/to/your/content/directory, true]"
   # content_path arg: path to components or measures to upload
   # reset flag:
   # If TRUE: content in the staged directory will be re-generated and receipt files will be deleted.
@@ -89,8 +89,6 @@ namespace :bcl do
       options[:reset] = true
     end
 
-    puts "OPTIONS -- reset: #{options[:reset]}"
-
     total_count = 0
     successes = 0
     errors = 0
@@ -106,7 +104,7 @@ namespace :bcl do
       end
 
       items.each do |item|
-        puts item
+        puts item.split('/').last
         total_count += 1
 
         receipt_file = File.dirname(item) + '/' + File.basename(item, '.tar.gz') + '.receipt'
@@ -121,8 +119,13 @@ namespace :bcl do
           successes += 1
         else
           errors += 1
-          puts "ERROR: #{res.inspect.chomp}"
+          if res.key?(:error)
+            puts "  ERROR MESSAGE: #{res[:error]}"
+          else
+            puts "ERROR: #{res.inspect.chomp}"
+          end
         end
+        puts "", "---"
       end
     end
 
@@ -134,7 +137,7 @@ namespace :bcl do
       items << path.to_s
     end
     items.each do |item|
-      puts item
+      puts item.split('/').last
       total_count += 1
 
       receipt_file = File.dirname(item) + '/' + File.basename(item, '.tar.gz') + '.receipt'
@@ -149,11 +152,16 @@ namespace :bcl do
         successes += 1
       else
         errors += 1
-        puts "ERROR: #{res.inspect.chomp}"
+        if res.key?(:error)
+          puts "  ERROR MESSAGE: #{res[:error]}"
+        else
+          puts "ERROR MESSAGE: #{res.inspect.chomp}"
+        end
       end
+      puts "", "---"
     end
 
-    puts "****DONE**** #{total_count} total, #{successes} success, #{errors} failures, #{skipped} skipped"
+    puts "****UPLOAD DONE**** #{total_count} total, #{successes} success, #{errors} failures, #{skipped} skipped"
   end
 
   # to call: rake "bcl:stage_content[/path/to/your/content/directory, true]"
@@ -179,6 +187,11 @@ namespace :bcl do
     FileUtils.mkdir_p(STAGED_PATH.to_s + '/push/component')
     FileUtils.mkdir_p(STAGED_PATH.to_s + '/push/measure')
 
+    # keep track of noop, update, push
+    noops = 0
+    new_ones = 0
+    updates = 0
+
     # get all content directories to process
     dirs = Dir.glob("#{options[:content_path]}/*")
 
@@ -186,6 +199,7 @@ namespace :bcl do
       next if dir.include?('Rakefile')
       current_d = Dir.pwd
       content_name = File.basename(dir)
+      puts "", "---"
       puts "Generating #{content_name}"
 
       Dir.chdir(dir)
@@ -198,6 +212,8 @@ namespace :bcl do
 
       paths = []
       files.each do |file|
+        # don't tar tests/outputs directory
+        next if file.to_s.start_with?('tests/outputs')
         paths << file.to_s
         if file.to_s =~ /^.{0,2}component.xml$/ || file.to_s =~ /^.{0,2}measure.xml$/
           if file.to_s =~ /^.{0,2}component.xml$/
@@ -214,14 +230,17 @@ namespace :bcl do
       puts "#{content_name} ACTION TO TAKE: #{action}"
       # new content functionality needs to know if measure or component.  update is agnostic.
       if action == 'noop' # ignore up-to-date content
-        puts "*** WARNING: local #{content_name} uuid and vid match BCL... no update will be performed ***"
+        puts "  - WARNING: local #{content_name} uuid and vid match BCL... no update will be performed"
+        noops += 1
         next
       elsif action == 'update'
         # puts "#{content_name} labeled as update for BCL"
         destination = STAGED_PATH.join(action, "#{content_name}.tar.gz")
+        updates += 1
       elsif action == 'push'
         # puts "#{content_name} labeled as new content for BCL"
         destination = STAGED_PATH.join(action, content_type, "#{content_name}.tar.gz")
+        new_ones += 1
       end
 
       puts "destination: #{destination}"
@@ -239,6 +258,7 @@ namespace :bcl do
       end
       Dir.chdir(current_d)
     end
+    puts "","****STAGING DONE**** #{new_ones} new content, #{updates} updates, #{noops} skipped (already up-to-date on BCL)",""
   end
 end
 

@@ -143,390 +143,6 @@ module BCL
 
         res
       end
-   end
-
-    # retrieve, parse, and save metadata for BCL measures
-    def measure_metadata(search_term = nil, filter_term = nil, return_all_pages = false)
-      # setup results directory
-      unless File.exist?(@parsed_measures_path)
-        FileUtils.mkdir_p(@parsed_measures_path)
-      end
-      puts "...storing parsed metadata in #{@parsed_measures_path}"
-
-      # retrieve measures
-      puts "retrieving measures that match search_term: #{search_term.nil? ? 'nil' : search_term} and filters: #{filter_term.nil? ? 'nil' : filter_term}"
-      measures = []
-      retrieve_measures(search_term, filter_term, return_all_pages) do |m|
-        begin
-          r = parse_measure_metadata(m)
-          measures << r if r
-        rescue => e
-          puts "[ERROR] Parsing measure #{e.message}:#{e.backtrace.join("\n")}"
-        end
-      end
-
-      measures
-    end
-
-    # Read in an existing measure.rb file and extract the arguments.
-    # TODO: deprecate the _measure_name. This is used in the openstudio analysis gem, so it has to be carefully removed or renamed
-    def parse_measure_file(_measure_name, measure_filename)
-      measure_hash = {}
-
-      if File.exist? measure_filename
-        # read in the measure file and extract some information
-        measure_string = File.read(measure_filename)
-
-        measure_hash[:classname] = measure_string.match(/class (.*) </)[1]
-        measure_hash[:name] = measure_hash[:classname].to_underscore
-        measure_hash[:display_name] = nil
-        measure_hash[:display_name_titleized] = measure_hash[:name].titleize
-        measure_hash[:display_name_from_measure] = nil
-
-        if measure_string =~ /OpenStudio::Ruleset::WorkspaceUserScript/
-          measure_hash[:measure_type] = 'EnergyPlusMeasure'
-        elsif measure_string =~ /OpenStudio::Ruleset::ModelUserScript/
-          measure_hash[:measure_type] = 'RubyMeasure'
-        elsif measure_string =~ /OpenStudio::Ruleset::ReportingUserScript/
-          measure_hash[:measure_type] = 'ReportingMeasure'
-        elsif measure_string =~ /OpenStudio::Ruleset::UtilityUserScript/
-          measure_hash[:measure_type] = 'UtilityUserScript'
-        else
-          raise "measure type is unknown with an inherited class in #{measure_filename}: #{measure_hash.inspect}"
-        end
-
-        # New versions of measures have name, description, and modeler description methods
-        n = measure_string.scan(/def name(.*?)end/m).first
-        if n
-          n = n.first.strip
-          n.gsub!('return', '')
-          n.gsub!(/"|'/, '')
-          n.strip!
-          measure_hash[:display_name_from_measure] = n
-        end
-
-        # New versions of measures have name, description, and modeler description methods
-        n = measure_string.scan(/def description(.*?)end/m).first
-        if n
-          n = n.first.strip
-          n.gsub!('return', '')
-          n.gsub!(/"|'/, '')
-          n.strip!
-          measure_hash[:description] = n
-        end
-
-        # New versions of measures have name, description, and modeler description methods
-        n = measure_string.scan(/def modeler_description(.*?)end/m).first
-        if n
-          n = n.first.strip
-          n.gsub!('return', '')
-          n.gsub!(/"|'/, '')
-          n.strip!
-          measure_hash[:modeler_description] = n
-        end
-
-        measure_hash[:arguments] = []
-
-        args = measure_string.scan(/(.*).*=.*OpenStudio::Ruleset::OSArgument.*make(.*)Argument\((.*).*\)/)
-        args.each do |arg|
-          new_arg = {}
-          new_arg[:name] = nil
-          new_arg[:display_name] = nil
-          new_arg[:variable_type] = nil
-          new_arg[:local_variable] = nil
-          new_arg[:units] = nil
-          new_arg[:units_in_name] = nil
-
-          new_arg[:local_variable] = arg[0].strip
-          new_arg[:variable_type] = arg[1]
-          arg_params = arg[2].split(',')
-          new_arg[:name] = arg_params[0].gsub(/"|'/, '')
-          next if new_arg[:name] == 'info_widget'
-          choice_vector = arg_params[1] ? arg_params[1].strip : nil
-
-          # try find the display name of the argument
-          reg = /#{new_arg[:local_variable]}.setDisplayName\((.*)\)/
-          if measure_string =~ reg
-            new_arg[:display_name] = measure_string.match(reg)[1]
-            new_arg[:display_name].gsub!(/"|'/, '') if new_arg[:display_name]
-          else
-            new_arg[:display_name] = new_arg[:name]
-          end
-
-          p = parse_measure_name(new_arg[:display_name])
-          new_arg[:display_name] = p[0]
-          new_arg[:units_in_name] = p[1]
-
-          # try to get the units
-          reg = /#{new_arg[:local_variable]}.setUnits\((.*)\)/
-          if measure_string =~ reg
-            new_arg[:units] = measure_string.match(reg)[1]
-            new_arg[:units].gsub!(/"|'/, '') if new_arg[:units]
-          end
-
-          if measure_string =~ /#{new_arg[:local_variable]}.setDefaultValue/
-            new_arg[:default_value] = measure_string.match(/#{new_arg[:local_variable]}.setDefaultValue\((.*)\)/)[1]
-          else
-            puts "[WARNING] #{measure_hash[:name]}:#{new_arg[:name]} has no default value... will continue"
-          end
-
-          case new_arg[:variable_type]
-            when 'Choice'
-              # Choices to appear to only be strings?
-              # puts "Choice vector appears to be #{choice_vector}"
-              new_arg[:default_value].gsub!(/"|'/, '') if new_arg[:default_value]
-
-              # parse the choices from the measure
-              # scan from where the "instance has been created to the measure"
-              possible_choices = nil
-              possible_choice_block = measure_string # .scan(/#{choice_vector}.*=(.*)#{new_arg[:local_variable]}.*=/mi)
-              if possible_choice_block
-                # puts "possible_choice_block is #{possible_choice_block}"
-                possible_choices = possible_choice_block.scan(/#{choice_vector}.*<<.*(')(.*)(')/)
-                possible_choices += possible_choice_block.scan(/#{choice_vector}.*<<.*(")(.*)(")/)
-              end
-
-              # puts "Possible choices are #{possible_choices}"
-
-              if possible_choices.nil? || possible_choices.empty?
-                new_arg[:choices] = []
-              else
-                new_arg[:choices] = possible_choices.map { |c| c[1] }
-              end
-
-              # if the choices are inherited from the model, then need to just display the default value which
-              # somehow magically works because that is the display name
-              if new_arg[:default_value]
-                new_arg[:choices] << new_arg[:default_value] unless new_arg[:choices].include?(new_arg[:default_value])
-              end
-            when 'String', 'Path'
-              new_arg[:default_value].gsub!(/"|'/, '') if new_arg[:default_value]
-            when 'Bool'
-              if new_arg[:default_value]
-                new_arg[:default_value] = new_arg[:default_value].casecmp('true').zero? ? true : false
-              end
-            when 'Integer'
-              new_arg[:default_value] = new_arg[:default_value].to_i if new_arg[:default_value]
-            when 'Double'
-              new_arg[:default_value] = new_arg[:default_value].to_f if new_arg[:default_value]
-            else
-              raise "unknown variable type of #{new_arg[:variable_type]}"
-          end
-
-          measure_hash[:arguments] << new_arg
-        end
-      end
-
-      # check if there is a measure.xml file?
-      measure_xml_filename = "#{File.join(File.dirname(measure_filename), File.basename(measure_filename, '.*'))}.xml"
-      if File.exist? measure_xml_filename
-        f = File.open measure_xml_filename
-        doc = Nokogiri::XML(f)
-
-        # pull out some information
-        measure_hash[:name_xml] = doc.xpath('/measure/name').first.content
-        measure_hash[:uid] = doc.xpath('/measure/uid').first.content
-        measure_hash[:version_id] = doc.xpath('/measure/version_id').first.content
-        measure_hash[:tags] = doc.xpath('/measure/tags/tag').map(&:content)
-
-        measure_hash[:modeler_description_xml] = doc.xpath('/measure/modeler_description').first.content
-
-        measure_hash[:description_xml] = doc.xpath('/measure/description').first.content
-
-        f.close
-      end
-
-      # validate the measure information
-
-      validate_measure_hash(measure_hash)
-
-      measure_hash
-    end
-
-    # Validate the measure hash to make sure that it is meets the style guide. This will also perform the selection
-    # of which data to use for the "actual metadata"
-    #
-    # @param h [Hash] Measure hash
-    def validate_measure_hash(h)
-      if h.key? :name_xml
-        if h[:name_xml] != h[:name]
-          puts "[ERROR] {Validation}. Snake-cased name and the name in the XML do not match. Will default to automatic snake-cased measure name. #{h[:name_xml]} <> #{h[:name]}"
-        end
-      end
-
-      puts '[WARNING] {Validation} Could not find measure description in measure.'  unless h[:description]
-      puts '[WARNING] {Validation} Could not find modeler description in measure.'  unless h[:modeler_description]
-      puts '[WARNING] {Validation} Could not find measure name method in measure.'  unless h[:name_from_measure]
-
-      # check the naming conventions
-      if h[:display_name_from_measure]
-        if h[:display_name_from_measure] != h[:display_name_titleized]
-          puts '[WARNING] {Validation} Display name from measure and automated naming do not match. Will default to the automated name until all measures use the name method because of potential conflicts due to bad copy/pasting.'
-        end
-        h[:display_name] = h.delete :display_name_titleized
-      else
-        h[:display_name] = h.delete :display_name_titleized
-      end
-      h.delete :display_name_from_measure
-
-      if h.key?(:description) && h.key?(:description_xml)
-        if h[:description] != h[:description_xml]
-          puts '[ERROR] {Validation} Measure description and XML description differ. Will default to description in measure'
-        end
-        h.delete(:description_xml)
-      end
-
-      if h.key?(:modeler_description) && h.key?(:modeler_description_xml)
-        if h[:modeler_description] != h[:modeler_description_xml]
-          puts '[ERROR] {Validation} Measure modeler description and XML modeler description differ. Will default to modeler description in measure'
-        end
-        h.delete(:modeler_description_xml)
-      end
-
-      h[:arguments].each do |arg|
-        if arg[:units_in_name]
-          puts "[ERROR] {Validation} It appears that units are embedded in the argument name for #{arg[:name]}."
-
-          if arg[:units]
-            if arg[:units] != arg[:units_in_name]
-              puts '[ERROR] {Validation} Units in argument name do not match units in setUnits method. Using setUnits.'
-              arg.delete :units_in_name
-            end
-          else
-            puts '[ERROR] {Validation} Units appear to be in measure name. Please use setUnits.'
-            arg[:units] = arg.delete :units_in_name
-          end
-        else
-          # make sure to delete if null
-          arg.delete :units_in_name
-        end
-      end
-    end
-
-    def translate_measure_hash_to_csv(measure_hash)
-      csv = []
-      csv << [false, measure_hash[:display_name], measure_hash[:classname], measure_hash[:classname], measure_hash[:measure_type]]
-
-      measure_hash[:arguments].each do |argument|
-        values = []
-        values << ''
-        values << 'argument'
-        values << ''
-        values << argument[:display_name]
-        values << argument[:name]
-        values << argument[:display_name] # this is the default short display name
-        values << argument[:variable_type]
-        values << argument[:units]
-
-        # watch out because :default_value can be a boolean
-        argument[:default_value].nil? ? values << '' : values << argument[:default_value]
-        choices = ''
-        if argument[:choices]
-          choices << "|#{argument[:choices].join(',')}|" unless argument[:choices].empty?
-        end
-        values << choices
-
-        csv << values
-      end
-
-      csv
-    end
-
-    # Read the measure's information to pull out the metadata and to move into a more friendly directory name.
-    # argument of measure is a hash
-    def parse_measure_metadata(measure)
-      m_result = nil
-      # check for valid measure
-      if measure[:measure][:name] && measure[:measure][:uuid]
-
-        file_data = download_component(measure[:measure][:uuid])
-
-        if file_data
-          save_file = File.expand_path("#{@parsed_measures_path}/#{measure[:measure][:name].downcase.tr(' ', '_')}.zip")
-          File.open(save_file, 'wb') { |f| f << file_data }
-
-          # unzip file and delete zip.
-          # TODO: check that something was downloaded here before extracting zip
-          if File.exist? save_file
-            BCL.extract_zip(save_file, @parsed_measures_path, true)
-
-            # catch a weird case where there is an extra space in an unzip file structure but not in the measure.name
-            if measure[:measure][:name] == 'Add Daylight Sensor at Center of Spaces with a Specified Space Type Assigned'
-              unless File.exist? "#{@parsed_measures_path}/#{measure[:measure][:name]}"
-                temp_dir_name = "#{@parsed_measures_path}/Add Daylight Sensor at Center of  Spaces with a Specified Space Type Assigned"
-                FileUtils.move(temp_dir_name, "#{@parsed_measures_path}/#{measure[:measure][:name]}")
-              end
-            end
-
-            temp_dir_name = File.join(@parsed_measures_path, measure[:measure][:name])
-
-            # Read the measure.rb file
-            # puts "save dir name #{temp_dir_name}"
-            measure_filename = "#{temp_dir_name}/measure.rb"
-            measure_hash = parse_measure_file(nil, measure_filename)
-
-            if measure_hash.empty?
-              puts 'Measure Hash was empty... moving on'
-            else
-              # puts measure_hash.inspect
-              m_result = measure_hash
-              # move the directory to the class name
-              new_dir_name = File.join(@parsed_measures_path, measure_hash[:classname])
-              # puts "Moving #{temp_dir_name} to #{new_dir_name}"
-              if temp_dir_name == new_dir_name
-                puts 'Destination directory is the same as the processed directory'
-              else
-                FileUtils.rm_rf(new_dir_name) if File.exist?(new_dir_name) && temp_dir_name != measure_hash[:classname]
-                FileUtils.move(temp_dir_name, new_dir_name) unless temp_dir_name == measure_hash[:classname]
-              end
-              # create a new measure.json file for parsing later if need be
-              File.open(File.join(new_dir_name, 'measure.json'), 'w') { |f| f << MultiJson.dump(measure_hash, pretty: true) }
-            end
-          else
-            puts "Problems downloading #{measure[:measure][:name]}... moving on"
-          end
-        end
-      end
-
-      m_result
-    end
-
-    # parse measure name
-    def parse_measure_name(name)
-      # TODO: save/display errors
-      errors = ''
-      m = nil
-
-      clean_name = name
-      units = nil
-
-      # remove everything btw parentheses
-      m = clean_name.match(/\((.+?)\)/)
-      unless m.nil?
-        errors += ' removing parentheses,'
-        units = m[1]
-        clean_name = clean_name.gsub(/\((.+?)\)/, '')
-      end
-
-      # remove everything btw brackets
-      m = nil
-      m = clean_name.match(/\[(.+?)\]/)
-      unless m.nil?
-        errors += ' removing brackets,'
-        clean_name = clean_name.gsub(/\[(.+?)\]/, '')
-      end
-
-      # remove characters
-      m = nil
-      m = clean_name.match(/(\?|\.|\#).+?/)
-      unless m.nil?
-        errors += ' removing any of following: ?.#'
-        clean_name = clean_name.gsub(/(\?|\.|\#).+?/, '')
-      end
-      clean_name = clean_name.delete('.')
-      clean_name = clean_name.delete('?')
-
-      [clean_name.strip, units]
     end
 
     # retrieve measures for parsing metadata.
@@ -560,7 +176,7 @@ module BCL
       result = { error: 'could not get json from http post response' }
       case api_response.code
         when '200'
-          puts "  Response Code: #{api_response.code} - #{api_response.body}"
+          puts "  Response Code: #{api_response.code}"
           if api_response.body.empty?
             puts '  200 BUT ERROR: Returned body was empty. Possible causes:'
             puts '      - BSD tar on Mac OSX vs gnutar'
@@ -572,22 +188,29 @@ module BCL
             valid = true
           end
         when '404'
-          puts "  Response: #{api_response.code} - #{api_response.body}"
-          puts '  404 - check these common causes first:'
-          puts '    - the filename contains periods (other than the ones before the file extension)'
-          puts "    - you are not an 'administrator member' of the group you're trying to upload to"
+          puts "  Error Code: #{api_response.code} - #{api_response.body}"
+          puts '   - check these common causes first:'
+          puts "     - you are trying to update content that doesn't exist"
+          puts "     - you are not an 'administrator member' of the group you're trying to upload to"
           result = MultiJson.load api_response.body
           valid = false
         when '406'
-          puts "  Response: #{api_response.code} - #{api_response.body}"
-          puts '  406 - check these common causes first:'
-          puts '    - the UUID of the item that you are uploading is already on the BCL'
-          puts '    - the group_id is not correct in the config.yml (go to group on site, and copy the number at the end of the URL)'
-          puts "    - you are not an 'administrator member' of the group you're trying to upload to"
-          result = MultiJson.load api_response.body
+          puts "  Error Code: #{api_response.code}"
+          # try to parse the response a bit
+          error = MultiJson.load api_response.body
+          puts "temp error: #{error}"
+          if error.key?('form_errors')
+            if error['form_errors'].key?('field_tar_file')
+              result = { error: error['form_errors']['field_tar_file']}
+            elsif error['form_errors'].key?('og_group_ref][und][0][default')
+              result = {error: error['form_errors']['og_group_ref][und][0][default']}
+            end
+          else
+            result = error
+          end
           valid = false
         when '500'
-          puts "  Response: #{api_response.code} - #{api_response.message}"
+          puts "  Error Code: #{api_response.code}"
           result = { error: api_response.message }
           # fail 'server exception'
           valid = false
