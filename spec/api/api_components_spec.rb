@@ -168,8 +168,12 @@ describe 'BCL API' do
           # note: there is a problem here when not called by jenkins group. can ignore for local testing
 
           expect(valid).to eq true
-          expect(res['nid']).to eq '69193'
-          expect(res['uuid']).to eq '85b35216-0d57-11e4-b052-b2227cce2b54'
+          # note: this will not work on both dev and prod BCL
+          # dev
+          # expect(res['nid']).to eq '69193'
+
+          expect(res['nid']).to eq '39597'
+          expect(res['uuid']).to eq '21f13f54-6ad2-438d-b5fc-292b2c8ca321'
         end
 
         it 'should fail when posting component with same uuid/vid components' do
