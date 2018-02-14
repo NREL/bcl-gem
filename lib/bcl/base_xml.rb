@@ -17,6 +17,10 @@
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ######################################################################
 
+# KAF 2/13/2018
+# This functionality is being kept in case we need in to recreate weather files in the future
+# It is very out of date and would need a major reworking wrt to the updated schema
+
 module BCL
   ProvStruct = Struct.new(:author, :datetime, :comment)
   TagsStruct = Struct.new(:descriptor)
