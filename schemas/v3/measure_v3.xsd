@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- edited with XMLSpy v2008 rel. 2 sp2 (http://www.altova.com) by Daniel Macumber (NREL) -->
+<!-- edited with XMLSpy v2016 (x64) (http://www.altova.com) by kflemin (NREL) -->
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
 	<xs:annotation>
 		<xs:documentation>Measure.xsd describes the measures that are in the building component library or NREL analysis platform library.</xs:documentation>
@@ -68,6 +68,7 @@
 						<xs:sequence>
 							<xs:element ref="name"/>
 							<xs:element ref="display_name"/>
+							<xs:element name="short_name" minOccurs="0"/>
 							<xs:element ref="description" minOccurs="0"/>
 							<xs:element name="type">
 								<xs:annotation>
@@ -99,13 +100,13 @@
 									<xs:documentation>default value for the argument</xs:documentation>
 								</xs:annotation>
 							</xs:element>
-							<xs:element name="choice_values" minOccurs="0">
+							<xs:element name="choices" minOccurs="0">
 								<xs:annotation>
 									<xs:documentation>list of allowable values</xs:documentation>
 								</xs:annotation>
 								<xs:complexType>
 									<xs:sequence>
-										<xs:element name="choice_value" maxOccurs="unbounded">
+										<xs:element name="choice" maxOccurs="unbounded">
 											<xs:complexType>
 												<xs:sequence>
 													<xs:element name="value" type="xs:anySimpleType">
@@ -134,7 +135,7 @@
 									<xs:documentation>maximum value</xs:documentation>
 								</xs:annotation>
 							</xs:element>
-							<xs:element name="dynamic" type="xs:boolean" default="false">
+							<xs:element name="model_dependent" type="xs:boolean" default="false">
 								<xs:annotation>
 									<xs:documentation>true if any of this argument's properties depend on the specific model used.  default_value, choice_values, min_value, and max_value will not be populated for dynamic arguments</xs:documentation>
 								</xs:annotation>
@@ -295,6 +296,10 @@
 										<xs:enumeration value="script"/>
 										<xs:enumeration value="test"/>
 										<xs:enumeration value="resource"/>
+										<xs:enumeration value="doc"/>
+										<xs:enumeration value="license"/>
+										<xs:enumeration value="readme"/>
+										<xs:enumeration value="readmeerb"/>
 									</xs:restriction>
 								</xs:simpleType>
 							</xs:element>
@@ -432,6 +437,48 @@
 				<xs:element ref="tags"/>
 				<xs:element ref="attributes"/>
 				<xs:element ref="files"/>
+				<xs:element ref="outputs"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="outputs">
+		<xs:annotation>
+			<xs:documentation>for measures ony.  Outputs represent the output values to include in analysis results</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="output" minOccurs="0" maxOccurs="unbounded">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element ref="name"/>
+							<xs:element ref="display_name"/>
+							<xs:element name="short_name" type="xs:string" minOccurs="0"/>
+							<xs:element ref="description" minOccurs="0"/>
+							<xs:element name="type">
+								<xs:simpleType>
+									<xs:restriction base="xs:string">
+										<xs:enumeration value="Boolean"/>
+										<xs:enumeration value="Double"/>
+										<xs:enumeration value="Integer"/>
+										<xs:enumeration value="String"/>
+										<xs:enumeration value="Choice"/>
+										<xs:enumeration value="Path"/>
+									</xs:restriction>
+								</xs:simpleType>
+							</xs:element>
+							<xs:element name="units" type="xs:string" minOccurs="0">
+								<xs:annotation>
+									<xs:documentation>units of the output value in format parsable by OpenStudio::convert</xs:documentation>
+								</xs:annotation>
+							</xs:element>
+							<xs:element name="model_dependent" type="xs:boolean" default="false">
+								<xs:annotation>
+									<xs:documentation>true if any of this output's properties depend on the specific model used.</xs:documentation>
+								</xs:annotation>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
 			</xs:sequence>
 		</xs:complexType>
 	</xs:element>
