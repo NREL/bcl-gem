@@ -213,7 +213,10 @@ namespace :bcl do
       paths = []
       files.each do |file|
         # don't tar tests/outputs directory
-        next if file.to_s.start_with?('tests/outputs')
+        next if file.to_s.start_with?('tests/output') # From measure testing process
+        next if file.to_s.start_with?('tests/test') # From openstudio-measure-tester-gem
+        next if file.to_s.start_with?('tests/coverage') # From openstudio-measure-tester-gem
+        next if file.to_s.start_with?('test_results') # From openstudio-measure-tester-gem
         paths << file.to_s
         if file.to_s =~ /^.{0,2}component.xml$/ || file.to_s =~ /^.{0,2}measure.xml$/
           if file.to_s =~ /^.{0,2}component.xml$/
