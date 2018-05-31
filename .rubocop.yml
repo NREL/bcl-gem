@@ -4,4 +4,5 @@ AllCops:
     - 'spec/api/resources/measure_example/**/*'
 
 inherit_from:
-  - https://raw.githubusercontent.com/NREL/OpenStudio-resources/add-styles-linters/styles/rubocop.yml
+  - http://s3.amazonaws.com/openstudio-resources/styles/rubocop.yml
+
