@@ -598,6 +598,8 @@ module BCL
         File.open(config_filename, 'w') { |f| f << default_yaml.to_yaml }
         File.chmod(0o600, config_filename)
         puts "******** Please fill in user credentials in #{config_filename} file if you need to upload data **********"
+        # fill in the @config data with the temporary data for now.
+        @config = YAML.load_file(config_filename)
       end
     end
 
