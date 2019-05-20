@@ -25,7 +25,7 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency('yamler')
   s.add_runtime_dependency('faraday')
   s.add_runtime_dependency('roo')
-  s.add_runtime_dependency('nokogiri')
+  s.add_runtime_dependency('rexml')
   s.add_runtime_dependency('rubyzip')
   s.add_runtime_dependency('rubyXL')
 

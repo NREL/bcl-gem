@@ -357,21 +357,22 @@ module BCL
       Archive::Tar::Minitar::Reader.open(tgz).each do |entry|
         # If taring with tar zcf ameasure.tar.gz -C measure_dir .
         if entry.name =~ /^.{0,2}component.xml$/ || entry.name =~ /^.{0,2}measure.xml$/
-          xml_file = Nokogiri::XML(entry.read)
+          #xml_to_parse = File.new( entry.read )
+          xml_file = REXML::Document.new entry.read
 
           # pull out some information
           if entry.name =~ /component/
-            u = xml_file.xpath('/component/uid').first
-            v = xml_file.xpath('/component/version_id').first
+            u = xml_file.elements["component/uid"]
+            v = xml_file.elements["component/version_id"]
           else
-            u = xml_file.xpath('/measure/uid').first
-            v = xml_file.xpath('/measure/version_id').first
+            u = xml_file.elements["measure/uid"]
+        v = xml_file.elements["measure/version_id"]
           end
           raise "Could not find UUID in XML file #{path_to_tarball}" unless u
           # Don't error on version not existing.
 
-          uuid = u.content
-          vid = v ? v.content : nil
+          uuid = u.text
+          vid = v ? v.text : nil
 
           # puts "uuid = #{uuid}; vid = #{vid}"
         end
@@ -385,21 +386,21 @@ module BCL
       vid = nil
 
       raise "File does not exist #{path_to_xml}" unless File.exist? path_to_xml
-      xml_file = File.open(path_to_xml) { |f| Nokogiri::XML(f) }
-
+      xml_to_parse = File.new(path_to_xml)
+      xml_file = REXML::Document.new xml_to_parse
+    
       if path_to_xml.to_s.split('/').last =~ /component.xml/
-        u = xml_file.xpath('/component/uid').first
-        v = xml_file.xpath('/component/version_id').first
+        u = xml_file.elements["component/uid"]
+        v = xml_file.elements["component/version_id"]
       else
-        u = xml_file.xpath('/measure/uid').first
-        v = xml_file.xpath('/measure/version_id').first
+        u = xml_file.elements["measure/uid"]
+        v = xml_file.elements["measure/version_id"]
       end
       raise "Could not find UUID in XML file #{path_to_tarball}" unless u
       # Don't error on version not existing?
 
-      uuid = u.content
-      vid = v ? v.content : nil
-
+      uuid = u.text
+      vid = v ? v.text : nil
       [uuid, vid]
     end
 

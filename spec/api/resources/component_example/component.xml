@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component xsi:noNamespaceSchemaLocation="component.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <name>Rspec test component</name>
+  <uid>566a3e30-5ea8-0130-cf2b-14109fdf0b37</uid>
+  <version_id>240da890-5f33-0130-f2b6-14109fdf0b37</version_id>
+  <description>Rspec test component resembling title 24 skylight</description>
+  <provenances>
+    <provenance>
+      <author>nlong</author>
+      <datetime>2013-02-22T15:33:33Z</datetime>
+      <comment>File generation based on iterative targeting of U-Factor</comment>
+    </provenance>
+  </provenances>
+  <tags>
+    <tag>Construction Assembly.Fenestration.Skylight</tag>
+  </tags>
+  <attributes>
+    <attribute>
+      <name>Standard</name>
+      <value>CEC Title 24-2008</value>
+      <datatype>string</datatype>
+    </attribute>
+    <attribute>
+      <name>Standard Type</name>
+      <value>Nonresidential</value>
+      <datatype>string</datatype>
+    </attribute>
+    <attribute>
+      <name>Climate Zone</name>
+      <value>CEC 2008:7</value>
+      <datatype>string</datatype>
+    </attribute>
+    <attribute>
+      <name>Construction</name>
+      <value>Skylight</value>
+      <datatype>string</datatype>
+    </attribute>
+    <attribute>
+      <name>Construction Type</name>
+      <value>All Skylights without Curb</value>
+      <datatype>string</datatype>
+    </attribute>
+    <attribute>
+      <name>Overall U-factor</name>
+      <value>4.661</value>
+      <datatype>float</datatype>
+      <units>W/m^2 K</units>
+    </attribute>
+    <attribute>
+      <name>SHGC</name>
+      <value>0.4</value>
+      <datatype>float</datatype>
+    </attribute>
+    <attribute>
+      <name>VLT</name>
+      <value>0.4</value>
+      <datatype>float</datatype>
+    </attribute>
+    <attribute>
+      <name>Facade</name>
+      <value>Skylight</value>
+      <datatype>string</datatype>
+    </attribute>
+    <attribute>
+      <name>Minimum Glazing Fraction</name>
+      <value>0.02</value>
+      <datatype>float</datatype>
+    </attribute>
+    <attribute>
+      <name>Maximum Glazing Fraction</name>
+      <value>1.0</value>
+      <datatype>float</datatype>
+    </attribute>
+    <attribute>
+      <name>OpenStudio Type</name>
+      <value>OS:Construction</value>
+      <datatype>string</datatype>
+    </attribute>
+  </attributes>
+  <source>
+  </source>
+  <files>
+    <file>
+      <version>
+        <software_program>EnergyPlus</software_program>
+        <identifier>7.1.0</identifier>
+      </version>
+      <filename>Title 24-2008 Nonres 7 Skylight without Curb_v7.1.0.idf</filename>
+      <filetype>idf</filetype>
+    </file>
+    <file>
+      <version>
+        <software_program>OpenStudio</software_program>
+        <identifier>0.9.3</identifier>
+      </version>
+      <filename>Title 24-2008 Nonres 7 Skylight without Curb_v0.9.3.osm</filename>
+      <filetype>osm</filetype>
+    </file>
+    <file>
+      <version>
+        <software_program>OpenStudio</software_program>
+        <identifier>0.9.3</identifier>
+      </version>
+      <filename>Title 24-2008 Nonres 7 Skylight without Curb_v0.9.3.osc</filename>
+      <filetype>osc</filetype>
+    </file>
+  </files>
+  <costs>
+    <cost>
+      <instance_name>Default</instance_name>
+      <cost_type>estimate</cost_type>
+      <category>Installation</category>
+      <value>292.500</value>
+      <units>$/m^2</units>
+      <interval>15</interval>
+      <interval_units>year(s)</interval_units>
+      <currency>USD</currency>
+    </cost>
+    <cost>
+      <instance_name>Default</instance_name>
+      <cost_type>estimate</cost_type>
+      <category>Material</category>
+      <value>219.090</value>
+      <units>$/m^2</units>
+      <interval>15</interval>
+      <interval_units>year(s)</interval_units>
+      <currency>USD</currency>
+    </cost>
+    <cost>
+      <instance_name>Default</instance_name>
+      <cost_type>estimate</cost_type>
+      <category>Operations and Maintenance</category>
+      <value>2.340</value>
+      <units>$/m^2</units>
+      <interval>1</interval>
+      <interval_units>year(s)</interval_units>
+      <currency>USD</currency>
+    </cost>
+    <cost>
+      <instance_name>Default</instance_name>
+      <cost_type>estimate</cost_type>
+      <category>Variable Operations and Maintenance</category>
+      <value>0.000</value>
+      <units>$/m^2</units>
+      <interval>1</interval>
+      <interval_units>year(s)</interval_units>
+      <currency>USD</currency>
+    </cost>
+    <cost>
+      <instance_name>Default</instance_name>
+      <cost_type>estimate</cost_type>
+      <category>Salvage</category>
+      <value>0.000</value>
+      <units>$/m^2</units>
+      <currency>USD</currency>
+    </cost>
+  </costs>
+</component>
