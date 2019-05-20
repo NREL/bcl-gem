@@ -20,7 +20,6 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency('archive-tar-minitar')
   s.add_runtime_dependency('builder')
   s.add_runtime_dependency('faraday')
-  s.add_runtime_dependency('roo')
   s.add_runtime_dependency('rexml')
   s.add_runtime_dependency('rubyzip')
   s.add_runtime_dependency('rubyXL')
