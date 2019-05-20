@@ -15,6 +15,7 @@ require 'multi_json'
 require 'builder'
 require 'uuid'
 require 'net/https'
+require 'rexml/document'
 
 # TODO: can we condense these into one?
 require 'archive/tar/minitar'
