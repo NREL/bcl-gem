@@ -52,6 +52,31 @@ namespace :test do
     bclcomponents = BCL::ComponentFromSpreadsheet.new(File.expand_path('../lib/files/Components.xls', __FILE__), ['Roofing'])
     bclcomponents.save(File.expand_path('../lib/files/staged', __FILE__))
   end
+
+  desc 'test measure download'
+  task :measure_download do
+    # find a component with keyword 'Ashrae'
+    query = 'ashrae'
+    filter = 'fq[]=bundle:nrel_component&show_rows=3'
+
+    bcl = BCL::ComponentMethods.new
+    bcl.login
+
+    results = bcl.search(query, filter)
+    uids = []
+    results[:result].each do |result|
+      uids << result[:component][:uuid]
+    end
+
+    content = bcl.download_component(uids[0])
+
+    # save as tar.gz
+    download_path = File.expand_path('../lib/files/downloads', __FILE__)
+    FileUtils.mkdir(download_path) if !File.exists? download_path
+    f = File.open("#{download_path.to_s}/#{uids[0]}.tar.gz", 'wb')
+    f.write(content)
+
+  end
 end
 
 namespace :bcl do
