@@ -23,7 +23,7 @@ require 'zlib'
 require 'zip'
 
 # ability to write spreadsheets
-require 'rubyXL'
+require 'spreadsheet'
 
 require 'bcl/core_ext'
 require 'bcl/base_xml'

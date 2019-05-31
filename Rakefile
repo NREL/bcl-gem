@@ -46,6 +46,12 @@ namespace :test do
     bcl = BCL::ComponentMethods.new
     bcl.login
   end
+
+  desc 'test component spreadsheet'
+  task :spreadsheet do
+    bclcomponents = BCL::ComponentFromSpreadsheet.new(File.expand_path('../lib/files/Components.xls', __FILE__), ['Roofing'])
+    bclcomponents.save(File.expand_path('../lib/files/staged', __FILE__))
+  end
 end
 
 namespace :bcl do
