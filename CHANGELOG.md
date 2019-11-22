@@ -1,5 +1,12 @@
 # Change Log
 
+## Version (Unreleased)
+* Update copyrights
+* Update rubocop version (security)
+
+## Version 0.5.8 
+* Cleanup code (rubocop)
+
 ## Version 0.5.7
 * Update to_underscore method to not break apart EnergyPlus nor OpenStudio
 

@@ -4,6 +4,7 @@
 .ruby-version
 .Rhistory
 faraday.log
+gems/
 *.swp
 *.gem
 tmp/*
