@@ -7,7 +7,7 @@ require 'bundler/gem_tasks'
 
 require 'pathname'
 
-$LOAD_PATH.unshift File.expand_path('../lib', __FILE__)
+$LOAD_PATH.unshift File.expand_path('lib', __dir__)
 require 'bcl'
 require 'bcl/version'
 
@@ -49,7 +49,6 @@ namespace :test do
 end
 
 namespace :bcl do
-
   STAGED_PATH = Pathname.new(Dir.pwd + '/staged')
 
   # initialize BCL and login
@@ -125,7 +124,7 @@ namespace :bcl do
             puts "ERROR: #{res.inspect.chomp}"
           end
         end
-        puts "", "---"
+        puts '', '---'
       end
     end
 
@@ -158,7 +157,7 @@ namespace :bcl do
           puts "ERROR MESSAGE: #{res.inspect.chomp}"
         end
       end
-      puts "", "---"
+      puts '', '---'
     end
 
     puts "****UPLOAD DONE**** #{total_count} total, #{successes} success, #{errors} failures, #{skipped} skipped"
@@ -197,9 +196,10 @@ namespace :bcl do
 
     dirs.each do |dir|
       next if dir.include?('Rakefile')
+
       current_d = Dir.pwd
       content_name = File.basename(dir)
-      puts "", "---"
+      puts '', '---'
       puts "Generating #{content_name}"
 
       Dir.chdir(dir)
@@ -217,6 +217,7 @@ namespace :bcl do
         next if file.to_s.start_with?('tests/test') # From openstudio-measure-tester-gem
         next if file.to_s.start_with?('tests/coverage') # From openstudio-measure-tester-gem
         next if file.to_s.start_with?('test_results') # From openstudio-measure-tester-gem
+
         paths << file.to_s
         if file.to_s =~ /^.{0,2}component.xml$/ || file.to_s =~ /^.{0,2}measure.xml$/
           if file.to_s =~ /^.{0,2}component.xml$/
@@ -261,7 +262,7 @@ namespace :bcl do
       end
       Dir.chdir(current_d)
     end
-    puts "","****STAGING DONE**** #{new_ones} new content, #{updates} updates, #{noops} skipped (already up-to-date on BCL)",""
+    puts '', "****STAGING DONE**** #{new_ones} new content, #{updates} updates, #{noops} skipped (already up-to-date on BCL)", ''
   end
 end
 

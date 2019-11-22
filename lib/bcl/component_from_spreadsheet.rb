@@ -126,6 +126,7 @@ module BCL
               filepath = values.delete_at(0)
               # not all components(rows) have all files; skip if filename "" or nil
               next if filename == '' || filename.nil?
+
               # skip the file if it doesn't exist at the specified location
               unless File.exist?(filepath)
                 puts "[ComponentFromSpreadsheet] ERROR #{filepath} -> File does not exist, will not be included in component xml"

@@ -201,9 +201,9 @@ module BCL
           puts "temp error: #{error}"
           if error.key?('form_errors')
             if error['form_errors'].key?('field_tar_file')
-              result = { error: error['form_errors']['field_tar_file']}
+              result = { error: error['form_errors']['field_tar_file'] }
             elsif error['form_errors'].key?('og_group_ref][und][0][default')
-              result = {error: error['form_errors']['og_group_ref][und][0][default']}
+              result = { error: error['form_errors']['og_group_ref][und][0][default'] }
             end
           else
             result = error
@@ -353,6 +353,7 @@ module BCL
       vid = nil
 
       raise "File does not exist #{path_to_tarball}" unless File.exist? path_to_tarball
+
       tgz = Zlib::GzipReader.open(path_to_tarball)
       Archive::Tar::Minitar::Reader.open(tgz).each do |entry|
         # If taring with tar zcf ameasure.tar.gz -C measure_dir .
@@ -368,6 +369,7 @@ module BCL
             v = xml_file.xpath('/measure/version_id').first
           end
           raise "Could not find UUID in XML file #{path_to_tarball}" unless u
+
           # Don't error on version not existing.
 
           uuid = u.content
@@ -385,6 +387,7 @@ module BCL
       vid = nil
 
       raise "File does not exist #{path_to_xml}" unless File.exist? path_to_xml
+
       xml_file = File.open(path_to_xml) { |f| Nokogiri::XML(f) }
 
       if path_to_xml.to_s.split('/').last =~ /component.xml/
@@ -395,6 +398,7 @@ module BCL
         v = xml_file.xpath('/measure/version_id').first
       end
       raise "Could not find UUID in XML file #{path_to_tarball}" unless u
+
       # Don't error on version not existing?
 
       uuid = u.content
@@ -574,12 +578,12 @@ module BCL
       # look at response code
       if result.code == '200'
         # puts 'Download Successful'
-        result.body ? result.body : nil
+        result.body || nil
       else
         puts "Download fail. Error code #{result.code}"
         nil
       end
-    rescue
+    rescue StandardError
       puts "Couldn't download uid(s): #{uid}...skipping"
       nil
     end

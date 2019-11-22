@@ -139,7 +139,7 @@ module BCL
       test = input_value.to_s
       input_value = begin
                       test.match('\.').nil? ? Integer(test) : Float(test)
-                    rescue
+                    rescue StandardError
                       test.to_s
                     end
 

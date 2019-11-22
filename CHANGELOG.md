@@ -1,6 +1,6 @@
 # Change Log
 
-## Version (Unreleased)
+## Version 0.5.9 (Unreleased)
 * Update copyrights
 * Update rubocop version (security)
 

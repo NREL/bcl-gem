@@ -1,4 +1,4 @@
-lib = File.expand_path('../lib/', __FILE__)
+lib = File.expand_path('lib', __dir__)
 $LOAD_PATH.unshift lib unless $LOAD_PATH.include?(lib)
 
 require 'bcl/version'
@@ -17,17 +17,17 @@ Gem::Specification.new do |s|
   s.required_ruby_version = '>= 1.9.3'
 
   # TODO: reconcile all these dependencies
-  s.add_runtime_dependency('uuid')
-  s.add_runtime_dependency('builder')
-  s.add_runtime_dependency('zliby')
   s.add_runtime_dependency('archive-tar-minitar')
-  s.add_runtime_dependency('multi_json')
-  s.add_runtime_dependency('yamler')
+  s.add_runtime_dependency('builder')
   s.add_runtime_dependency('faraday')
-  s.add_runtime_dependency('roo')
+  s.add_runtime_dependency('multi_json')
   s.add_runtime_dependency('nokogiri')
-  s.add_runtime_dependency('rubyzip')
+  s.add_runtime_dependency('roo')
   s.add_runtime_dependency('rubyXL')
+  s.add_runtime_dependency('rubyzip')
+  s.add_runtime_dependency('uuid')
+  s.add_runtime_dependency('yamler')
+  s.add_runtime_dependency('zliby')
 
   s.files = Dir.glob('lib/**/*')
   s.require_path = 'lib'
