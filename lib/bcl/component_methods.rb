@@ -401,8 +401,11 @@ module BCL
       end
       raise "Could not find UUID in XML file #{path_to_tarball}" unless u
 
+<<<<<<< HEAD
       # Don't error on version not existing?
 
+=======
+>>>>>>> c2307176f4968a1d1c3b792197b67b1023f52566
       uuid = u.text
       vid = v ? v.text : nil
       [uuid, vid]
