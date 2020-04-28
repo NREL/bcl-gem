@@ -22,6 +22,11 @@
 			<xs:documentation>identifier which changes each time a new version is created</xs:documentation>
 		</xs:annotation>
 	</xs:element>
+	<xs:element name="version_modified" type="xs:dateTime">
+		<xs:annotation>
+			<xs:documentation>timestamp at which the current version_id was created</xs:documentation>
+		</xs:annotation>
+	</xs:element>
 	<xs:element name="xml_checksum" type="xs:string">
 		<xs:annotation>
 			<xs:documentation>checksum of selected xml elements and attributes, used to detect changes to the xml</xs:documentation>
@@ -93,6 +98,11 @@
 							<xs:element name="required" type="xs:boolean">
 								<xs:annotation>
 									<xs:documentation>true if the argument is required in order for the measure to run</xs:documentation>
+								</xs:annotation>
+							</xs:element>
+							<xs:element name="model_dependent" type="xs:boolean" default="false">
+								<xs:annotation>
+									<xs:documentation>true if any of this argument's properties depend on the specific model used.  default_value, choice_values, min_value, and max_value will not be populated for dynamic arguments</xs:documentation>
 								</xs:annotation>
 							</xs:element>
 							<xs:element name="default_value" type="xs:anySimpleType" minOccurs="0">
@@ -427,6 +437,7 @@
 				<xs:element ref="name"/>
 				<xs:element ref="uid"/>
 				<xs:element ref="version_id"/>
+				<xs:element ref="version_modified" minOccurs="0"/>
 				<xs:element ref="xml_checksum"/>
 				<xs:element ref="class_name"/>
 				<xs:element ref="display_name"/>

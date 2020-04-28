@@ -22,6 +22,11 @@
 			<xs:documentation>universally unique identifier which changes each time a new version is created</xs:documentation>
 		</xs:annotation>
 	</xs:element>
+	<xs:element name="version_modified" type="xs:dateTime">
+		<xs:annotation>
+			<xs:documentation>timestamp at which the current version_id was created</xs:documentation>
+		</xs:annotation>
+	</xs:element>
 	<xs:element name="xml_checksum" type="xs:string">
 		<xs:annotation>
 			<xs:documentation>checksum of selected xml elements and attributes, used to detect changes to the xml</xs:documentation>
@@ -94,18 +99,23 @@
 									<xs:documentation>true if the argument is required in order for the measure to run</xs:documentation>
 								</xs:annotation>
 							</xs:element>
+							<xs:element name="model_dependent" type="xs:boolean" default="false">
+								<xs:annotation>
+									<xs:documentation>true if any of this argument's properties depend on the specific model used.  default_value, choice_values, min_value, and max_value will not be populated for dynamic arguments</xs:documentation>
+								</xs:annotation>
+							</xs:element>
 							<xs:element name="default_value" type="xs:anySimpleType" minOccurs="0">
 								<xs:annotation>
 									<xs:documentation>default value for the argument</xs:documentation>
 								</xs:annotation>
 							</xs:element>
-							<xs:element name="choice_values" minOccurs="0">
+							<xs:element name="choices" minOccurs="0">
 								<xs:annotation>
 									<xs:documentation>list of allowable values</xs:documentation>
 								</xs:annotation>
 								<xs:complexType>
 									<xs:sequence>
-										<xs:element name="choice_value" maxOccurs="unbounded">
+										<xs:element name="choice" maxOccurs="unbounded">
 											<xs:complexType>
 												<xs:sequence>
 													<xs:element name="value" type="xs:anySimpleType">
@@ -132,11 +142,6 @@
 							<xs:element name="max_value" type="xs:anySimpleType" minOccurs="0">
 								<xs:annotation>
 									<xs:documentation>maximum value</xs:documentation>
-								</xs:annotation>
-							</xs:element>
-							<xs:element name="dynamic" type="xs:boolean" default="false">
-								<xs:annotation>
-									<xs:documentation>true if any of this argument's properties depend on the specific model used.  default_value, choice_values, min_value, and max_value will not be populated for dynamic arguments</xs:documentation>
 								</xs:annotation>
 							</xs:element>
 						</xs:sequence>
