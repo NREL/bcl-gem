@@ -1,5 +1,5 @@
 ######################################################################
-#  Copyright (c) 2008-2014, Alliance for Sustainable Energy.
+#  Copyright (c) 2008-2019, Alliance for Sustainable Energy.
 #  All rights reserved.
 #
 #  This library is free software; you can redistribute it and/or
@@ -98,11 +98,11 @@ module BCL
       # take all the files and tar.gz them -- name the file the same as
       # the directory
 
-      Dir.chdir("#{resolve_path}")
-      destination = "#{@name.gsub(/\W/, '_').gsub(/___/, '_').gsub(/__/, '_').chomp('_').strip}"
+      Dir.chdir(resolve_path.to_s)
+      destination = @name.gsub(/\W/, '_').gsub(/___/, '_').gsub(/__/, '_').chomp('_').strip.to_s
       # truncate filenames for paths that are longer than 256 characters (with .tar.gz appended)
       unless (@path + destination + destination).size < 249
-        destination = "#{@uid}"
+        destination = @uid.to_s
         puts 'truncating filename...using uid instead of name'
       end
       destination += '.tar.gz'
@@ -126,7 +126,7 @@ module BCL
     end
 
     def add_cost(cost_name, cost_type, category, value, units, interval, interval_units, year, location, currency,
-             source, reference_component_name, reference_component_id)
+                 source, reference_component_name, reference_component_id)
       cs = CostStruct.new
       cs.cost_name = cost_name
       cs.cost_type = cost_type
@@ -284,7 +284,7 @@ module BCL
       # setup the xml file
       comp_xml.instruct! :xml, version: '1.0', encoding: 'UTF-8'
       comp_xml.component('xmlns:xsi' => 'http://www.w3.org/2001/XMLSchema-instance',
-                         'xsi:noNamespaceSchemaLocation' => "#{@schema_url}") do
+                         'xsi:noNamespaceSchemaLocation' => @schema_url.to_s) do
         comp_xml.name @name
         comp_xml.uid @uuid
         comp_xml.version_id @vuid

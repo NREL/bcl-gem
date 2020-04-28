@@ -158,16 +158,22 @@ describe 'BCL API' do
           valid, res = @cm.push_content(filename, true, 'nrel_component')
 
           expect(valid).to eq(false)
-          expect(res['form_errors']['field_tar_file']).to eq 'There is already content with that UUID.'
+          expect(res[:error]).to eq 'There is already content with that UUID.'
         end
 
         it 'should update the component if the uuid already exists' do
           filename = "#{File.dirname(__FILE__)}/resources/component_example_no_vid.tar.gz"
-          valid, res = @cm.update_content(filename, false)
+          valid, res = @cm.update_content(filename, false, nil)
+          puts res
+          # note: there is a problem here when not called by jenkins group. can ignore for local testing
 
           expect(valid).to eq true
-          expect(res['nid']).to eq '69193'
-          expect(res['uuid']).to eq '85b35216-0d57-11e4-b052-b2227cce2b54'
+          # note: this will not work on both dev and prod BCL
+          # dev
+          # expect(res['nid']).to eq '69193'
+
+          expect(res['nid']).to eq '39597'
+          expect(res['uuid']).to eq '21f13f54-6ad2-438d-b5fc-292b2c8ca321'
         end
 
         it 'should fail when posting component with same uuid/vid components' do

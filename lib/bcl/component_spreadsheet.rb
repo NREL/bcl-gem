@@ -1,5 +1,5 @@
 ######################################################################
-#  Copyright (c) 2008-2014, Alliance for Sustainable Energy.
+#  Copyright (c) 2008-2019, Alliance for Sustainable Energy.
 #  All rights reserved.
 #
 #  This library is free software; you can redistribute it and/or
@@ -44,7 +44,6 @@ module BCL
         @worksheets = []
 
         begin
-
           excel = WIN32OLE.new('Excel.Application')
 
           xlsx = excel.Workbooks.Open(@xlsx_path)
@@ -67,16 +66,13 @@ module BCL
             xlsx.Save
             puts '[ComponentSpreadsheet] Spreadsheet changes saved'
           end
-
         ensure
-
           excel.Quit
           WIN32OLE.ole_free(excel)
           excel.ole_free
           xlsx = nil
           excel = nil
           GC.start
-
         end
       end
 
@@ -171,6 +167,7 @@ module BCL
               filepath = values.delete_at(0)
               # not all components(rows) have all files; skip if filename "" or nil
               next if filename == '' || filename.nil?
+
               # skip the file if it doesn't exist at the specified location
               unless File.exist?(filepath)
                 puts "[ComponentSpreadsheet] ERROR #{filepath} -> File does not exist, will not be included in component xml"
@@ -179,7 +176,7 @@ module BCL
               component_xml.add_file(software_program, version, filepath, filename, filetype)
 
             else
-              fail "Unknown section #{header.name}"
+              raise "Unknown section #{header.name}"
 
             end
           end

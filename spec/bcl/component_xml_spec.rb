@@ -21,6 +21,40 @@ describe BCL::Component do
     end
   end
 
+  context 'parsing XML' do
+    it 'should find uuid, version_id from XML file' do
+      uuid = nil
+      vid = nil
+
+      file = "#{File.dirname(__FILE__)}/resources/measure.xml"
+
+      # extract uuid  and vid
+      bcl = BCL::ComponentMethods.new
+      uuid, vid = bcl.uuid_vid_from_xml(file)
+
+      puts "UUID: #{uuid}, VID: #{vid}"
+
+      expect(uuid).not_to be_nil
+      expect(vid).not_to be_nil
+    end
+
+    it 'should find uuid, version_id from tarball' do
+      uuid = nil
+      vid = nil
+
+      file = "#{File.dirname(__FILE__)}/resources/measure_original.tar.gz"
+
+      # extract uuid  and vid
+      bcl = BCL::ComponentMethods.new
+      uuid, vid = bcl.uuid_vid_from_tarball(file)
+
+      puts "UUID: #{uuid}, VID: #{vid}"
+
+      expect(uuid).not_to be_nil
+      expect(vid).not_to be_nil
+    end
+  end
+
   context 'complex component' do
     before(:all) do
       @savepath = './spec/bcl/output'

@@ -1,5 +1,5 @@
 ######################################################################
-#  Copyright (c) 2008-2014, Alliance for Sustainable Energy.
+#  Copyright (c) 2008-2019, Alliance for Sustainable Energy.
 #  All rights reserved.
 #
 #  This library is free software; you can redistribute it and/or
@@ -18,5 +18,5 @@
 ######################################################################
 
 module BCL
-  VERSION = '0.5.6'
+  VERSION = '0.5.9'.freeze
 end

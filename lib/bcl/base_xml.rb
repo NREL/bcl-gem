@@ -1,5 +1,5 @@
 ######################################################################
-#  Copyright (c) 2008-2014, Alliance for Sustainable Energy.
+#  Copyright (c) 2008-2019, Alliance for Sustainable Energy.
 #  All rights reserved.
 #
 #  This library is free software; you can redistribute it and/or
@@ -16,6 +16,10 @@
 #  License along with this library; if not, write to the Free Software
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ######################################################################
+
+# KAF 2/13/2018
+# This functionality is being kept in case we need in to recreate weather files in the future
+# It is very out of date and would need a major reworking wrt to the updated schema
 
 module BCL
   ProvStruct = Struct.new(:author, :datetime, :comment)
@@ -109,7 +113,7 @@ module BCL
     # return the title case of the string
     def tc(input)
       val = input.gsub(/\b\w/) { $&.upcase }
-      if val.downcase == 'energyplus'
+      if val.casecmp('energyplus').zero?
         val = 'EnergyPlus'
       end
 
@@ -133,9 +137,13 @@ module BCL
       # simple method to test if the input_value is a string, float, or integer.
       # First convert the value back to a string for testing (in case it was passed as a float/integer)
       test = input_value.to_s
-      input_value = test.match('\.').nil? ? Integer(test) : Float(test) rescue test.to_s
+      input_value = begin
+                      test.match('\.').nil? ? Integer(test) : Float(test)
+                    rescue StandardError
+                      test.to_s
+                    end
 
-      if input_value.is_a?(Fixnum) || input_value.is_a?(Bignum)
+      if input_value.is_a?(Integer) || input_value.is_a?(Integer)
         dt = 'int'
       elsif input_value.is_a?(Float)
         dt = 'float'

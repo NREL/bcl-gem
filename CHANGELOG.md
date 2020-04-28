@@ -1,5 +1,16 @@
 # Change Log
 
+## Version 0.5.9
+* Update copyrights
+* Update rubocop version (security)
+* Updates to support OpenStudio Extension gem
+
+## Version 0.5.8 
+* Cleanup code (rubocop)
+
+## Version 0.5.7
+* Update to_underscore method to not break apart EnergyPlus nor OpenStudio
+
 ## Version 0.5.6
 * Allow no display name when parsing measure arguments (measure argument does not have setDisplayName)
 * Parse measure display name, description, modeler description, and argument units

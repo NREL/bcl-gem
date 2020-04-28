@@ -4,8 +4,8 @@ gemspec
 gem 'rake'
 
 group :test do
-  gem 'rspec', '~> 3.2.0'
   gem 'ci_reporter_rspec'
-  gem 'rubocop'
-  gem 'rubocop-checkstyle_formatter'
+  gem 'rspec', '~> 3.7.0'
+  gem 'rubocop', '~> 0.54'
+  gem 'rubocop-checkstyle_formatter', '~> 0.4'
 end

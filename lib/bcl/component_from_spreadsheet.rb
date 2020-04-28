@@ -1,5 +1,5 @@
 ######################################################################
-#  Copyright (c) 2008-2014, Alliance for Sustainable Energy.
+#  Copyright (c) 2008-2019, Alliance for Sustainable Energy.
 #  All rights reserved.
 #
 #  This library is free software; you can redistribute it and/or
@@ -19,7 +19,7 @@
 
 # Converts a custom Excel spreadsheet format to BCL components for upload
 
-require 'rubyXL'
+require 'spreadsheet'
 require 'bcl'
 
 module BCL
@@ -33,12 +33,13 @@ module BCL
     public
 
     # initialize with Excel spreadsheet to read
+    # seems to only be working with xls spreadsheets
     def initialize(xlsx_path, worksheet_names = ['all'])
       @xlsx_path = Pathname.new(xlsx_path).realpath.to_s
       @worksheets = []
 
       begin
-        xlsx = RubyXL::Parser.parse(@xlsx_path)
+        xlsx = Spreadsheet.open(@xlsx_path)
 
         # by default, operate on all worksheets
         if worksheet_names == ['all']
@@ -47,7 +48,7 @@ module BCL
           end
         else # if specific worksheets are specified, operate on them
           worksheet_names.each do |worksheet_name|
-            parse_xlsx_worksheet(xlsx[worksheet_name])
+            parse_xlsx_worksheet(xlsx.worksheet(worksheet_name))
           end
         end
 
@@ -82,6 +83,7 @@ module BCL
             if /description/i.match(header.name)
               name = values.delete_at(0) # name, uid already processed
               uid = values.delete_at(0)
+              component_xml.comp_version_id = values.delete_at(0)
               description = values.delete_at(0)
               component_xml.modeler_description = values.delete_at(0)
               component_xml.description = description
@@ -126,6 +128,7 @@ module BCL
               filepath = values.delete_at(0)
               # not all components(rows) have all files; skip if filename "" or nil
               next if filename == '' || filename.nil?
+
               # skip the file if it doesn't exist at the specified location
               unless File.exist?(filepath)
                 puts "[ComponentFromSpreadsheet] ERROR #{filepath} -> File does not exist, will not be included in component xml"
@@ -133,7 +136,7 @@ module BCL
               end
               component_xml.add_file(software_program, version, filepath, filename, filetype)
             else
-              fail "Unknown section #{header.name}"
+              raise "Unknown section #{header.name}"
             end
           end
 
@@ -148,15 +151,15 @@ module BCL
 
     def parse_xlsx_worksheet(xlsx_worksheet)
       worksheet = WorksheetStruct.new
-      worksheet.name = xlsx_worksheet[0][0].value # get A1, order is: row, col
+      worksheet.name = xlsx_worksheet.row(0)[0] # get A1, order is: row, col
       worksheet.components = []
       puts "[ComponentFromSpreadsheet] Starting parsing components of type #{worksheet.name}"
 
       # find number of rows, first column should be name, should not be empty
-
-      xlsx_data = xlsx_worksheet.extract_data
-      # puts "Data: #{xlsx_data.inspect}"
-      # puts "***********************"
+      xlsx_data = []
+      xlsx_worksheet.each do |ws|
+        xlsx_data << ws
+      end
 
       num_rows = xlsx_data.size
       puts "Number of Rows: #{xlsx_data.size}"

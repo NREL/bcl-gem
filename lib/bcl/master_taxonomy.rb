@@ -1,5 +1,5 @@
 ######################################################################
-#  Copyright (c) 2008-2014, Alliance for Sustainable Energy.
+#  Copyright (c) 2008-2019, Alliance for Sustainable Energy.
 #  All rights reserved.
 #
 #  This library is free software; you can redistribute it and/or
@@ -87,9 +87,7 @@ module BCL
 
     # save the current taxonomy
     def save_as_current_taxonomy(path = nil)
-      unless path
-        path = current_taxonomy_path
-      end
+      path ||= current_taxonomy_path
       puts "Saving current taxonomy to #{path}"
       # this is really not JSON... it is a persisted format of ruby
       File.open(path, 'w') do |file|
@@ -132,9 +130,9 @@ module BCL
       # sort the terms as they come out
       result = terms.uniq
       if !@sort_alphabetical
-        result = result.sort { |x, y| x.row <=> y.row }
+        result = result.sort_by(&:row)
       else
-        result = result.sort { |x, y| x.name <=> y.name }
+        result = result.sort_by(&:name)
       end
 
       result
@@ -206,7 +204,7 @@ module BCL
       # check header
       header_error = validate_terms_header(terms_worksheet)
       if header_error
-        fail 'Header Error on Terms Worksheet'
+        raise 'Header Error on Terms Worksheet'
       end
 
       # add root tag
@@ -283,7 +281,7 @@ module BCL
         else
           unless terms_worksheet.Columns(col).Rows(2).Value == test_arr[col - 1]['name']
             if test_arr[col - 1]['strict']
-              fail "[ERROR] Header does not match: #{col}: '#{terms_worksheet.Columns(col).Rows(2).Value} <> #{test_arr[col - 1]['name']}'"
+              raise "[ERROR] Header does not match: #{col}: '#{terms_worksheet.Columns(col).Rows(2).Value} <> #{test_arr[col - 1]['name']}'"
             else
               puts "[WARNING] Header does not match: #{col}: '#{terms_worksheet.Columns(col).Rows(2).Value} <> #{test_arr[col - 1]['name']}'"
             end
@@ -388,7 +386,7 @@ module BCL
 
     def sort_tag(tag)
       # tag.terms = tag.terms.sort {|x, y| x.level_hierarchy <=> y.level_hierarchy}
-      tag.child_tags = tag.child_tags.sort { |x, y| x.level_hierarchy <=> y.level_hierarchy }
+      tag.child_tags = tag.child_tags.sort_by(&:level_hierarchy)
       tag.child_tags.each { |child_tag| sort_tag(child_tag) }
 
       # tag.terms = tag.terms.sort {|x, y| x.name <=> y.name}
@@ -436,13 +434,13 @@ module BCL
       end
 
       unless term.data_type.nil?
-        valid_types = %w(double integer enum file string autocomplete)
+        valid_types = ['double', 'integer', 'enum', 'file', 'string', 'autocomplete']
         if (term.data_type.downcase != term.data_type) || !valid_types.include?(term.data_type)
           puts "[ERROR] Term '#{term.name}' does not have a valid data type with '#{term.data_type}'"
         end
 
-        if term.data_type.downcase == 'enum'
-          if term.enums.nil? || term.enums == '' || term.enums.downcase == 'no enum found'
+        if term.data_type.casecmp('enum').zero?
+          if term.enums.nil? || term.enums == '' || term.enums.casecmp('no enum found').zero?
             puts "[ERROR] Term '#{term.name}' does not have valid enumerations"
           end
         end
@@ -460,7 +458,7 @@ module BCL
     # write term to xml
     def write_terms_to_xml(tag, xml, output_type)
       terms = get_terms(tag)
-      if terms.size > 0
+      unless terms.empty?
         terms.each do |term|
           xml.term do
             xml.name term.name
@@ -516,7 +514,7 @@ module BCL
 
         level += 1
 
-        if tag.child_tags.size == 0
+        if tag.child_tags.empty?
           write_terms_to_xml(tag, xml, output_type)
         end
 
