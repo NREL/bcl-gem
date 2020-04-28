@@ -1,0 +1,90 @@
+<measure>
+  <schema_version>3.0</schema_version>
+  <name>test_gem_measure</name>
+  <uid>ee1ff23a-c8d0-4998-8a5f-abad5969d46b</uid>
+  <version_id>973e8e10-1e89-4ba3-8b30-2036c3604ff9</version_id>
+  <version_modified>20171211T213853Z</version_modified>
+  <xml_checksum>00000000</xml_checksum>
+  <class_name>TestGemMeasure</class_name>
+  <display_name>Test Gem Measure</display_name>
+  <description>This is a measure to test the functionality of the BCL gem</description>
+  <modeler_description>This measure will test the BCL gem</modeler_description>
+  <arguments>
+    <argument>
+      <name>space_name</name>
+      <display_name>New space name</display_name>
+      <description>This name will be used as the name of the new space.</description>
+      <type>String</type>
+      <required>true</required>
+      <model_dependent>false</model_dependent>
+    </argument>
+    <argument>
+     <name>v1</name>
+     <display_name>v1</display_name>
+     <type>Double</type>
+     <required>false</required>
+     <model_dependent>false</model_dependent>
+    </argument>
+    <argument>
+     <name>v2</name>
+     <display_name>v2</display_name>
+     <type>Integer</type>
+     <required>false</required>
+     <model_dependent>false</model_dependent>
+    </argument>
+  </arguments>
+  <outputs>
+    <output>
+     <name>first_output</name>
+     <display_name>First Output</display_name>
+     <short_name>First</short_name>
+     <description>This is the first output</description>
+     <type>String</type>
+     <model_dependent>true</model_dependent>
+    </output>
+    <output>
+     <name>second_output</name>
+     <display_name>Second Output</display_name>
+     <short_name>Second</short_name>
+     <description>This is the second output</description>
+     <type>Float</type>
+     <units>deg F</units>
+     <model_dependent>false</model_dependent>
+    </output>
+  </outputs>  
+  <provenances/>
+  <tags>
+    <tag>Reporting.Troubleshooting</tag>
+  </tags>
+  <attributes>
+    <attribute>
+      <name>Measure Type</name>
+      <value>ModelMeasure</value>
+      <datatype>string</datatype>
+    </attribute>
+  </attributes>
+  <files>
+    <file>
+      <version>
+        <software_program>OpenStudio</software_program>
+        <identifier>2.3.0</identifier>
+      </version>
+      <filename>measure.rb</filename>
+      <filetype>rb</filetype>
+      <usage_type>script</usage_type>
+      <checksum>2E9AA468</checksum>
+    </file>
+    <file>
+      <filename>test_gem_measure_test.rb</filename>
+      <filetype>rb</filetype>
+      <usage_type>test</usage_type>
+      <checksum>36109644</checksum>
+    </file>
+    <file>
+      <filename>example_model.osm</filename>
+      <filetype>osm</filetype>
+      <usage_type>test</usage_type>
+      <checksum>53D14E69</checksum>
+    </file>
+  </files>
+</measure>

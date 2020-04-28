@@ -16,4 +16,6 @@ Gemfile.lock
 /spec/api/resources/*.receipt
 measures/
 staged/
+lib/files/staged/
+lib/files/downloads/
 .rubocop-https*
