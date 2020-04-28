@@ -358,16 +358,16 @@ module BCL
       Archive::Tar::Minitar::Reader.open(tgz).each do |entry|
         # If taring with tar zcf ameasure.tar.gz -C measure_dir .
         if entry.name =~ /^.{0,2}component.xml$/ || entry.name =~ /^.{0,2}measure.xml$/
-          #xml_to_parse = File.new( entry.read )
+          # xml_to_parse = File.new( entry.read )
           xml_file = REXML::Document.new entry.read
 
           # pull out some information
           if entry.name =~ /component/
-            u = xml_file.elements["component/uid"]
-            v = xml_file.elements["component/version_id"]
+            u = xml_file.elements['component/uid']
+            v = xml_file.elements['component/version_id']
           else
-            u = xml_file.elements["measure/uid"]
-        v = xml_file.elements["measure/version_id"]
+            u = xml_file.elements['measure/uid']
+            v = xml_file.elements['measure/version_id']
           end
           raise "Could not find UUID in XML file #{path_to_tarball}" unless u
 
@@ -391,21 +391,16 @@ module BCL
 
       xml_to_parse = File.new(path_to_xml)
       xml_file = REXML::Document.new xml_to_parse
-    
+
       if path_to_xml.to_s.split('/').last =~ /component.xml/
-        u = xml_file.elements["component/uid"]
-        v = xml_file.elements["component/version_id"]
+        u = xml_file.elements['component/uid']
+        v = xml_file.elements['component/version_id']
       else
-        u = xml_file.elements["measure/uid"]
-        v = xml_file.elements["measure/version_id"]
+        u = xml_file.elements['measure/uid']
+        v = xml_file.elements['measure/version_id']
       end
       raise "Could not find UUID in XML file #{path_to_tarball}" unless u
 
-<<<<<<< HEAD
-      # Don't error on version not existing?
-
-=======
->>>>>>> c2307176f4968a1d1c3b792197b67b1023f52566
       uuid = u.text
       vid = v ? v.text : nil
       [uuid, vid]

@@ -1,8 +1,9 @@
 # Change Log
 
-## Version 0.5.9 (Unreleased)
+## Version 0.5.9
 * Update copyrights
 * Update rubocop version (security)
+* Updates to support OpenStudio Extension gem
 
 ## Version 0.5.8 
 * Cleanup code (rubocop)

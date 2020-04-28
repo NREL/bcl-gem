@@ -48,7 +48,7 @@ module BCL
           end
         else # if specific worksheets are specified, operate on them
           worksheet_names.each do |worksheet_name|
-            parse_xlsx_worksheet(xlsx.worksheet worksheet_name)
+            parse_xlsx_worksheet(xlsx.worksheet(worksheet_name))
           end
         end
 
@@ -240,7 +240,6 @@ module BCL
       @worksheets << worksheet
 
       puts "[ComponentFromSpreadsheet] Finished parsing components of type #{worksheet.name}"
-
     end
   end
 end

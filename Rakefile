@@ -49,8 +49,8 @@ namespace :test do
 
   desc 'test component spreadsheet'
   task :spreadsheet do
-    bclcomponents = BCL::ComponentFromSpreadsheet.new(File.expand_path('../lib/files/Components.xls', __FILE__), ['Roofing'])
-    bclcomponents.save(File.expand_path('../lib/files/staged', __FILE__))
+    bclcomponents = BCL::ComponentFromSpreadsheet.new(File.expand_path('lib/files/Components.xls', __dir__), ['Roofing'])
+    bclcomponents.save(File.expand_path('lib/files/staged', __dir__))
   end
 
   desc 'test measure download'
@@ -71,11 +71,10 @@ namespace :test do
     content = bcl.download_component(uids[0])
 
     # save as tar.gz
-    download_path = File.expand_path('../lib/files/downloads', __FILE__)
-    FileUtils.mkdir(download_path) if !File.exists? download_path
-    f = File.open("#{download_path.to_s}/#{uids[0]}.tar.gz", 'wb')
+    download_path = File.expand_path('lib/files/downloads', __dir__)
+    FileUtils.mkdir(download_path) if !File.exist? download_path
+    f = File.open("#{download_path}/#{uids[0]}.tar.gz", 'wb')
     f.write(content)
-
   end
 end
 

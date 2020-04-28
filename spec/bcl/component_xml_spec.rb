@@ -31,7 +31,7 @@ describe BCL::Component do
       # extract uuid  and vid
       bcl = BCL::ComponentMethods.new
       uuid, vid = bcl.uuid_vid_from_xml(file)
-      
+
       puts "UUID: #{uuid}, VID: #{vid}"
 
       expect(uuid).not_to be_nil
@@ -39,7 +39,6 @@ describe BCL::Component do
     end
 
     it 'should find uuid, version_id from tarball' do
-
       uuid = nil
       vid = nil
 
@@ -48,7 +47,7 @@ describe BCL::Component do
       # extract uuid  and vid
       bcl = BCL::ComponentMethods.new
       uuid, vid = bcl.uuid_vid_from_tarball(file)
-      
+
       puts "UUID: #{uuid}, VID: #{vid}"
 
       expect(uuid).not_to be_nil
