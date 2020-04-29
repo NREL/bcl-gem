@@ -18,7 +18,7 @@ require 'net/https'
 require 'rexml/document'
 
 # TODO: can we condense these into one?
-require 'archive/tar/minitar'
+require 'minitar'
 require 'zlib'
 require 'zip'
 
