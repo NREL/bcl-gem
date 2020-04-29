@@ -24,19 +24,16 @@ Gem::Specification.new do |spec|
 
   spec.required_ruby_version = '>= 2.5.0'
 
-  spec.add_dependency 'minitar', '~> 0.9'
   spec.add_dependency 'builder', '3.2.4'
   spec.add_dependency 'faraday', '~> 1.0.1'
-
-  spec.add_dependency 'multi_json', '~> 1.14.1'
+  spec.add_dependency 'minitar', '~> 0.9'
   # Measure tester is not used in this project, but this will force dependencies to match versions
   # requested by OpenStudio.
   spec.add_dependency 'openstudio_measure_tester', '~> 0.2.2'
+  spec.add_dependency 'rexml', '3.2.4'
   spec.add_dependency 'rubyzip', '~> 2.3.0'
+  spec.add_dependency 'spreadsheet', '1.2.6'
   spec.add_dependency 'uuid', '~> 2.3.9'
   spec.add_dependency 'yamler', '0.1.0'
   spec.add_dependency 'zliby', '0.0.5'
-
-  spec.add_dependency 'rexml', '3.2.4'
-  spec.add_dependency 'spreadsheet', '1.2.6'
 end

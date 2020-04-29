@@ -11,7 +11,7 @@ end
 
 # file formatters
 require 'yaml'
-require 'multi_json'
+require 'json'
 require 'builder'
 require 'uuid'
 require 'net/https'
