@@ -172,7 +172,7 @@ describe 'BCL API' do
           # dev
           # expect(res['nid']).to eq '69193'
 
-          expect(res['nid']).to eq '39597'
+          expect(res['nid']).to eq '88284'
           expect(res['uuid']).to eq '21f13f54-6ad2-438d-b5fc-292b2c8ca321'
         end
 

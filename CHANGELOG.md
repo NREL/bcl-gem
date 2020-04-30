@@ -1,5 +1,10 @@
 # Change Log
 
+## Version 0.6.0
+
+* Support Ruby > 2.5
+* Update dependencies
+
 ## Version 0.5.9
 * Update copyrights
 * Update rubocop version (security)

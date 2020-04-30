@@ -107,7 +107,7 @@ module BCL
         # puts "DATA: #{data}"
         session_name = ''
         sessid = ''
-        json = MultiJson.load(res.body)
+        json = JSON.parse(res.body)
         json.each do |key, val|
           if key == 'session_name'
             session_name = val
@@ -184,7 +184,7 @@ module BCL
             valid = false
           else
             puts '  200 - Successful Upload'
-            result = MultiJson.load api_response.body
+            result = JSON.parse api_response.body
             valid = true
           end
         when '404'
@@ -192,12 +192,12 @@ module BCL
           puts '   - check these common causes first:'
           puts "     - you are trying to update content that doesn't exist"
           puts "     - you are not an 'administrator member' of the group you're trying to upload to"
-          result = MultiJson.load api_response.body
+          result = JSON.parse api_response.body
           valid = false
         when '406'
           puts "  Error Code: #{api_response.code}"
           # try to parse the response a bit
-          error = MultiJson.load api_response.body
+          error = JSON.parse api_response.body
           puts "temp error: #{error}"
           if error.key?('form_errors')
             if error['form_errors'].key?('field_tar_file')
@@ -267,7 +267,7 @@ module BCL
       path = '/api/content.json'
       headers = { 'Content-Type' => 'application/json', 'X-CSRF-Token' => @access_token, 'Cookie' => @session }
 
-      res = @http.post(path, MultiJson.dump(data), headers)
+      res = @http.post(path, JSON.dump(data), headers)
 
       valid, json = evaluate_api_response(res)
 
@@ -310,7 +310,7 @@ module BCL
       path = '/api/content.json'
       headers = { 'Content-Type' => 'application/json', 'X-CSRF-Token' => @access_token, 'Cookie' => @session }
 
-      res = @http.post(path, MultiJson.dump(data), headers)
+      res = @http.post(path, JSON.dump(data), headers)
 
       valid, json = evaluate_api_response(res)
 
@@ -446,7 +446,7 @@ module BCL
       # puts "search url: #{full_url}"
 
       res = @http.get(full_url)
-      res = MultiJson.load(res.body)
+      res = JSON.parse res.body
 
       if res['result'].count > 0
         # found content, check version
@@ -514,7 +514,7 @@ module BCL
         puts "search url: #{full_url}"
         res = @http.get(full_url)
         # return unparsed
-        MultiJson.load(res.body, symbolize_keys: true)
+        JSON.parse res.body, symbolize_names: true
       else
         # iterate over result pages
         # modify filter_str for show_rows=200 for maximum returns
@@ -535,11 +535,11 @@ module BCL
           puts "search url: #{full_url_all}"
           response = @http.get(full_url_all)
           # parse here so you can build results array
-          res = MultiJson.load(response.body)
+          res = JSON.parse response.body, symbolize_names: true
 
-          if res['result'].count > 0
+          if res[:result].count > 0
             pagecnt += 1
-            res['result'].each do |r|
+            res[:result].each do |r|
               results << r
             end
           else
@@ -547,8 +547,7 @@ module BCL
           end
         end
         # return unparsed b/c that is what is expected
-        formatted_results = { 'result' => results }
-        results_to_return = MultiJson.load(MultiJson.dump(formatted_results), symbolize_keys: true)
+        return { result: results }
       end
     end
 
