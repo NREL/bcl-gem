@@ -1,6 +1,6 @@
 # Change Log
 
-## Version 0.6.0 (Unreleased)
+## Version 0.6.0
 
 * Support Ruby > 2.5
 * Update dependencies
