@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 ######################################################################
 #  Copyright (c) 2008-2019, Alliance for Sustainable Energy.
 #  All rights reserved.

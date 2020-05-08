@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 ######################################################################
 #  Copyright (c) 2008-2019, Alliance for Sustainable Energy.
 #  All rights reserved.
@@ -80,14 +82,14 @@ module BCL
 
           puts " headers: #{component.headers}"
           component.headers.each do |header|
-            if /description/i.match(header.name)
+            if /description/i.match?(header.name)
               name = values.delete_at(0) # name, uid already processed
               uid = values.delete_at(0)
               component_xml.comp_version_id = values.delete_at(0)
               description = values.delete_at(0)
               component_xml.modeler_description = values.delete_at(0)
               component_xml.description = description
-            elsif /provenance/i.match(header.name)
+            elsif /provenance/i.match?(header.name)
               author = values.delete_at(0)
               datetime = values.delete_at(0)
               if datetime.nil?
@@ -97,10 +99,10 @@ module BCL
 
               comment = values.delete_at(0)
               component_xml.add_provenance(author.to_s, datetime.strftime('%Y-%m-%d'), comment.to_s)
-            elsif /tag/i.match(header.name)
+            elsif /tag/i.match?(header.name)
               value = values.delete_at(0)
               component_xml.add_tag(value)
-            elsif /attribute/i.match(header.name)
+            elsif /attribute/i.match?(header.name)
               value = values.delete_at(0)
               name = header.children[0]
               units = ''
@@ -109,7 +111,7 @@ module BCL
                 units = match_data[2].strip
               end
               component_xml.add_attribute(name, value, units)
-            elsif /source/i.match(header.name)
+            elsif /source/i.match?(header.name)
               manufacturer = values.delete_at(0)
               model = values.delete_at(0)
               serial_no = values.delete_at(0)
@@ -120,7 +122,7 @@ module BCL
               component_xml.source_serial_no = serial_no
               component_xml.source_year = year
               component_xml.source_url = url
-            elsif /file/i.match(header.name)
+            elsif /file/i.match?(header.name)
               software_program = values.delete_at(0)
               version = values.delete_at(0)
               filename = values.delete_at(0)

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'bundler'
 Bundler.setup
 
@@ -250,7 +252,7 @@ namespace :bcl do
 
         paths << file.to_s
         if file.to_s =~ /^.{0,2}component.xml$/ || file.to_s =~ /^.{0,2}measure.xml$/
-          if file.to_s =~ /^.{0,2}component.xml$/
+          if file.to_s.match?(/^.{0,2}component.xml$/)
             content_type = 'component'
           end
           # extract uuid  and vid
