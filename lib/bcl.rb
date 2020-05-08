@@ -27,12 +27,10 @@ require 'spreadsheet'
 
 require 'bcl/core_ext'
 require 'bcl/base_xml'
-require 'bcl/component_spreadsheet'
 require 'bcl/component_from_spreadsheet'
 require 'bcl/component'
 require 'bcl/component_methods'
 require 'bcl/tar_ball'
-require 'bcl/master_taxonomy'
 require 'bcl/version'
 
 # Some global structures

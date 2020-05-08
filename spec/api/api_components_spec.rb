@@ -145,7 +145,7 @@ describe 'BCL API' do
 
       context 'post component' do
         it 'should be able to post new component with no ids set' do
-          filename = "#{File.dirname(__FILE__)}/resources/component_example_no_ids.tar.gz"
+          filename = "#{File.dirname(__FILE__)}/resources/component_example_no_ids.zip"
           valid, res = @cm.push_content(filename, true, 'nrel_component')
 
           expect(valid).to eq true
