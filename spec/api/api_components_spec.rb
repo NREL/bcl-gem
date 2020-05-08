@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 require 'spec_helper'
 require 'faraday'
 require 'logger'
@@ -174,7 +172,7 @@ describe 'BCL API' do
           # dev
           # expect(res['nid']).to eq '69193'
 
-          expect(res['nid']).to eq '88284'
+          expect(res['nid']).to eq '88298'
           expect(res['uuid']).to eq '21f13f54-6ad2-438d-b5fc-292b2c8ca321'
         end
 
