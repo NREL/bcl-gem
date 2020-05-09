@@ -1,5 +1,10 @@
 # Change Log
 
+## Version 0.6.1
+
+* Remove dependency for winole (`require 'win32ole'`). This affects the reading of the component spreadsheets and the 
+the master taxomony.
+
 ## Version 0.6.0
 
 * Support Ruby > 2.5

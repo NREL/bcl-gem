@@ -681,4 +681,4 @@ module BCL
 
     Dir.chdir(current_dir)
   end
-end # module BCL
+end

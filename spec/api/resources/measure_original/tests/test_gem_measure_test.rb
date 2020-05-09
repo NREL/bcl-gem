@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 require 'openstudio'
 require 'openstudio/ruleset/ShowRunnerOutput'
 require 'minitest/autorun'

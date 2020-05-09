@@ -30,8 +30,6 @@ module BCL
   class ComponentFromSpreadsheet
     @@changed = false
 
-    public
-
     # initialize with Excel spreadsheet to read
     # seems to only be working with xls spreadsheets
     def initialize(xlsx_path, worksheet_names = ['all'])
