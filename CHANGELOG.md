@@ -4,6 +4,7 @@
 
 * Remove dependency for winole (`require 'win32ole'`). This affects the reading of the component spreadsheets and the 
 the master taxomony.
+* Use new rubocop (v3) from s3 openstudio-resources
 
 ## Version 0.6.0
 
