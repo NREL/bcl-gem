@@ -619,7 +619,7 @@ module BCL
 
       settings
     end
-  end # class ComponentMethods
+  end
 
   # TODO: make this extend the component_xml class (or create a super class around components)
 

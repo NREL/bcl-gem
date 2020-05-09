@@ -5,8 +5,4 @@ AllCops:
     - 'gems/**/*'
 
 inherit_from:
-  - http://s3.amazonaws.com/openstudio-resources/styles/rubocop.yml
-
-Style/FrozenStringLiteralComment:
-  Enabled: false
-
+  - http://s3.amazonaws.com/openstudio-resources/styles/rubocop_v3.yml
