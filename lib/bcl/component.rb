@@ -384,4 +384,4 @@ module BCL
       xmlfile.close
     end
   end
-end # module BCL
+end

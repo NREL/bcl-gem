@@ -93,13 +93,13 @@ module BCL
         bni = ''
         junkout = res['set-cookie'].split(';')
         junkout.each do |line|
-          if line =~ /BNES_SESS/
+          if line.match?(/BNES_SESS/)
             bnes = line.match(/(BNES_SESS.*)/)[0]
           end
         end
 
         junkout.each do |line|
-          if line =~ /BNI/
+          if line.match?(/BNI/)
             bni = line.match(/(BNI.*)/)[0]
           end
         end
@@ -293,13 +293,13 @@ module BCL
       version_id = nil
       if uuid.nil?
         puts File.extname(filename_and_path).downcase
-        if filename_and_path =~ /^.*.tar.gz$/i
+        if filename_and_path.match?(/^.*.tar.gz$/i)
           uuid, version_id = uuid_vid_from_tarball(filename_and_path)
           puts "Parsed uuid out of tar.gz file with value #{uuid}"
         end
       else
         # verify the uuid via regex
-        unless uuid =~ /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/
+        unless uuid.match?(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/)
           raise "uuid of #{uuid} is invalid"
         end
       end
@@ -362,7 +362,7 @@ module BCL
           xml_file = REXML::Document.new entry.read
 
           # pull out some information
-          if entry.name =~ /component/
+          if entry.name.match?(/component/)
             u = xml_file.elements['component/uid']
             v = xml_file.elements['component/version_id']
           else
@@ -392,7 +392,7 @@ module BCL
       xml_to_parse = File.new(path_to_xml)
       xml_file = REXML::Document.new xml_to_parse
 
-      if path_to_xml.to_s.split('/').last =~ /component.xml/
+      if path_to_xml.to_s.split('/').last.match?(/component.xml/)
         u = xml_file.elements['component/uid']
         v = xml_file.elements['component/version_id']
       else
@@ -619,7 +619,7 @@ module BCL
 
       settings
     end
-  end # class ComponentMethods
+  end
 
   # TODO: make this extend the component_xml class (or create a super class around components)
 
@@ -681,4 +681,4 @@ module BCL
 
     Dir.chdir(current_dir)
   end
-end # module BCL
+end
