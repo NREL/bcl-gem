@@ -1,13 +1,16 @@
 # Change Log
 
-## Version 0.6.1
+## Version 0.7.0
+* Support Ruby > 2.7
+* Minimum version of OpenStudio Measure Tester Gem to 0.3.0
+* Update copyrights
 
+## Version 0.6.1
 * Remove dependency for winole (`require 'win32ole'`). This affects the reading of the component spreadsheets and the 
 the master taxomony.
 * Use new rubocop (v3) from s3 openstudio-resources
 
 ## Version 0.6.0
-
 * Support Ruby > 2.5
 * Update dependencies
 

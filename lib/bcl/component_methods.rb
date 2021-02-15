@@ -1,5 +1,5 @@
 ######################################################################
-#  Copyright (c) 2008-2019, Alliance for Sustainable Energy.
+#  Copyright (c) 2008-2021, Alliance for Sustainable Energy.
 #  All rights reserved.
 #
 #  This library is free software; you can redistribute it and/or
@@ -432,7 +432,7 @@ module BCL
     end
 
     def search_by_uuid(uuid, vid = nil)
-      full_url = '/api/search/*.json'
+      full_url = '/api/search.json'
       action = nil
 
       # add api_version
@@ -443,7 +443,6 @@ module BCL
 
       # uuid
       full_url += "&fq[]=ss_uuid:#{uuid}"
-      # puts "search url: #{full_url}"
 
       res = @http.get(full_url)
       res = JSON.parse res.body
