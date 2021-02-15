@@ -1,5 +1,5 @@
 ######################################################################
-#  Copyright (c) 2008-2019, Alliance for Sustainable Energy.
+#  Copyright (c) 2008-2021, Alliance for Sustainable Energy.
 #  All rights reserved.
 #
 #  This library is free software; you can redistribute it and/or
