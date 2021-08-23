@@ -36,7 +36,7 @@ Gem::Specification.new do |spec|
   # Measure tester is not used in this project, but this will force dependencies to match versions
   # requested by OpenStudio. This includes dependencies for running tests/CI
   spec.add_dependency 'openstudio_measure_tester', '~> 0.3.1'
-  spec.add_dependency 'rexml', '3.2.4'
+  spec.add_dependency 'rexml', '3.2.5'
   spec.add_dependency 'rubyzip', '~> 2.3.2'
   spec.add_dependency 'spreadsheet', '1.2.9'
   spec.add_dependency 'uuid', '~> 2.3.9'
