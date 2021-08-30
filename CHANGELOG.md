@@ -1,5 +1,9 @@
 # Change Log
 
+## Version 0.7.1
+* Update license to standard OpenStudio 4-clause BSD license
+* Upgrade dependencies for security
+
 ## Version 0.7.0
 * Support Ruby > 2.7
 * Minimum version of OpenStudio Measure Tester Gem to 0.3.0
