@@ -1,5 +1,12 @@
 # Change Log
 
+## Version 0.8.0 (Unreleased)
+* removed staging, pushing, updating of components
+* removed login
+* simplified config file to only contain server URL
+* removed test to download component via POST (was that needed?)
+* code clean-up and test clean-up
+
 ## Version 0.7.1
 * Update license to standard OpenStudio 4-clause BSD license
 * Upgrade dependencies for security
