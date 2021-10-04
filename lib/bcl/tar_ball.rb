@@ -36,43 +36,9 @@
 module BCL
   module_function
 
-  # tarball multiple paths recursively to destination
-  def tarball(destination, paths)
-    # check for filepath length limit
-    full_destination = File.expand_path(destination)
-    if full_destination.length > 259 # 256 chars max; "C:\" doesn't count
-      puts "[TarBall] ERROR cannot generate #{destination} because path exceeds 256 char limit. shorten component name by at least by #{full_destination.length - 259} chars"
-      return
-    end
-
-    Zlib::GzipWriter.open(destination) do |gzip|
-      out = Archive::Tar::Minitar::Output.new(gzip)
-
-      paths.each do |fi|
-        if File.exist?(fi)
-          Archive::Tar::Minitar.pack_file(fi, out)
-        else
-          puts "[TarBall] ERROR Could not file file: #{fi}"
-        end
-      end
-      out.close
-    end
-  end
-
   def extract_tarball(filename, destination)
     Zlib::GzipReader.open(filename) do |gz|
       Archive::Tar::Minitar.unpack(gz, destination)
-    end
-  end
-
-  def create_zip(_destination, paths)
-    Zip::File.open(zipfile_name, Zip::File::CREATE) do |zipfile|
-      paths.each do |fi|
-        # Two arguments:
-        # - The name of the file as it will appear in the archive
-        # - The original file, including the path to find it
-        zipfile.add(fi.basename, fi)
-      end
     end
   end
 
