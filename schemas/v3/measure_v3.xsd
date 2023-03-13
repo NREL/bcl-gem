@@ -439,11 +439,11 @@
 				<xs:element ref="description"/>
 				<xs:element ref="modeler_description"/>
 				<xs:element ref="arguments"/>
+				<xs:element ref="outputs"/>
 				<xs:element ref="provenances"/>
 				<xs:element ref="tags"/>
 				<xs:element ref="attributes"/>
 				<xs:element ref="files"/>
-				<xs:element ref="outputs"/>
 			</xs:sequence>
 		</xs:complexType>
 	</xs:element>
