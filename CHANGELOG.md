@@ -1,6 +1,7 @@
 # Change Log
 
 ## Version 0.8.0 (Unreleased)
+* BCLXML validation: adjust schemas
 * removed staging, pushing, updating of components
 * removed login
 * simplified config file to only contain server URL
