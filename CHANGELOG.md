@@ -7,6 +7,7 @@
 * simplified config file to only contain server URL
 * removed test to download component via POST (was that needed?)
 * code clean-up and test clean-up
+* updated dependencies to support Ruby 3.2.2 & OpenStudio 3.8.0
 
 ## Version 0.7.1
 * Update license to standard OpenStudio 4-clause BSD license
