@@ -1,36 +1,6 @@
 # *******************************************************************************
-# OpenStudio(R), Copyright (c) 2008-2021, Alliance for Sustainable Energy, LLC.
-# All rights reserved.
-# Redistribution and use in source and binary forms, with or without
-# modification, are permitted provided that the following conditions are met:
-#
-# (1) Redistributions of source code must retain the above copyright notice,
-# this list of conditions and the following disclaimer.
-#
-# (2) Redistributions in binary form must reproduce the above copyright notice,
-# this list of conditions and the following disclaimer in the documentation
-# and/or other materials provided with the distribution.
-#
-# (3) Neither the name of the copyright holder nor the names of any contributors
-# may be used to endorse or promote products derived from this software without
-# specific prior written permission from the respective party.
-#
-# (4) Other than as required in clauses (1) and (2), distributions in any form
-# of modifications or other derivative works may not use the "OpenStudio"
-# trademark, "OS", "os", or any other confusingly similar designation without
-# specific prior written permission from Alliance for Sustainable Energy, LLC.
-#
-# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDER(S) AND ANY CONTRIBUTORS
-# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
-# THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-# ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER(S), ANY CONTRIBUTORS, THE
-# UNITED STATES GOVERNMENT, OR THE UNITED STATES DEPARTMENT OF ENERGY, NOR ANY OF
-# THEIR EMPLOYEES, BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-# EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT
-# OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
-# INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
-# STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
-# OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+# OpenStudio(R), Copyright (c) Alliance for Sustainable Energy, LLC.
+# See also https://openstudio.net/license
 # *******************************************************************************
 
 module BCL
@@ -44,45 +14,24 @@ module BCL
     def initialize
       @parsed_measures_path = './measures/parsed'
       @config = nil
-      @session = nil
-      @access_token = nil
       @http = nil
-      @api_version = 2.0
-      @group_id = nil
-      @logged_in = false
+      @api_version = nil
 
+      # load configs from file or default
       load_config
-    end
 
-    def login(username = nil, password = nil, url = nil, group_id = nil)
-      # figure out what url to use
-      if url.nil?
-        url = @config[:server][:url]
-      end
+      # configure connection
+      url = @config[:server][:url]
       # look for http vs. https
       if url.include? 'https'
         port = 443
       else
         port = 80
       end
+
       # strip out http(s)
       url = url.gsub('http://', '')
       url = url.gsub('https://', '')
-
-      if username.nil? || password.nil?
-        # log in via cached credentials
-        username = @config[:server][:user][:username]
-        password = @config[:server][:user][:password]
-        @group_id = group_id || @config[:server][:user][:group]
-        puts "logging in using credentials in .bcl/config.yml: Connecting to #{url} on port #{port} as #{username} with group #{@group_id}"
-      else
-        @group_id = group_id || @config[:server][:user][:group]
-        puts "logging in using credentials in function arguments: Connecting to #{url} on port #{port} as #{username} with group #{@group_id}"
-      end
-
-      if @group_id.nil?
-        puts '[WARNING] You did not set a group ID in your config.yml file or pass in a group ID. You can retrieve your group ID from the node number of your group page (e.g., https://bcl.nrel.gov/node/32). Will continue, but you will not be able to upload content.'
-      end
 
       @http = Net::HTTP.new(url, port)
       @http.verify_mode = OpenSSL::SSL::VERIFY_NONE
@@ -90,75 +39,7 @@ module BCL
         @http.use_ssl = true
       end
 
-      data = %({"username":"#{username}","password":"#{password}"})
-
-      login_path = '/api/user/login.json'
-      headers = { 'Content-Type' => 'application/json' }
-
-      res = @http.post(login_path, data, headers)
-
-      # for debugging:
-      # res.each do |key, value|
-      #  puts "#{key}: #{value}"
-      # end
-
-      if res.code == '200'
-        puts 'Login Successful'
-
-        bnes = ''
-        bni = ''
-        junkout = res['set-cookie'].split(';')
-        junkout.each do |line|
-          if line.match?(/BNES_SESS/)
-            bnes = line.match(/(BNES_SESS.*)/)[0]
-          end
-        end
-
-        junkout.each do |line|
-          if line.match?(/BNI/)
-            bni = line.match(/(BNI.*)/)[0]
-          end
-        end
-
-        # puts "DATA: #{data}"
-        session_name = ''
-        sessid = ''
-        json = JSON.parse(res.body)
-        json.each do |key, val|
-          if key == 'session_name'
-            session_name = val
-          elsif key == 'sessid'
-            sessid = val
-          end
-        end
-
-        @session = session_name + '=' + sessid + ';' + bni + ';' + bnes
-
-        # get access token
-        token_path = '/services/session/token'
-        token_headers = { 'Content-Type' => 'application/json', 'Cookie' => @session }
-        # puts "token_headers = #{token_headers.inspect}"
-        access_token = @http.post(token_path, '', token_headers)
-        if access_token.code == '200'
-          @access_token = access_token.body
-        else
-          puts 'Unable to get access token; uploads will not work'
-          puts "error code: #{access_token.code}"
-          puts "error info: #{access_token.body}"
-        end
-
-        # puts "access_token = *#{@access_token}*"
-        # puts "cookie = #{@session}"
-
-        res
-      else
-
-        puts "error code: #{res.code}"
-        puts "error info: #{res.body}"
-        puts 'continuing as unauthenticated sessions (you can still search and download)'
-
-        res
-      end
+      puts "Connecting to BCL at URL: #{@config[:server][:url]}"
     end
 
     # retrieve measures for parsing metadata.
@@ -169,10 +50,18 @@ module BCL
       # raise "Please login before performing this action" if @session.nil?
 
       # make sure filter_term includes bundle
-      if filter_term.nil?
-        filter_term = 'fq[]=bundle%3Anrel_measure'
-      elsif !filter_term.include? 'bundle'
-        filter_term += '&fq[]=bundle%3Anrel_measure'
+      if @api_version == 2.0
+        if filter_term.nil?
+          filter_term = 'fq[]=bundle%3Anrel_measure'
+        elsif !filter_term.include? 'bundle'
+          filter_term += '&fq[]=bundle%3Anrel_measure'
+        end
+      else
+        if filter_term.nil?
+          filter_term = 'fq=bundle%3Ameasure'
+        elsif !filter_term.include? 'bundle'
+          filter_term += '&fq=bundle%3Ameasure'
+        end
       end
 
       # use provided search term or nil.
@@ -184,183 +73,6 @@ module BCL
         puts "retrieving measure: #{result[:measure][:name]}"
         yield result
       end
-    end
-
-    # evaluate the response from the API in a consistent manner
-    def evaluate_api_response(api_response)
-      valid = false
-      result = { error: 'could not get json from http post response' }
-      case api_response.code
-        when '200'
-          puts "  Response Code: #{api_response.code}"
-          if api_response.body.empty?
-            puts '  200 BUT ERROR: Returned body was empty. Possible causes:'
-            puts '      - BSD tar on Mac OSX vs gnutar'
-            result = { error: 'returned 200, but returned body was empty' }
-            valid = false
-          else
-            puts '  200 - Successful Upload'
-            result = JSON.parse api_response.body
-            valid = true
-          end
-        when '404'
-          puts "  Error Code: #{api_response.code} - #{api_response.body}"
-          puts '   - check these common causes first:'
-          puts "     - you are trying to update content that doesn't exist"
-          puts "     - you are not an 'administrator member' of the group you're trying to upload to"
-          result = JSON.parse api_response.body
-          valid = false
-        when '406'
-          puts "  Error Code: #{api_response.code}"
-          # try to parse the response a bit
-          error = JSON.parse api_response.body
-          puts "temp error: #{error}"
-          if error.key?('form_errors')
-            if error['form_errors'].key?('field_tar_file')
-              result = { error: error['form_errors']['field_tar_file'] }
-            elsif error['form_errors'].key?('og_group_ref][und][0][default')
-              result = { error: error['form_errors']['og_group_ref][und][0][default'] }
-            end
-          else
-            result = error
-          end
-          valid = false
-        when '500'
-          puts "  Error Code: #{api_response.code}"
-          result = { error: api_response.message }
-          # fail 'server exception'
-          valid = false
-        else
-          puts "  Response: #{api_response.code} - #{api_response.body}"
-          valid = false
-      end
-
-      [valid, result]
-    end
-
-    # Construct the post parameter for the API content.json end point.
-    # param(@update) is a boolean that triggers whether to use content_type or uuid
-    def construct_post_data(filepath, update, content_type_or_uuid)
-      # TODO: remove special characters in the filename; they create firewall errors
-      # filename = filename.gsub(/\W/,'_').gsub(/___/,'_').gsub(/__/,'_').chomp('_').strip
-
-      file_b64 = Base64.encode64(File.binread(filepath))
-
-      data = {}
-      data['file'] = {
-        'file' => file_b64,
-        'filesize' => File.size(filepath).to_s,
-        'filename' => File.basename(filepath)
-      }
-
-      data['node'] = {}
-
-      # Only include the content type if this is an update
-      if update
-        data['node']['uuid'] = content_type_or_uuid
-      else
-        data['node']['type'] = content_type_or_uuid
-      end
-
-      # TODO: remove this field_component_tags once BCL is fixed
-      data['node']['field_component_tags'] = { 'und' => '1289' }
-      data['node']['og_group_ref'] = { 'und' => ['target_id' => @group_id] }
-
-      # NOTE THIS ONLY WORKS IF YOU ARE A BCL SITE ADMIN
-      data['node']['publish'] = '1'
-
-      data
-    end
-
-    # pushes component to the bcl and publishes them (if logged-in as BCL Website Admin user).
-    # username, password, and group_id are set in the ~/.bcl/config.yml file
-    def push_content(filename_and_path, write_receipt_file, content_type)
-      raise 'Please login before pushing components' if @session.nil?
-      raise 'Do not have a valid access token; try again' if @access_token.nil?
-
-      data = construct_post_data(filename_and_path, false, content_type)
-
-      path = '/api/content.json'
-      headers = { 'Content-Type' => 'application/json', 'X-CSRF-Token' => @access_token, 'Cookie' => @session }
-
-      res = @http.post(path, JSON.dump(data), headers)
-
-      valid, json = evaluate_api_response(res)
-
-      if valid
-        # write out a receipt file into the same directory of the component with the same file name as
-        # the component
-        if write_receipt_file
-          File.open("#{File.dirname(filename_and_path)}/#{File.basename(filename_and_path, '.tar.gz')}.receipt", 'w') do |file|
-            file << Time.now.to_s
-          end
-        end
-      end
-
-      [valid, json]
-    end
-
-    # pushes updated content to the bcl and publishes it (if logged-in as BCL Website Admin user).
-    # username and password set in ~/.bcl/config.yml file
-    def update_content(filename_and_path, write_receipt_file, uuid = nil)
-      raise 'Please login before pushing components' unless @session
-
-      # get the UUID if zip or xml file
-      version_id = nil
-      if uuid.nil?
-        puts File.extname(filename_and_path).downcase
-        if filename_and_path.match?(/^.*.tar.gz$/i)
-          uuid, version_id = uuid_vid_from_tarball(filename_and_path)
-          puts "Parsed uuid out of tar.gz file with value #{uuid}"
-        end
-      else
-        # verify the uuid via regex
-        unless uuid.match?(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/)
-          raise "uuid of #{uuid} is invalid"
-        end
-      end
-      raise 'Please pass in a tar.gz file or pass in the uuid' unless uuid
-
-      data = construct_post_data(filename_and_path, true, uuid)
-
-      path = '/api/content.json'
-      headers = { 'Content-Type' => 'application/json', 'X-CSRF-Token' => @access_token, 'Cookie' => @session }
-
-      res = @http.post(path, JSON.dump(data), headers)
-
-      valid, json = evaluate_api_response(res)
-
-      if valid
-        # write out a receipt file into the same directory of the component with the same file name as
-        # the component
-        if write_receipt_file
-          File.open("#{File.dirname(filename_and_path)}/#{File.basename(filename_and_path, '.tar.gz')}.receipt", 'w') do |file|
-            file << Time.now.to_s
-          end
-        end
-      end
-
-      [valid, json]
-    end
-
-    def push_contents(array_of_components, skip_files_with_receipts, content_type)
-      logs = []
-      array_of_components.each do |comp|
-        receipt_file = File.dirname(comp) + '/' + File.basename(comp, '.tar.gz') + '.receipt'
-        log_message = ''
-        if skip_files_with_receipts && File.exist?(receipt_file)
-          log_message = "skipping because found receipt #{comp}"
-          puts log_message
-        else
-          log_message = "pushing content #{File.basename(comp, '.tar.gz')}"
-          puts log_message
-          valid, res = push_content(comp, true, content_type)
-          log_message += " #{valid} #{res.inspect.chomp}"
-        end
-        logs << log_message
-      end
-
-      logs
     end
 
     # Unpack the tarball in memory and extract the XML file to read the UUID and Version ID
@@ -422,43 +134,18 @@ module BCL
       [uuid, vid]
     end
 
-    def update_contents(array_of_tarball_components, skip_files_with_receipts)
-      logs = []
-      array_of_tarball_components.each do |comp|
-        receipt_file = File.dirname(comp) + '/' + File.basename(comp, '.tar.gz') + '.receipt'
-        log_message = ''
-        if skip_files_with_receipts && File.exist?(receipt_file)
-          log_message = "skipping update because found receipt #{File.basename(comp)}"
-          puts log_message
-        else
-          uuid, vid = uuid_vid_from_tarball(comp)
-          if uuid.nil?
-            log_message = "ERROR: uuid not found for #{File.basename(comp)}"
-            puts log_message
-          else
-            log_message = "pushing updated content #{File.basename(comp)}"
-            puts log_message
-            valid, res = update_content(comp, true, uuid)
-            log_message += " #{valid} #{res.inspect.chomp}"
-          end
-        end
-        logs << log_message
-      end
-      logs
-    end
-
     def search_by_uuid(uuid, vid = nil)
       full_url = '/api/search.json'
-      action = nil
 
       # add api_version
-      if @api_version < 2.0
-        puts "WARNING:  attempting to use search with api_version #{@api_version}. Use API v2.0 for this functionality."
+      if @api_version == 2.0
+        # uuid
+        full_url += "?api_version=#{@api_version}"
+        full_url += "&fq[]=ss_uuid:#{uuid}"
+      else
+        # uuid
+        full_url += "&fq=uuid:#{uuid}"
       end
-      full_url += "?api_version=#{@api_version}"
-
-      # uuid
-      full_url += "&fq[]=ss_uuid:#{uuid}"
 
       res = @http.get(full_url)
       res = JSON.parse res.body
@@ -474,20 +161,9 @@ module BCL
         else
           content = content['component']
         end
-
-        # TODO: check version_modified date if it exists?
-        if !vid.nil? && content['vuuid'] == vid
-          # no update needed
-          action = 'noop'
-        else
-          # vid doesn't match: update existing
-          action = 'update'
-        end
-      else
-        # no uuid found: push new
-        action = 'push'
       end
-      action
+       
+      content
     end
 
     # Simple method to search bcl and return the result as hash with symbols
@@ -508,22 +184,30 @@ module BCL
         full_url += '*.json'
       end
 
-      # add api_version
-      if @api_version < 2.0
-        puts "WARNING:  attempting to use search with api_version #{@api_version}. Use API v2.0 for this functionality."
+      # add api_version (legacy NREL is 2.0, otherwise use new syntax and ignore version)
+      if @api_version.nil?
+        # see if we can extract it from filter_str:
+        tmp = filter_str.match(/api_version=\d{1,}.\d{1,}/)
+        if tmp
+          @api_version = tmp.to_s.gsub(/api_version=/, '').to_f
+          puts "@api_version from filter_str: #{@api_version}"
+        end
       end
-      full_url += "?api_version=#{@api_version}"
+
+      if @api_version == 2.0
+        full_url += "?api_version=#{@api_version}"
+      end
+      puts "@api_version: #{@api_version}"
 
       # add filters
-      unless filter_str.nil?
-        # strip out api_version from filters, if included
-        if filter_str.include? 'api_version='
-          filter_str = filter_str.gsub(/api_version=\d{1,}/, '')
-          filter_str = filter_str.gsub(/&api_version=\d{1,}/, '')
+      if !filter_str.nil? 
+        # strip out api_version from filters, if included & @api_version is defined
+        if (filter_str.include? 'api_version=')
+          filter_str = filter_str.gsub(/&api_version=\d{1,}.\d{1,}/, '')
+          filter_str = filter_str.gsub(/api_version=\d{1,}.\d{1,}/, '')
         end
         full_url = full_url + '&' + filter_str
       end
-
       # simple search vs. all results
       if !all
         puts "search url: #{full_url}"
@@ -572,14 +256,16 @@ module BCL
         receipt_file = File.dirname(comp) + '/' + File.basename(comp, '.tar.gz') + '.receipt'
         if File.exist?(receipt_file)
           FileUtils.remove_file(receipt_file)
-
         end
       end
     end
 
     def list_all_measures
-      json = search(nil, 'fq[]=bundle%3Anrel_measure&show_rows=100')
-
+      if @api_version == 2.0
+        json = search(nil, 'fq[]=bundle%3Anrel_measure&show_rows=100')
+      else
+        json = search(nil, 'fq=bundle%3Ameasure&show_rows=100')
+      end
       json
     end
 
@@ -607,93 +293,27 @@ module BCL
       config_filename = File.expand_path('~/.bcl/config.yml')
 
       if File.exist?(config_filename)
-        puts "loading config settings from #{config_filename}"
+        puts "loading URL config from #{config_filename}"
         @config = YAML.load_file(config_filename)
       else
-        # location of template file
-        FileUtils.mkdir_p(File.dirname(config_filename))
-        File.open(config_filename, 'w') { |f| f << default_yaml.to_yaml }
-        File.chmod(0o600, config_filename)
-        puts "******** Please fill in user credentials in #{config_filename} file if you need to upload data **********"
-        # fill in the @config data with the temporary data for now.
-        @config = YAML.load_file(config_filename)
+        # use default URL
+        @config = {
+          server: {
+            url: 'https://bcl.nrel.gov'
+          }
+        }
       end
     end
 
+    # unused
     def default_yaml
       settings = {
         server: {
-          url: 'https://bcl.nrel.gov',
-          user: {
-            username: 'ENTER_BCL_USERNAME',
-            password: 'ENTER_BCL_PASSWORD',
-            group: 'ENTER_GROUP_ID'
-          }
+          url: 'https://bcl.nrel.gov'
         }
       }
 
       settings
     end
-  end
-
-  # TODO: make this extend the component_xml class (or create a super class around components)
-
-  def self.gather_components(component_dir, chunk_size = 0, delete_previousgather = false, destination = nil)
-    if destination.nil?
-      @dest_filename = 'components'
-    else
-      @dest_filename = destination
-    end
-    @dest_file_ext = 'tar.gz'
-
-    # store the starting directory
-    current_dir = Dir.pwd
-
-    # an array to hold reporting info about the batches
-    gather_components_report = []
-
-    # go to the directory containing the components
-    Dir.chdir(component_dir)
-
-    # delete any old versions of the component chunks
-    FileUtils.rm_rf('./gather') if delete_previousgather
-
-    # gather all the components into array
-    targzs = Pathname.glob('./**/*.tar.gz')
-    tar_cnt = 0
-    chunk_cnt = 0
-    targzs.each do |targz|
-      if chunk_size != 0 && (tar_cnt % chunk_size) == 0
-        chunk_cnt += 1
-      end
-      tar_cnt += 1
-
-      destination_path = "./gather/#{chunk_cnt}"
-      FileUtils.mkdir_p(destination_path)
-      destination_file = "#{destination_path}/#{File.basename(targz.to_s)}"
-      # puts "copying #{targz.to_s} to #{destination_file}"
-      FileUtils.cp(targz.to_s, destination_file)
-    end
-
-    # gather all the .tar.gz files into a single tar.gz
-    (1..chunk_cnt).each do |cnt|
-      currentdir = Dir.pwd
-
-      paths = []
-      Pathname.glob("./gather/#{cnt}/*.tar.gz").each do |pt|
-        paths << File.basename(pt.to_s)
-      end
-
-      Dir.chdir("./gather/#{cnt}")
-      destination = "#{@dest_filename}_#{cnt}.#{@dest_file_ext}"
-      puts "tarring batch #{cnt} of #{chunk_cnt} to #{@dest_filename}_#{cnt}.#{@dest_file_ext}"
-      BCL.tarball(destination, paths)
-      Dir.chdir(currentdir)
-
-      # move the tarball back a directory
-      FileUtils.move("./gather/#{cnt}/#{destination}", "./gather/#{destination}")
-    end
-
-    Dir.chdir(current_dir)
   end
 end
