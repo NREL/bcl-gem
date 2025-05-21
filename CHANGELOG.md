@@ -1,6 +1,6 @@
 # Change Log
 
-## Version 0.8.0
+## Version 0.9.0
 * measure tester gem 0.5.0
   
 ## Version 0.8.0
