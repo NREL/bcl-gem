@@ -1,6 +1,9 @@
 # Change Log
 
 ## Version 0.8.0
+* measure tester gem 0.5.0
+  
+## Version 0.8.0
 * BCLXML validation: adjust schemas
 * removed staging, pushing, updating of components
 * removed login
