@@ -29,7 +29,7 @@ Gem::Specification.new do |spec|
   spec.required_ruby_version = '~> 3.2.2'
 
   spec.add_dependency 'builder', '3.2.4'
-  spec.add_dependency 'faraday', '~> 1.0.1'
+  spec.add_dependency 'faraday', '~> 1.10.4'
   spec.add_dependency 'minitar', '~> 0.9'
 
   # Measure tester is not used in this project, but this will force dependencies to match versions
