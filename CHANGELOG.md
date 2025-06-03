@@ -1,5 +1,8 @@
 # Change Log
 
+## Version 0.9.1
+* Update Faraday to version 1.10.4
+
 ## Version 0.9.0
 * measure tester gem 0.5.0
   
